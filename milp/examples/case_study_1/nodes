@@ -1,0 +1,6 @@
+# Label          Id  Cost Size   PC  TPC Mobile
+  pic            1      5   32    5    1    0
+  board          2     22   64    8    2    1
+  net_board      3     98  128   12    5    1
+  laptop         4    128  256   15    6    1
+  server         5    514  512   25    8    0

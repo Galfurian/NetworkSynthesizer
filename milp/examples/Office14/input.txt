@@ -1,0 +1,268 @@
+#   Y
+#   A
+# 5 | [O01][O02][O03][O04][Sr1] [Sr1][O05][O06][O07][O08]
+# 4 |           [Rt1]                     [Rt2]
+# 3 |
+# 2 |           [Rt3]                     [Rt4]
+# 1 | [O09][O10][O11][O12][   ] [   ][O15][O16][O17][O18]
+# --+--------------------------------------------------------------------> X
+#   |   0    1    2    3    4     5    6    7    8    9
+#
+# int   int             int     int
+# Zones Contiguities    Tasks   DataFlows
+  22    73              54      53
+# Zones
+#(string)(int) (int) (int)
+# Label X Y Z
+    1   0 5 0
+    2   1 5 0
+    3   2 5 0
+    4   3 5 0
+#
+    5   6 5 0
+    6   7 5 0
+    7   8 5 0
+    8   9 5 0
+#
+    9   0 1 0
+    10  1 1 0
+    11  2 1 0
+    12  3 1 0
+#
+    15  6 1 0
+    16  7 1 0
+    17  8 1 0
+    18  9 1 0
+#
+    20  2 4 0
+    21  7 4 0
+    22  2 2 0
+    23  7 2 0
+#
+    30  4 5 0
+    31  5 5 0
+#
+# Contiguities (1.0 is default value if not specified).
+# int   int     int     int
+# Zone1 Zone2   Channel Conductance
+#############################
+# Office 1 to Router 1
+    1 20 1  0.45
+    1 20 2  0.58
+    1 20 3  0.97
+# Office 2 to Router 1
+    2 20 1  0.76
+    2 20 2  0.34
+    2 20 3  0.93
+# Office 3 to Router 1
+    3 20 1  0.56
+    3 20 2  0.97
+    3 20 3  0.67
+# Office 4 to Router 1
+    4 20 1  0.66
+    4 20 2  0.45
+    4 20 3  0.89
+#############################
+# Office 5 to Router 2
+    5 21 1  0.87
+    5 21 2  0.74
+    5 21 3  0.31
+# Office 6 to Router 2
+    6 21 1  0.83
+    6 21 2  0.59
+    6 21 3  0.23
+# Office 7 to Router 2
+    7 21 1  0.70
+    7 21 2  0.67
+    7 21 3  0.50
+# Office 8 to Router 2
+    8 21 1  0.58
+    8 21 2  0.56
+    8 21 3  0.49
+#############################
+# Office 9 to Router 3
+    9  22 1  0.23
+    9  22 2  0.87
+    9  22 3  0.56
+# Office 10 to Router 3
+    10 22 1  0.56
+    10 22 2  0.45
+    10 22 3  0.36
+# Office 11 to Router 3
+    11 22 1  0.45
+    11 22 2  0.57
+    11 22 3  0.73
+# Office 12 to Router 3
+    12 22 1  0.23
+    12 22 2  0.54
+    12 22 3  0.43
+#############################
+# Office 15 to Router 4
+    15 23 1  0.45
+    15 23 2  0.57
+    15 23 3  0.63
+# Office 16 to Router 4
+    16 23 1  0.85
+    16 23 2  0.46
+    16 23 3  0.53
+# Office 17 to Router 4
+    17 23 1  0.85
+    17 23 2  0.57
+    17 23 3  0.33
+# Office 18 to Router 4
+    18 23 1  0.85
+    18 23 2  0.57
+    18 23 3  0.33
+#############################
+# Router 1 to Server 1
+    20 30 1  0.64
+    20 30 2  0.12
+    20 30 3  0.84
+    20 30 4  0.69
+    20 30 5  0.95
+# Router 2 to Server 2
+    21 31 1  0.85
+    21 31 2  0.47
+    21 31 3  0.79
+    21 31 4  0.37
+    21 31 5  0.77
+# Router 3 to Server 1
+    22 30 1  0.29
+    22 30 2  0.57
+    22 30 3  0.76
+    22 30 4  0.40
+    22 30 5  0.94
+# Router 4 to Server 2
+    23 31 1  0.97
+    23 31 2  0.54
+    23 31 3  0.34
+    23 31 4  0.23
+    23 31 5  0.78
+#############################
+# Server 1 to Server 2
+    30 31 1  0.07
+    30 31 2  0.12
+    30 31 3  0.22
+    30 31 4  0.75
+    30 31 5  1.00
+#############################
+# Tasks
+;   str    int  int    int
+;   Label Size Zone Mobile
+    O1T1    95    1      0
+    O1T2    88    1      0
+    O1T3    89    1      0
+    O2T1    88    2      0
+    O2T2    99    2      0
+    O2T3    85    2      0
+    O3T1    93    3      0
+    O3T2    93    3      0
+    O3T3    81    3      0
+    O4T1    66    4      1
+    O4T2    88    4      1
+    O4T3    84    4      0
+    O5T1    95    5      1
+    O5T2    26    5      1
+    O5T3    83    5      0
+    O6T1    71    6      1
+    O6T2    56    6      1
+    O6T3    79    6      0
+    O7T1    48    7      1
+    O7T2    75    7      1
+    O7T3    82    7      0
+    O8T1    75    8      1
+    O8T2    92    8      1
+    O8T3    16    8      0
+    O9T1    53    9      1
+    O9T2    71    9      1
+    O9T3    48    9      0
+    O10T1   33   10      1
+    O10T2   91   10      1
+    O10T3   38   10      0
+    O11T1   83   11      1
+    O11T2   41   11      1
+    O11T3   78   11      0
+    O12T1   33   12      1
+    O12T2   71   12      1
+    O12T3   68   12      0
+    O15T1   33   15      1
+    O15T2   35   15      1
+    O15T3   98   15      0
+    O16T1   23   16      1
+    O16T2   71   16      1
+    O16T3   58   16      0
+    O17T1   33   17      1
+    O17T2   76   17      1
+    O17T3   28   17      0
+    O18T1   23   18      1
+    O18T2   82   18      1
+    O18T3   28   18      0
+    TRout1  98   20      0
+    TRout2  87   21      0
+    TRout3 121   22      0
+    TRout4 102   23      0
+    Srv1   175   30      0
+    Srv2   197   31      0
+# Dataflows
+;   str    str    str    int  int   int
+;   Label  Source Target Band Delay Error
+#############################
+    SR1SR2 Srv1   Srv2   120  1     1
+#############################
+    DO1T1  O1T1   TRout1    13   10    31
+    DO1T2  O1T2   TRout1    18   17    75
+    DO1T3  O1T3   TRout1    15   13    52
+    DO2T1  O2T1   TRout1    17   23    16
+    DO2T2  O2T2   TRout1    12   26    38
+    DO2T3  O2T3   TRout1    11   21    23
+    DO3T1  O3T1   TRout1    15   18    65
+    DO3T2  O3T2   TRout1    14   21    53
+    DO3T3  O3T3   TRout1    11   23    27
+    DO4T1  O4T1   TRout1    23   18    52
+    DO4T2  O4T2   TRout1    27   18    67
+    DO4T3  O4T3   TRout1    37   18    35
+#############################
+    DO5T1  O5T1   TRout2    18   18    32
+    DO5T2  O5T2   TRout2    32   11    63
+    DO5T3  O5T3   TRout2    35   12    28
+    DO6T1  O6T1   TRout2    21   15    56
+    DO6T2  O6T2   TRout2    36   17    15
+    DO6T3  O6T3   TRout2    26   18    26
+    DO7T1  O7T1   TRout2    31   12    53
+    DO7T2  O7T2   TRout2    16   18    41
+    DO7T3  O7T3   TRout2    31   16    28
+    DO8T1  O8T1   TRout2    23   19    34
+    DO8T2  O8T2   TRout2    27   12    36
+    DO8T3  O8T3   TRout2    37   14    24
+#############################
+    DO9T1  O9T1   TRout3    21   29    21
+    DO9T2  O9T2   TRout3    25   21    24
+    DO9T3  O9T3   TRout3    12   24    18
+    DO10T1 O10T1  TRout3    21   29    21
+    DO10T2 O10T2  TRout3    35   31    24
+    DO10T3 O10T3  TRout3    32   45    18
+    DO11T1 O11T1  TRout3    21   29    21
+    DO11T2 O11T2  TRout3    35   21    24
+    DO11T3 O11T3  TRout3    42   35    18
+    DO12T1 O12T1  TRout3    31   29    21
+    DO12T2 O12T2  TRout3    25   25    24
+    DO12T3 O12T3  TRout3    32   25    18
+#############################
+    DO15T1 O15T1  TRout4    31   29    11
+    DO15T2 O15T2  TRout4    25   56    24
+    DO15T3 O15T3  TRout4    42   25    58
+    DO16T1 O16T1  TRout4    41   29    61
+    DO16T2 O16T2  TRout4    35   33    34
+    DO16T3 O16T3  TRout4    32   25    48
+    DO17T1 O17T1  TRout4    21   29    21
+    DO17T2 O17T2  TRout4    25   22    54
+    DO17T3 O17T3  TRout4    12   55    78
+    DO18T1 O18T1  TRout4    21   49    41
+    DO18T2 O18T2  TRout4    25   26    74
+    DO18T3 O18T3  TRout4    32   15    28
+#############################
+    DTRout1   TRout1    Srv1   29    7    12
+    DTRout2   TRout2    Srv2   34   20    21
+    DTRout3   TRout3    Srv1   29    7    12
+    DTRout4   TRout4    Srv2   34   20    21
+#############################

@@ -1,0 +1,18 @@
+# int   int             int     int
+; Zones Contiguities    Tasks   DataFlows
+
+# Zones
+; (int) (int) (int) (int)
+; Label   X     Y     Z
+
+# Contiguities (1.0 is default value if not specified).
+; int   int     int     int
+; Zone1 Zone2   Channel Conductance
+
+# Tasks
+;   str       int  int  int
+;   Label     Size Zone Mobile
+
+# Dataflows
+;   str       str     str     int     int     int
+;   Label     Source  Target  Band    Delay   Error

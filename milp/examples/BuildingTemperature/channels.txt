@@ -1,0 +1,45 @@
+# BEGIN of a channel tipologies database file in FORMAT_0.
+# In this format, all lines beginning with an hash (#) or semicolumn (;)
+#  character are comments thus, all these lines can be ignored.
+# The format is meant to be:
+#     1. a suitable interface to the core solver and possible extensions;
+#     2. convenienlty human readable and light.
+# Hint:
+#     1. In order to display only the true (non-comment) lines:
+#         $ grep "^[^#;]" input.txt
+#     2. in order to display only the true data lines plus the tags:
+#         $ grep "^[^#]" input.txt
+#     3. in order to display only the comment lines:
+#         $ grep "^[#;]" input.txt
+# Remarks:
+#     1. the format does not allow for empty lines
+#     2. spaces and tabs are treated the same
+#
+# BEGIN the first true line of the tipologies database file
+# the format of the first line is the following:
+#  int
+# N_Channels
+    5
+# therefore here C = number_of_channel_tipologies = 3
+# END the first true line of the tipologies database file
+# BEGIN the tipologies section: description of the C channel tipologies
+# the tipologies section comprises C uncommented lines, one for each channel tipology
+# the format is the following:
+#   str           (int) (int)(int)(int)(int)(int)(int)(int)(bln)
+;   label           id    K   KSU   S    E    DE   DL   ER   W
+    bluetooth        1     5    0   25    1    6   12   10   1
+    Wi-Fi            2    25    0   75    3   16    8    7   1
+    Li-Fi            3   125    0  100    7   27    3    6   1
+    ethernet_cable   4     5   75   75   20    8    5    2   0
+    optic_cable      5    10  250  125   14    4    1    1   0
+# where:
+#     label : is just a name assigned to a channel tipology
+#     id    : a unique id from 1 to C associated to each channel tipology
+#     K     : is the cost of setting up a communication channel of type channel_label
+#     S     : the total throughput capacity of the channel
+#     E     : energy consumption of the channel.
+#     DE    : energy consumption due to the contained data-flows.
+#     DL    : transmission delay of the channel.
+#     ER    : transmission error rate of the channel.
+#     W     : a boolean attribute. Is the channel a wireless channel?
+# END the tipologies section

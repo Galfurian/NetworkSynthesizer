@@ -1,0 +1,77 @@
+# int   int             int     int
+# Zones Contiguities    Tasks   DataFlows
+  3     18              18      17
+# Zones
+# (int) (int) (int) (int)
+# Label   X     Y     Z
+    1     0     0     0
+    2     0     4     0
+    3     0     0     2
+# Contiguities (1.0 is default value if not specified).
+# int   int     int     int
+# Zone1 Zone2   Channel Conductance
+# Zone1 -> Zone2
+    1   2   1  0.85
+    1   2   2  0.57
+    1   2   3  0.93
+    1   2   4  0.79
+    1   2   5  0.92
+    1   2   6  1.00
+# Zone1 -> Zone3
+    1   3   1  0.64
+    1   3   2  0.97
+    1   3   3  0.84
+    1   3   4  0.70
+    1   3   5  0.95
+    1   2   6  1.00
+# Zone2 -> Zone3
+    2   3   1  0.97
+    2   3   2  0.94
+    2   3   3  0.91
+    2   3   4  0.69
+    2   3   5  0.87
+    1   2   6  1.00
+# Tasks
+;   str     int     int     int
+;   Label   Size    Zone    Mobile
+    t1z1    15      1       0
+    t2z1    6       1       0
+    t3z1    3       1       0
+    t4z1    2       1       0
+    t5z1    3       1       0
+    t6z1    2       1       0
+    t1z2    15      2       0
+    t2z2    6       2       0
+    t3z2    3       2       0
+    t4z2    2       2       0
+    t5z2    3       2       0
+    t6z2    2       2       0
+    t1z3    15      3       0
+    t2z3    6       3       0
+    t3z3    3       3       0
+    t4z3    2       3       0
+    t5z3    3       3       0
+    t6z3    2       3       0
+# Dataflows
+;   str       str     str     int     int     int
+;   Label     Source  Target  Band    Delay   Error
+# Zone 1
+    Dt1z1t1z2 t1z1    t1z2    50      27      16
+    Dt2z1     t2z1    t1z1    10      23      16
+    Dt3z1     t3z1    t1z1    5       26      41
+    Dt4z1     t4z1    t1z1    8       23      17
+    Dt5z1     t5z1    t1z1    11      19      15
+    Dt6z1     t6z1    t1z1    3       19      19
+# Zone 2
+    Dt1z2t1z3 t1z2    t1z3    50      26      10
+    Dt2z2     t2z2    t1z2    3       31      10
+    Dt3z2     t3z2    t1z2    3       18      37
+    Dt4z2     t4z2    t1z2    2       28      27
+    Dt5z2     t5z2    t1z2    2       29      18
+    Dt6z2     t6z2    t1z2    2       24      15
+# Zone 3
+    Dt2z3     t2z3    t1z3    3       24      32
+    Dt3z3     t3z3    t1z3    3       42      28
+    Dt4z3     t4z3    t1z3    2       20      26
+    Dt5z3     t5z3    t1z3    2       16      17
+    Dt6z3     t6z3    t1z3    2       29      15

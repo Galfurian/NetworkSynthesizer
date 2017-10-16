@@ -1,0 +1,208 @@
+#
+#   A
+# 4 |            Office1                       Office2
+#   |               |                             |
+#   |               V                             V
+# 3 | Office7 --> Router1                       Router2 <-- Office5
+#   |                    \                     /
+# 2 |                     Server1 <---> Server2
+#   |                    /                     \
+# 1 | Office8 --> Router4                       Router3 <-- Office6
+#   |                A                             A
+#   |                |                             |
+# 0 |             Office4                       Office3
+# --+-------------------------------------------------------------------->
+#   |    0           1       2             3       4           5
+#
+# int   int             int     int
+# Zones Contiguities    Tasks   DataFlows
+  16    55              46      45
+# Zones
+#(string)(int) (int) (int)
+# Label X Y Z
+    1   1 4 0
+    2   4 4 0
+    3   4 0 0
+    4   1 0 0
+    5   5 3 0
+    6   5 1 0
+    7   0 3 0
+    8   0 1 0
+    9   0 1 1
+    10  0 1 2
+    20  1 3 0
+    21  4 3 0
+    22  4 1 0
+    23  1 1 0
+    50  2 2 0
+    51  3 2 0
+# Contiguities (1.0 is default value if not specified).
+# int   int     int     int
+# Zone1 Zone2   Channel Conductance
+# Office 1 to Router Room 1
+    1 20 1  0.85
+    1 20 2  0.57
+    1 20 3  0.89
+# Office 2 to Router Room 2
+    2 21 1  0.64
+    2 21 2  0.97
+    2 21 3  0.84
+# Office 3 to Router Room 3
+    3 22 1  0.97
+    3 22 2  0.94
+    3 22 3  0.91
+# Office 4 to Router Room 4
+    4 23 1  0.85
+    4 23 2  0.57
+    4 23 3  0.93
+# Office 5 to Router Room 2
+    5 21 1  0.85
+    5 21 2  0.57
+    5 21 3  0.93
+# Office 6 to Router Room 3
+    6 22 1  0.85
+    6 22 2  0.57
+    6 22 3  0.93
+# Office 7 to Router Room 1
+    7 20 1  0.85
+    7 20 2  0.57
+    7 20 3  0.93
+# Office 8 to Router Room 4
+    8 23 1  0.85
+    8 23 2  0.57
+    8 23 3  0.93
+# Office 9 to Router Room 4
+    9 23 1  0.91
+    9 23 2  0.95
+    9 23 3  1.00
+# Office 10 to Router Room 4
+   10 23 1  0.76
+   10 23 2  0.82
+   10 23 3  0.98
+# Router Room 1 to Server Room 1
+    20 50 1  0.64
+    20 50 2  0.97
+    20 50 3  0.84
+    20 50 4  0.76
+    20 50 5  0.95
+# Router Room 2 to Server Room 1
+    21 50 1  0.85
+    21 50 2  0.57
+    21 50 3  0.79
+    21 50 4  0.93
+    21 50 5  0.99
+# Router Room 4 to Server Room 2
+    22 51 1  0.64
+    22 51 2  0.97
+    22 51 3  0.84
+    22 51 4  0.70
+    22 51 5  0.94
+# Router Room 5 to Server Room 2
+    23 51 1  0.97
+    23 51 2  0.94
+    23 51 3  0.94
+    23 51 4  0.69
+    23 51 5  0.98
+# Server Room 1 to Server Room 2
+    50 51 1  0.00
+    50 51 2  0.00
+    50 51 3  0.00
+    50 51 4  0.75
+    50 51 5  1.00
+# Tasks
+;   str    int  int    int
+;   Label Size Zone Mobile
+    O1T1    15    1      1
+    O1T2    18    1      1
+    O1T3    19    1      1
+    O1T4    17    1      1
+    O2T1    18    2      1
+    O2T2    29    2      1
+    O2T3    15    2      1
+    O2T4    32    2      0
+    O3T1    43    3      1
+    O3T2    23    3      1
+    O3T3    21    3      1
+    O3T4    15    3      0
+    O4T1     6    4      1
+    O4T2     8    4      1
+    O4T3     4    4      1
+    O4T4     8    4      0
+    O5T1    15    5      1
+    O5T2    16    5      1
+    O5T3    13    5      1
+    O5T4    18    5      0
+    O6T1    21    6      1
+    O6T2    26    6      1
+    O6T3    29    6      1
+    O6T4    25    6      0
+    O7T1    38    7      1
+    O7T2    35    7      1
+    O7T3    32    7      1
+    O7T4    30    7      0
+    O8T1    15    8      1
+    O8T2    12    8      1
+    O8T3    16    8      1
+    O8T4    17    8      0
+    O9T1    23    9      1
+    O9T2    21    9      1
+    O9T3    28    9      1
+    O9T4    26    9      0
+    O10T1   17   10      1
+    O10T2   12   10      1
+    O10T3   19   10      1
+    O10T4   15   10      1
+    TN1     98   20      0
+    TN2     87   21      0
+    TN3    121   22      0
+    TN4    102   23      0
+    Srv1   175   50      0
+    Srv2   197   51      0
+# Dataflows
+;   str    str    str    int  int   int
+;   Label  Source Target Band Delay Error
+    SR1SR2 Srv1   Srv2   120  1     1
+    DO1T1  O1T1   TN1    13   10    19
+    DO1T2  O1T2   TN1    18   17    19
+    DO1T3  O1T3   TN1    15   13    19
+    DO1T4  O1T4   TN1    12   15    19
+    DO2T1  O2T1   TN2    17   23    19
+    DO2T2  O2T2   TN2    12   26    19
+    DO2T3  O2T3   TN2    11   21    19
+    DO2T4  O2T4   TN2    16   29    19
+    DO3T1  O3T1   TN3    15   18    19
+    DO3T2  O3T2   TN3    14   21    19
+    DO3T3  O3T3   TN3    11   23    19
+    DO3T4  O3T4   TN3    21   18    19
+    DO4T1  O4T1   TN4    23   18    19
+    DO4T2  O4T2   TN4    27   18    19
+    DO4T3  O4T3   TN4    37   18    19
+    DO4T4  O4T4   TN4    29   18    19
+    DO5T1  O5T1   TN2    18   18    19
+    DO5T2  O5T2   TN2    12   18    19
+    DO5T3  O5T3   TN2    15   18    19
+    DO5T4  O5T4   TN2    12   18    19
+    DO6T1  O6T1   TN3    11   18    19
+    DO6T2  O6T2   TN3    16   18    19
+    DO6T3  O6T3   TN3    16   18    19
+    DO6T4  O6T4   TN3    14   18    19
+    DO7T1  O7T1   TN1    11   18    19
+    DO7T2  O7T2   TN1    16   18    19
+    DO7T3  O7T3   TN1    16   18    19
+    DO7T4  O7T4   TN1    14   18    19
+    DO8T1  O8T1   TN4    23   18    19
+    DO8T2  O8T2   TN4    27   18    19
+    DO8T3  O8T3   TN4    37   18    19
+    DO8T4  O8T4   TN4    29   18    19
+    DO9T1  O9T1   TN4    21   29    21
+    DO9T2  O9T2   TN4    25   21    24
+    DO9T3  O9T3   TN4    12   25    18
+    DO9T4  O9T4   TN4    30   23    17
+    DO10T1 O10T1  TN4    12   12    09
+    DO10T2 O10T2  TN4    14   10    10
+    DO10T3 O10T3  TN4    19   31    19
+    DO10T4 O10T4  TN4    17   30    10
+    DTN1   TN1    Srv1   29    7    12
+    DTN2   TN2    Srv1   34   20    21
+    DTN3   TN3    Srv2   29    7    12
+    DTN4   TN4    Srv2   34   20    21
