@@ -352,7 +352,6 @@ parse_timer_end = time.time()
 
 Separator()
 
-exit(0)
 # ---------------------------------------------------------------------------------------------------------------------
 # ---------------------------------------------------------------------------------------------------------------------
 Separator()
@@ -385,11 +384,18 @@ for dataflow in DataFlowList:
                         channel.setAllowedDataFlow(dataflow)
         del contiguity
 
-print("* Checking if there is a suitable node for each task...")
+print("* Checking if there is at least one suitable node for each task...")
 for task in TaskList:
     # print("*     Task '%15s' Nodes : %s" % (task, task.getAllowedNode()))
     if len(task.getAllowedNode()) == 0:
-        print("There are no node which can contain task %s." % task)
+        print("There are no nodes that can contain task %s." % task)
+        exit(1)
+
+print("* Checking if there are suitable channels for data-flows which cross zones...")
+for dataflow in DataFlowList:
+    # print("*     Task '%15s' Nodes : %s" % (task, task.getAllowedNode()))
+    if (len(dataflow.getAllowedChannel()) == 0) and (dataflow.source.zone != dataflow.target.zone):
+        print("There are no channels that can contain data-flow %s." % dataflow)
         exit(1)
 
 if VERBOSE:
@@ -533,22 +539,32 @@ print("*")
 
 # ---------------------------------------------------------------------------------------------------------------------
 for dataflow in DataFlowList:
-    md[dataflow] = m.addVar(lb=0.0,
-                            ub=1.0,
-                            obj=0.0,
-                            vtype=GRB.BINARY,
-                            name='md_%s' % dataflow)
+    if dataflow.source.mobile or dataflow.target.mobile:
+        md[dataflow] = m.addVar(lb=1.0,
+                                ub=1.0,
+                                obj=0.0,
+                                vtype=GRB.BINARY,
+                                name='md_%s' % dataflow)
+    else:
+        md[dataflow] = m.addVar(lb=0.0,
+                                ub=1.0,
+                                obj=0.0,
+                                vtype=GRB.BINARY,
+                                name='md_%s' % dataflow)
+
 # Log the information concerning the variable.
 print("*")
 print("* md [%s]" % len(md))
 print("* \tVariable md identifies if at least one of the tasks connected by a given")
-print("* \tdata-flow is a mobile task.")
+print("* \tdata-flow is placed inside a mobile node. It is worth noting that if the")
+print("* \tat least one of the tasks is actually a mobile task, the md variable needs")
+print("* \tto be set to 1.")
 print("*")
 
 # ---------------------------------------------------------------------------------------------------------------------
 for dataflow in DataFlowList:
     for task in TaskList:
-        if dataflow.hasTask(task) is False:
+        if not dataflow.hasTask(task):
             gamma[dataflow, task] = m.addVar(lb=0.0,
                                              ub=1.0,
                                              obj=0.0,
@@ -683,6 +699,7 @@ for node in NodeList:
                     rhs=quicksum(x[node, nodeIndex, zone]
                                  for nodeIndex in indexSetOfClonesOfNodesInArea[node, zone]),
                     name="Define_N_%s_%s" % (node, zone))
+
 ################################################################################
 print("* Defining constraint C2")
 # \forall n \in \Natu_{N}
@@ -1035,6 +1052,8 @@ for channel in ChannelList:
                                     name="Wireless_with_df_%s_%s" % (dataflow1.label, dataflow2.label))
 
 # END - The constraints section - END
+
+m.update()
 
 # Constraints definition end.
 constraints_timer_end = time.time()

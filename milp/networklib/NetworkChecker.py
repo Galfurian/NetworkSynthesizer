@@ -52,8 +52,10 @@ class NetworkChecker:
                 for channelIndex in self.indexSetOfClonesOfChannel[channel]:
                     if self.SolH[dataflow, channel, channelIndex]:
                         if source_node == target_node:
-                            print("[Warning] Unnecessary deployment of %s," % (dataflow))
-                            print("[Warning] inside the channel (%s, %s)." % (channel, channelIndex))
+                            print("* [Warning] Unnecessary deployment of %s, inside the channel (%s, %s),"
+                                  % (dataflow, channel, channelIndex))
+                            print("*           in fact source and target are in %s and %s respectively."
+                                  % (source_node, target_node))
                         else:
                             if dataflow_placed:
                                 print("[Error] Dataflow %s has already been placed." % (dataflow))
@@ -77,9 +79,9 @@ class NetworkChecker:
                         print("[Error] The space occupied inside node %s is over the limit." % (node))
                         exit(1)
 
-
         # -------------------------------------------------------------------------------------------------------------
-        print("*     - Checking if cabled channels contain only dataflows which have tasks in the same pair of nodes...")
+        print(
+            "*     - Checking if cabled channels contain only dataflows which have tasks in the same pair of nodes...")
         for channel in self.ChannelList:
             if (not channel.wireless):
                 for channelIndex in self.indexSetOfClonesOfChannel[channel]:

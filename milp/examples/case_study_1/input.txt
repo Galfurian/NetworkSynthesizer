@@ -147,7 +147,7 @@
 # Data Flows
 #    Label    Source    Target Bandwidth  MaxDelay  MaxError
 <DATAFLOW>
-   SR1SR2      Srv1      Srv2       447         1         1
+   SR1SR2      Srv1      Srv2       447         3         3
     DO1T1      O1T1    TRout1       204        10        31
     DO1T2      O1T2    TRout1       236        17        75
     DO1T3      O1T3    TRout1       116        13        52
