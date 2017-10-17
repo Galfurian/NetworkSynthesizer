@@ -14,12 +14,10 @@
 # --+-------------------------------------------------------------------->
 #   |    0           1       2             3       4           5
 #
-# int   int             int     int
-# Zones Contiguities    Tasks   DataFlows
-  14    49              38      37
 # Zones
 #(string)(int) (int) (int)
 # Label X Y Z
+<ZONE>
     1   1 4 0
     2   4 4 0
     3   4 0 0
@@ -34,9 +32,11 @@
     13  1 1 0
     20  2 2 0
     21  3 2 0
+</ZONE>
 # Contiguities (1.0 is default value if not specified).
 # int   int     int     int
 # Zone1 Zone2   Channel Conductance
+<CONTIGUITY>
 # Office 1 to Router Room 1
     1 10 1  0.85
     1 10 2  0.57
@@ -99,9 +99,11 @@
     20 21 3  0.00
     20 21 4  0.75
     20 21 5  1.00
+</CONTIGUITY>
 # Tasks
 ;   str    int  int    int
 ;   Label Size Zone Mobile
+<TASK>
     O1T1    15    1      1
     O1T2    18    1      1
     O1T3    19    1      1
@@ -140,9 +142,11 @@
     TN4    102   13      0
     Srv1   175   20      0
     Srv2   197   21      0
+</TASK>
 # Dataflows
 ;   str    str    str    int  int   int
 ;   Label  Source Target Band Delay Error
+<DATAFLOW>
     SR1SR2 Srv1   Srv2   120  1     1
     DO1T1  O1T1   TN1    13   10    19
     DO1T2  O1T2   TN1    18   17    19
@@ -180,3 +184,4 @@
     DTN2   TN2    Srv1   34   20    21
     DTN3   TN3    Srv2   29    7    12
     DTN4   TN4    Srv2   34   20    21
+</DATAFLOW>

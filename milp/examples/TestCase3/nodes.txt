@@ -15,13 +15,6 @@
 #     1. the format does not allow for empty lines
 #     2. spaces and tabs are treated the same
 #
-# BEGIN the first true line of the tipologies database file
-# the format of the first line is the following:
-#  int
-# N_Nodes
-    5
-# therefore here N = number_of_node_tipologies
-# END the first true line of the tipologies database file
 # BEGIN the tipologies section: description of the N node tipologies
 # the tipologies section comprises N uncommented lines, one for each node tipology
 # the format is the following:

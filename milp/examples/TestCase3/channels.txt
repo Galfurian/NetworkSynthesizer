@@ -15,13 +15,6 @@
 #     1. the format does not allow for empty lines
 #     2. spaces and tabs are treated the same
 #
-# BEGIN the first true line of the tipologies database file
-# the format of the first line is the following:
-#  int
-# N_Channels
-    6
-# therefore here C = number_of_channel_tipologies = 3
-# END the first true line of the tipologies database file
 # BEGIN the tipologies section: description of the C channel tipologies
 # the tipologies section comprises C uncommented lines, one for each channel tipology
 # the format is the following:

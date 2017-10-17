@@ -1,15 +1,15 @@
-# int   int          int     int
-# Zones Contiguities Tasks   DataFlows
-  3     9            24      24
 # Zones
 # (int) (int) (int) (int)
 # Label   X     Y     Z
+<ZONE>
     1     0     0     0
     2     0     4     0
     3     0     0     2
+</ZONE>
 # Contiguities (1.0 is default value if not specified).
 # int   int     int     int
 # Zone1 Zone2   Channel Conductance
+<CONTIGUITY>
 # Zone1 -> Zone2
     1   2   1  1.0
     1   2   2  1.0
@@ -22,9 +22,11 @@
     2   3   1  1.0
     2   3   2  1.0
     2   3   3  1.0
+</CONTIGUITY>
 # Tasks
 ;   str     int     int     int
 ;   Label   Size    Zone    Mobile
+<TASK>
 # Zone 1
     t1z1    15      1       0
     t2z1    6       1       1
@@ -52,9 +54,11 @@
     t6z3    7       3       1
     t7z3    2       3       0
     t8z3    10      3       1
+</TASK>
 # Dataflows
 ;   str     str     str     int     int     int
 ;   Label   Source  Target  Band    Delay   Error
+<DATAFLOW>
 # Zone 1
     Dt1z1t1z2 t1z1    t1z2    25      13      17
     Dt2z1t1z2 t2z1    t1z2    9       10      25
@@ -82,3 +86,4 @@
     Dt6z3     t6z3    t1z3    9       14      33
     Dt7z3     t7z3    t1z3    5       15      25
     Dt8z3     t8z3    t1z3    3       13      23
+</DATAFLOW>
