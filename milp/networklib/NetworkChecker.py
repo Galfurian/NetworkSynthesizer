@@ -27,55 +27,58 @@ class NetworkChecker:
         print("# NetworkChecker instantiated...")
 
     def checkNetwork(self):
-        print("#     1. Checking if all the tasks have been deployed...")
+        # -------------------------------------------------------------------------------------------------------------
+        print("#     1. Checking if all the tasks have been deployed once...")
         for task in self.TaskList:
-            taskPlaced = False
+            task_placed = False
             for node in task.getAllowedNode():
                 for nodeIndex in self.indexSetOfClonesOfNodesInArea[node, task.zone]:
                     if self.SolW[task, node, nodeIndex]:
-                        if (taskPlaced):
+                        if task_placed:
                             print("[Error] Task %s has already been placed." % (task))
                             exit(1)
-                        taskPlaced = True
-            if (not taskPlaced):
+                        task_placed = True
+            if not task_placed:
                 print("[Error] Task %s has not been placed." % (task))
                 exit(1)
 
+        # -------------------------------------------------------------------------------------------------------------
         print("#     2. Checking if all the dataflows have been deployed...")
         for dataflow in self.DataFlowList:
-            dataflowPlaced = False
-            SourceNode = dataflow.source.getDeployedIn()
-            TargetNode = dataflow.target.getDeployedIn()
+            dataflow_placed = False
+            source_node = dataflow.source.getDeployedIn()
+            target_node = dataflow.target.getDeployedIn()
             for channel in dataflow.getAllowedChannel():
                 for channelIndex in self.indexSetOfClonesOfChannel[channel]:
                     if self.SolH[dataflow, channel, channelIndex]:
-                        if (SourceNode == TargetNode):
-                            print(
-                                "[Warning] Dataflow %s has been deployed inside channel (%s, %s), it was not necessary." % (
-                                    dataflow, channel, channelIndex))
+                        if source_node == target_node:
+                            print("[Warning] Unnecessary deployment of %s," % (dataflow))
+                            print("[Warning] inside the channel (%s, %s)." % (channel, channelIndex))
                         else:
-                            if (dataflowPlaced):
+                            if dataflow_placed:
                                 print("[Error] Dataflow %s has already been placed." % (dataflow))
                                 exit(1)
-                            dataflowPlaced = True
-            if (SourceNode != TargetNode):
-                if (not dataflowPlaced):
-                    print("[Error] Dataflow %s has not been placed." % (dataflow))
-                    exit(1)
+                            dataflow_placed = True
+            if (source_node != target_node) and not dataflow_placed:
+                print("[Error] Dataflow %s has not been placed." % (dataflow))
+                exit(1)
 
+        # -------------------------------------------------------------------------------------------------------------
         print("#     3. Checking if the tasks deployment is compliant with the nodes sizes...")
         for zone in self.ZoneList:
             for node in self.NodeList:
                 for nodeIndex in self.indexSetOfClonesOfNodesInArea[node, zone]:
-                    OccupiedSpace = 0
+                    occupied_space = 0
                     for task in node.getAllowedTask():
-                        if (task.zone == zone):
+                        if task.zone == zone:
                             if self.SolW.get((task, node, nodeIndex), False):
-                                OccupiedSpace += task.size
-                    if (OccupiedSpace > node.size):
-                        print("[Error] The space occupide inside node %s is over the limit." % (node))
+                                occupied_space += task.size
+                    if occupied_space > node.size:
+                        print("[Error] The space occupied inside node %s is over the limit." % (node))
                         exit(1)
 
+
+        # -------------------------------------------------------------------------------------------------------------
         print(
             "#     4. Checking if cabled channels contain only dataflows which have tasks in the same pair of nodes...")
         for channel in self.ChannelList:
@@ -84,14 +87,15 @@ class NetworkChecker:
                     ConnectedNodes = set()
                     for dataflow in channel.getAllowedDataFlow():
                         if self.SolH[dataflow, channel, channelIndex]:
-                            SourceNode = dataflow.source.getDeployedIn()
-                            ConnectedNodes.add("%s_%s_%s" % (SourceNode[0], SourceNode[1], SourceNode[2]))
-                            TargetNode = dataflow.target.getDeployedIn()
-                            ConnectedNodes.add("%s_%s_%s" % (TargetNode[0], TargetNode[1], TargetNode[2]))
+                            source_node = dataflow.source.getDeployedIn()
+                            ConnectedNodes.add("%s_%s_%s" % (source_node[0], source_node[1], source_node[2]))
+                            target_node = dataflow.target.getDeployedIn()
+                            ConnectedNodes.add("%s_%s_%s" % (target_node[0], target_node[1], target_node[2]))
                     if (len(ConnectedNodes) > 2):
                         print("[Error] Cabled channel %s is connecting more than two nodes." % (channel))
                         exit(1)
 
+        # -------------------------------------------------------------------------------------------------------------
         print("#     5. Checking if wireless channels has been placed between zones with zero contiguity...")
         for channel in self.ChannelList:
             if channel.wireless:

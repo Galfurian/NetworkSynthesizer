@@ -659,9 +659,9 @@ m.update()
 constraints_timer_begin = time.time()
 
 print("*******************************************************************************")
-print("# Defining constraints...")
+print("* Defining constraints...")
 ################################################################################
-print("# Defining constraint C1")
+print("* Defining constraint C1")
 # \forall n \in \Natu_{N}
 for node in NodeList:
     # \forall z \in \Natu_{Z}
@@ -673,7 +673,7 @@ for node in NodeList:
                                  for nodeIndex in indexSetOfClonesOfNodesInArea[node, zone]),
                     name="Define_N_%s_%s" % (node, zone))
 ################################################################################
-print("# Defining constraint C2")
+print("* Defining constraint C2")
 # \forall n \in \Natu_{N}
 for node in NodeList:
     # \forall z \in \Natu_{Z}
@@ -687,7 +687,7 @@ for node in NodeList:
                         name="Mono_clones_of_N_%s_%s_%s" % (node, zone, nodeIndex))
 
 ################################################################################
-print("# Defining constraint C3")
+print("* Defining constraint C3")
 # \forall c \in \Natu_{C}
 for channel in ChannelList:
     # C3: C_{c} = \sum\limits_{p=1}^{\overline{C}_{c}} y_{c,p}
@@ -697,7 +697,7 @@ for channel in ChannelList:
                              for channelIndex in indexSetOfClonesOfChannel[channel]),
                 name="Define_C_%s" % channel)
 ################################################################################
-print("# Defining constraint C4")
+print("* Defining constraint C4")
 # \forall c \in \Natu_{C}
 for channel in ChannelList:
     # \forall p \leq \overline{C}_{c}
@@ -709,7 +709,7 @@ for channel in ChannelList:
                     name="Mono_clones_of_C_%s_%s" % (channel, channelIndex))
 
 ###############################################################################
-print("# Defining constraint C5")
+print("* Defining constraint C5")
 # \forall t \in \Natu_{T}
 for task in TaskList:
     # \forall n \in \alpha_{n}(t)
@@ -723,7 +723,7 @@ for task in TaskList:
                         name="Codomain_existance_for_w_%s_%s_%s" % (task, node, nodeIndex))
 
 ###############################################################################
-print("# Defining constraint C6")
+print("* Defining constraint C6")
 # \forall d \in \Natu_{D}
 for dataflow in DataFlowList:
     # \forall c \in \alpha_{c}(d)
@@ -737,7 +737,7 @@ for dataflow in DataFlowList:
                         name="Codomain_existance_for_h_%s_%s_%s" % (dataflow, channel, channelIndex))
 
 ###############################################################################
-print("# Defining constraint C7")
+print("* Defining constraint C7")
 # \forall n \in \Natu_{N}
 for node in NodeList:
     # \forall z \in \Natu_{Z}
@@ -753,7 +753,7 @@ for node in NodeList:
                         name="Deactivate_unecessary_clones_of_x_%s_%s_%s" % (node, zone, nodeIndex))
 
 ###############################################################################
-print("# Defining constraint C8")
+print("* Defining constraint C8")
 # \forall c \in \Natu_{C}
 for channel in ChannelList:
     # \forall p \leq \overline{C}_{c}
@@ -766,7 +766,7 @@ for channel in ChannelList:
                     name="Deactivate_unecessary_clones_of_y_%s_%s" % (channel, channelIndex))
 
 ###############################################################################
-print("# Defining constraint C9")
+print("* Defining constraint C9")
 # \forall n \in \Natu_{N}
 for node in NodeList:
     # \forall z \in \Natu_{Z}
@@ -782,7 +782,7 @@ for node in NodeList:
                         name="Node_size_%s_%s" % (node, nodeIndex))
 
 ###############################################################################
-print("# Defining constraint C10")
+print("* Defining constraint C10")
 # \forall c \in \Natu_{C}
 for channel in ChannelList:
     # \forall p \leq \overline{C}_{c}
@@ -796,7 +796,7 @@ for channel in ChannelList:
                     name="Channel_size_%s_%s" % (channel, channelIndex))
 
 ###############################################################################
-print("# Defining constraint C11")
+print("* Defining constraint C11")
 # \forall t \in \Natu_{T}
 for task in TaskList:
     # C11: \sum\limits_{n}^{\alpha_{n}(t)} \sum\limits_{p=1}^{\overline{N}_{n,t.z}} w_{t,n,p} = 1
@@ -808,7 +808,7 @@ for task in TaskList:
                 name="Unique_mapping_of_task_%s" % task)
 
 ###############################################################################
-print("# Defining constraint C12 and C13")
+print("* Defining constraint C12 and C13")
 # \forall d \in \Natu_{D}
 for dataflow in DataFlowList:
     if dataflow.source.zone != dataflow.target.zone:
@@ -831,7 +831,7 @@ for dataflow in DataFlowList:
                     name="Unique_mapping_of_dataflow_%s" % dataflow)
 
 ###############################################################################
-print("# Defining constraint C14 and C15")
+print("* Defining constraint C14 and C15")
 # \forall d \in \Natu_{D}
 for dataflow in DataFlowList:
     # (d.ts.m = true)
@@ -856,7 +856,7 @@ for dataflow in DataFlowList:
                     name="Define_md_for_dataflow_%s" % dataflow)
 
 ###############################################################################
-print("# Defining constraint C16 and C17")
+print("* Defining constraint C16 and C17")
 # \forall d \in \Natu_{D}
 for dataflow in DataFlowList:
     # d.ts.z \neq d.td.z
@@ -882,7 +882,7 @@ for dataflow in DataFlowList:
                     name="Unique_mapping_of_dataflow_%s_wrt_wireless_channels" % dataflow)
 
 ###############################################################################
-print("# Defining constraint C18")
+print("* Defining constraint C18")
 # \forall t \in \Natu_{T}
 for task1 in TaskList:
     # \forall t' \in \Natu_{T}
@@ -913,7 +913,7 @@ for task1 in TaskList:
                             name='TwoTasks_%s_%s_IntoDifferentNodes' % (task1, task2))
 
 ###############################################################################
-print("# Defining constraint C19")
+print("* Defining constraint C19")
 # \forall c \in \Natu_{C}
 for channel in ChannelList:
     # c.w = false
@@ -948,7 +948,7 @@ for channel in ChannelList:
                                             channel, channelIndex, dataflow1, dataflow2))
 
 ###############################################################################
-print("# Defining constraint C20")
+print("* Defining constraint C20")
 # \forall d \in \Natu_{D}
 for dataflow in DataFlowList:
     # \forall t \in \Natu_{T}
@@ -974,7 +974,7 @@ for dataflow in DataFlowList:
                                 task, dataflow.source, dataflow.target))
 
 ###############################################################################
-print("# Defining constraint C21")
+print("* Defining constraint C21")
 # \forall z_1 \in \Natu_{Z}
 for zone1 in ZoneList:
     # \forall z_2 \in \Natu_{Z}
@@ -997,7 +997,7 @@ for zone1 in ZoneList:
 # rhs=h[dataflow, channel, channelIndex] * channel.isAllowedBetween(zone1, zone2),
 
 ###############################################################################
-print("# Defining constraint C22")
+print("* Defining constraint C22")
 # \forall c \in \Natu_{C}
 for channel in ChannelList:
     # c.w = true
@@ -1029,10 +1029,10 @@ for channel in ChannelList:
 constraints_timer_end = time.time()
 
 print("*******************************************************************************")
-print("# Defining the optimization objective:")
+print("* Defining the optimization objective:")
 
 if OPTIMIZATION == 1:
-    print("#    Economic Cost Minimization")
+    print("*    Economic Cost Minimization")
     # Economic Cost Minimization:
     #   Its objective is to minimize the global economic cost of the network.
     m.setObjective(
@@ -1054,7 +1054,7 @@ if OPTIMIZATION == 1:
     )
     m.update()
 elif OPTIMIZATION == 2:
-    print("#    Energy Consumption Minimization")
+    print("*    Energy Consumption Minimization")
     # Energy Consumption Minimization:
     #   The second optimization objective is to minimize the global energy consumption of the network.
     m.setObjective(
@@ -1078,7 +1078,7 @@ elif OPTIMIZATION == 2:
     )
     m.update()
 elif OPTIMIZATION == 3:
-    print("#    Transmission Delay Minimization")
+    print("*    Transmission Delay Minimization")
     # Transmission Delay Minimization:
     #   The third possible constrains is on the overall delay of the network.
     #   Its purpose is to minimize the global transmission delay of the network.
@@ -1092,7 +1092,7 @@ elif OPTIMIZATION == 3:
     )
     m.update()
 elif OPTIMIZATION == 4:
-    print("#    Error Rate Minimization")
+    print("*    Error Rate Minimization")
     # Error Rate Minimization:
     #   The optimization objective is to minimize the global error rate of the network.
     m.setObjective(
@@ -1105,7 +1105,7 @@ elif OPTIMIZATION == 4:
     )
     m.update()
 elif OPTIMIZATION == 5:
-    print("#    Error Rate and Delay Minimization")
+    print("*    Error Rate and Delay Minimization")
     # Error Rate and Delay Minimization:
     #   The optimization objective is to minimize both the global error rate and delay of the network.
     m.setObjective(
@@ -1123,7 +1123,7 @@ elif OPTIMIZATION == 5:
     m.update()
 
 print("*******************************************************************************")
-print("# Starting optimization...")
+print("* Starting optimization...")
 
 # Optimization start.
 optimization_timer_begin = time.time()
@@ -1224,24 +1224,24 @@ if m.status == GRB.status.OPTIMAL:
                         TotalCostCable += deploymentCost
                     del deploymentCost
 
-    print("#")
-    print("# Final Statistics:")
-    print("#     Economic Cost      : %s" % (TotalCostNodes + TotalCostWirls + TotalCostCable))
-    print("#         Nodes Deployment     : %s" % TotalCostNodes)
-    print("#         Wireless Channels    : %s" % TotalCostWirls)
-    print("#         Cable    Channels    : %s" % TotalCostCable)
-    print("#     Energy Consumption : %s" % (
+    print("*")
+    print("* Final Statistics:")
+    print("*     Economic Cost      : %s" % (TotalCostNodes + TotalCostWirls + TotalCostCable))
+    print("*         Nodes Deployment     : %s" % TotalCostNodes)
+    print("*         Wireless Channels    : %s" % TotalCostWirls)
+    print("*         Cable    Channels    : %s" % TotalCostCable)
+    print("*     Energy Consumption : %s" % (
         TotalEnergyNodes + TotalEnergyNodesUsage + TotalEnergyChannel + TotalEnergyChannelUsage))
-    print("#         Nodes Power          : %s" % TotalEnergyNodes)
-    print("#         Nodes Power Usage    : %s" % TotalEnergyNodesUsage)
-    print("#         Channels Power       : %s" % TotalEnergyChannel)
-    print("#         Channels Power Usage : %s" % TotalEnergyChannelUsage)
-    print("#     Total Delay        : %s" % (TotalDelayWirls + TotalDelayCable))
-    print("#         Wireless Channels    : %s" % TotalDelayWirls)
-    print("#         Cable    Channels    : %s" % TotalDelayCable)
-    print("#     Total Error        : %s" % (TotalErrorRateWirls + TotalErrorRateCable))
-    print("#         Wireless Channels    : %s" % TotalErrorRateWirls)
-    print("#         Cable    Channels    : %s" % TotalErrorRateCable)
+    print("*         Nodes Power          : %s" % TotalEnergyNodes)
+    print("*         Nodes Power Usage    : %s" % TotalEnergyNodesUsage)
+    print("*         Channels Power       : %s" % TotalEnergyChannel)
+    print("*         Channels Power Usage : %s" % TotalEnergyChannelUsage)
+    print("*     Total Delay        : %s" % (TotalDelayWirls + TotalDelayCable))
+    print("*         Wireless Channels    : %s" % TotalDelayWirls)
+    print("*         Cable    Channels    : %s" % TotalDelayCable)
+    print("*     Total Error        : %s" % (TotalErrorRateWirls + TotalErrorRateCable))
+    print("*         Wireless Channels    : %s" % TotalErrorRateWirls)
+    print("*         Cable    Channels    : %s" % TotalErrorRateCable)
 
     checker = NetworkChecker(NodeList,
                              ChannelList,
@@ -1271,8 +1271,8 @@ else:
     exit(0)
 
 if XML_GENERATION == 1:
-    print("###########################################")
-    print("# Generating UML for Scilab...")
+    print("*##########################################")
+    print("* Generating UML for Scilab...")
     umlPrinter = UmlForScilabPrinter(NodeList,
                                      ChannelList,
                                      ZoneList,
@@ -1286,8 +1286,8 @@ if XML_GENERATION == 1:
                                      indexSetOfClonesOfChannel,
                                      indexSetOfClonesOfNodesInArea)
     umlPrinter.printNetwork()
-    print("###########################################")
-    print("# Generating Technological Library...")
+    print("*##########################################")
+    print("* Generating Technological Library...")
     techLibPrinter = TechLibPrinter(NodeList, ChannelList)
     techLibPrinter.printTechLib()
 
@@ -1304,16 +1304,16 @@ elapsed_optim = optimization_timer_end - optimization_timer_begin
 elapsed_total = elapsed_parse + elapsed_struc + elapsed_const + elapsed_optim
 
 # Print elapsed times.
-print("#")
-print("###########################################")
-print("# Statistics...")
-print("#")
-print("#    File parsing           : %s s" % elapsed_parse)
-print("#    Structure creation     : %s s" % elapsed_struc)
-print("#    Constraints definition : %s s" % elapsed_const)
-print("#    Optimization           : %s s" % elapsed_optim)
-print("#    Total : %s s" % elapsed_total)
-print("###########################################")
+print("*")
+print("*##########################################")
+print("* Statistics...")
+print("*")
+print("*    File parsing           : %s s" % elapsed_parse)
+print("*    Structure creation     : %s s" % elapsed_struc)
+print("*    Constraints definition : %s s" % elapsed_const)
+print("*    Optimization           : %s s" % elapsed_optim)
+print("*    Total : %s s" % elapsed_total)
+print("*##########################################")
 
 exit(0)
 
