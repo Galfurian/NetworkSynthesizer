@@ -131,12 +131,12 @@ with open(argv[3], "r") as channelFile:
             channelLine = line.strip()
             # Retrieve the values from the file.
             try:
-                chLable, chId, chCost, chSize, chEnergy, chDfEnergy, chDelay, chError, chWireless = channelLine.split()
+                chLabel, chId, chCost, chSize, chEnergy, chDfEnergy, chDelay, chError, chWireless, ch_max_conn = channelLine.split()
             except ValueError:
                 print("Error: Wrong line format '%s'" % channelLine)
                 continue
             # Create a new Channel.
-            NewChannel = Channel(chLable,
+            NewChannel = Channel(chLabel,
                                  int(chId),
                                  int(chCost),
                                  int(chSize),
@@ -144,13 +144,14 @@ with open(argv[3], "r") as channelFile:
                                  int(chDfEnergy),
                                  int(chDelay),
                                  int(chError),
-                                 int(chWireless))
+                                 int(chWireless),
+                                 float(ch_max_conn))
             # Append the channel to the list of channels.
             ChannelList.append(NewChannel)
             # Print the channel.
             print("* %s" % NewChannel.to_string())
             # Delete the auxiliary variables.
-            del channelLine, NewChannel, chLable, chId, chCost, chSize, chEnergy, chDfEnergy, chDelay, chError, chWireless
+            del channelLine, NewChannel, chLabel, chId, chCost, chSize, chEnergy, chDfEnergy, chDelay, chError, chWireless
 
 # ---------------------------------------------------------------------------------------------------------------------
 Separator()
@@ -176,18 +177,22 @@ with open(argv[1], "r") as inputFile:
             elif ParsingZone:
                 # Retrieve the values from the file.
                 try:
-                    znLabel, znX, znY, znZ = inputLine.split()
+                    zn_label, zn_x, zn_y, zn_z = inputLine.split()
                 except ValueError:
                     print("Error: Wrong line format '%s'" % inputLine)
                     continue
                 # Create a new zone.
-                NewZone = Zone(int(znLabel), int(znX), int(znY), int(znZ))
+                NewZone = Zone(int(zn_label),
+                               int(zn_x),
+                               int(zn_y),
+                               int(zn_z))
                 # Append the zone to the list of zones.
                 ZoneList.append(NewZone)
                 # Print the zone.
                 print("* %s" % NewZone.to_string())
                 # Delete the auxiliary variables.
-                del NewZone, znLabel, znX, znY, znZ
+                del NewZone, zn_label, zn_x, zn_y, zn_z
+
             elif inputLine == "<CONTIGUITY>":
                 ParsingContiguity = True
                 print("* LOADING CONTIGUITIES")
@@ -197,31 +202,31 @@ with open(argv[1], "r") as inputFile:
             elif ParsingContiguity:
                 # Retrieve the values from the file.
                 try:
-                    cntZone1, cntZone2, cntChannel, cntConductance, cntDeploymentCost = inputLine.split()
+                    cnt_zone1, cnt_zone2, cnt_channel, cnt_conductance, cnt_deployment_cost = inputLine.split()
                 except ValueError:
                     print("Error: Wrong line format '%s'" % inputLine)
                     continue
                 # Search the instance of the first zone.
-                SearchedZone1 = SearchZone(ZoneList, int(cntZone1))
+                SearchedZone1 = SearchZone(ZoneList, int(cnt_zone1))
                 if SearchedZone1 is None:
-                    print("[Error] Can't find zone : %s" % cntZone1)
+                    print("[Error] Can't find zone : %s" % cnt_zone1)
                     exit(1)
                 # Search the instance of the first zone.
-                SearchedZone2 = SearchZone(ZoneList, int(cntZone2))
+                SearchedZone2 = SearchZone(ZoneList, int(cnt_zone2))
                 if SearchedZone2 is None:
-                    print("[Error] Can't find zone : %s" % cntZone2)
+                    print("[Error] Can't find zone : %s" % cnt_zone2)
                     exit(1)
                 # Search the instance of the channel.
-                SearchedChannel = SearchChannel(ChannelList, int(cntChannel))
+                SearchedChannel = SearchChannel(ChannelList, int(cnt_channel))
                 if SearchedChannel is None:
-                    print("[Error] Can't find channel : %s" % cntChannel)
+                    print("[Error] Can't find channel : %s" % cnt_channel)
                     exit(1)
                 # Create the new contiguity.
                 NewContiguity = Contiguity(SearchedZone1,
                                            SearchedZone2,
                                            SearchedChannel,
-                                           float(cntConductance),
-                                           float(cntDeploymentCost))
+                                           float(cnt_conductance),
+                                           float(cnt_deployment_cost))
                 # Add the contiguity to the list of contiguities.
                 ContiguityList[SearchedZone1, SearchedZone2, SearchedChannel] = NewContiguity
                 # Set the same values for the vice-versa of the zones.
@@ -230,7 +235,7 @@ with open(argv[1], "r") as inputFile:
                 print("* %s" % NewContiguity.to_string())
                 # Delete the auxiliary variables.
                 del inputLine, NewContiguity, SearchedZone1, SearchedZone2, SearchedChannel
-                del cntZone1, cntZone2, cntChannel, cntConductance, cntDeploymentCost
+                del cnt_zone1, cnt_zone2, cnt_channel, cnt_conductance, cnt_deployment_cost
 
             elif inputLine == "<TASK>":
                 ParsingTask = True
@@ -241,17 +246,17 @@ with open(argv[1], "r") as inputFile:
             elif ParsingTask:
                 # Retrieve the values from the file.
                 try:
-                    taskLabel, taskSize, taskZone, taskMobile = inputLine.split()
+                    tsk_label, tsk_size, tsk_zone, tsk_mobile = inputLine.split()
                 except ValueError:
                     print("Error: Wrong line format '%s'" % inputLine)
                     continue
                 # Search the instance of the zone.
-                SearchedZone = SearchZone(ZoneList, int(taskZone))
+                SearchedZone = SearchZone(ZoneList, int(tsk_zone))
                 if SearchedZone is None:
-                    print("[Error] Can't find zone : %s" % taskZone)
+                    print("[Error] Can't find zone : %s" % tsk_zone)
                     exit(1)
                 # Create the new task.
-                NewTask = Task(TaskIndex, taskLabel, int(taskSize), SearchedZone, int(taskMobile))
+                NewTask = Task(TaskIndex, tsk_label, int(tsk_size), SearchedZone, int(tsk_mobile))
                 # Append the task to the list of tasks.
                 TaskList.append(NewTask)
                 # Increment the task index
@@ -259,7 +264,7 @@ with open(argv[1], "r") as inputFile:
                 # Print the task.
                 print("* %s" % NewTask.to_string())
                 # Clear the variables.
-                del inputLine, taskLabel, taskSize, taskZone, taskMobile, NewTask
+                del inputLine, tsk_label, tsk_size, tsk_zone, tsk_mobile, NewTask
 
             elif inputLine == "<DATAFLOW>":
                 ParsingDataflow = True
@@ -270,27 +275,32 @@ with open(argv[1], "r") as inputFile:
             elif ParsingDataflow:
                 # Retrieve the values from the file.
                 try:
-                    dfLable, dfSource, dfTarget, dfBand, dfDelay, dfError = inputLine.split()
+                    df_label, df_source, df_target, df_band, df_delay, df_error = inputLine.split()
                 except ValueError:
                     print("Error: Wrong line format '%s'" % inputLine)
                     continue
                 # Search the instance of the source task.
-                SourceTask = SearchTask(TaskList, dfSource)
+                SourceTask = SearchTask(TaskList, df_source)
                 if SourceTask is None:
-                    print("[Error] Can't find the source task : %s" % dfSource)
+                    print("[Error] Can't find the source task : %s" % df_source)
                     exit(1)
                 # Search the instance of the target task.
-                TargetTask = SearchTask(TaskList, dfTarget)
+                TargetTask = SearchTask(TaskList, df_target)
                 if TargetTask is None:
-                    print("[Error] Can't find the target task : %s" % dfTarget)
+                    print("[Error] Can't find the target task : %s" % df_target)
                     exit(1)
                 # Check if the source and target task are the same.
                 if SourceTask == TargetTask:
                     print("[Error] Can't define a dataflow between the same task : %s -> %s" % (SourceTask, TargetTask))
                     exit(1)
                 # Create the new Data-Flow
-                NewDataFlow = DataFlow(DataFlowIndex, dfLable, SourceTask, TargetTask, int(dfBand), int(dfDelay),
-                                       int(dfError))
+                NewDataFlow = DataFlow(DataFlowIndex,
+                                       df_label,
+                                       SourceTask,
+                                       TargetTask,
+                                       int(df_band),
+                                       int(df_delay),
+                                       int(df_error))
                 # Append the data-flow to the list of data-flows.
                 DataFlowList.append(NewDataFlow)
                 # Print the data-flow.
@@ -298,7 +308,7 @@ with open(argv[1], "r") as inputFile:
                 # Increment the index of data-flows.
                 DataFlowIndex += 1
                 # Clear the variables.
-                del dfLable, dfSource, dfTarget, dfBand, dfDelay, dfError
+                del df_label, df_source, df_target, df_band, df_delay, df_error
                 del SourceTask, TargetTask, NewDataFlow
 
 # Clean auxiliary variables.
@@ -342,6 +352,7 @@ parse_timer_end = time.time()
 
 Separator()
 
+exit(0)
 # ---------------------------------------------------------------------------------------------------------------------
 # ---------------------------------------------------------------------------------------------------------------------
 Separator()

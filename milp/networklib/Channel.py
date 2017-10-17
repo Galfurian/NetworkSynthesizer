@@ -1,5 +1,5 @@
 class Channel:
-    def __init__(self, label, id, cost, size, energy, df_energy, delay, error, wireless):
+    def __init__(self, label, id, cost, size, energy, df_energy, delay, error, wireless, max_conn):
         self.label = label
         self.id = id
         self.cost = cost
@@ -9,6 +9,7 @@ class Channel:
         self.delay = delay
         self.error = error
         self.wireless = wireless
+        self.max_conn = max_conn
         self.allowed = []
         self.allowedBetween = {}
 
@@ -34,41 +35,45 @@ class Channel:
         print("#     Delay     : %s" % (self.delay))
         print("#     Error     : %s" % (self.error))
         print("#     Wireless  : %s" % (self.wireless))
+        print("#     Max Conn  : %s" % (self.max_conn))
 
     @staticmethod
     def get_header():
-        return "%-15s | %2s | %5s | %10s | %6s | %12s | %6s | %6s | %8s |" % ("label",
-                                                                              "id",
-                                                                              "cost",
-                                                                              "size",
-                                                                              "energy",
-                                                                              "df_energy",
-                                                                              "delay",
-                                                                              "error",
-                                                                              "wireless")
+        return "%-15s | %2s | %5s | %10s | %6s | %10s | %6s | %6s | %8s | %8s |" % ("label",
+                                                                                    "id",
+                                                                                    "cost",
+                                                                                    "size",
+                                                                                    "energy",
+                                                                                    "df_energy",
+                                                                                    "delay",
+                                                                                    "error",
+                                                                                    "wireless",
+                                                                                    "max_conn")
 
     @staticmethod
     def get_header_caps():
-        return "%-15s | %2s | %5s | %10s | %6s | %12s | %6s | %6s | %8s |" % ("LABEL",
-                                                                              "ID",
-                                                                              "COST",
-                                                                              "SIZE",
-                                                                              "ENERGY",
-                                                                              "DF_ENERGY",
-                                                                              "DELAY",
-                                                                              "ERROR",
-                                                                              "WIRELESS")
+        return "%-15s | %2s | %5s | %10s | %6s | %10s | %6s | %6s | %8s | %8s |" % ("LABEL",
+                                                                                    "ID",
+                                                                                    "COST",
+                                                                                    "SIZE",
+                                                                                    "ENERGY",
+                                                                                    "DF_ENERGY",
+                                                                                    "DELAY",
+                                                                                    "ERROR",
+                                                                                    "WIRELESS",
+                                                                                    "MAX_CONN")
 
     def to_string(self):
-        return "%-15s | %2s | %5s | %10s | %6s | %12s | %6s | %6s | %8s |" % (self.label,
-                                                                              self.id,
-                                                                              self.cost,
-                                                                              self.size,
-                                                                              self.energy,
-                                                                              self.df_energy,
-                                                                              self.delay,
-                                                                              self.error,
-                                                                              self.wireless)
+        return "%-15s | %2s | %5s | %10s | %6s | %10s | %6s | %6s | %8s | %8s |" % (self.label,
+                                                                                    self.id,
+                                                                                    self.cost,
+                                                                                    self.size,
+                                                                                    self.energy,
+                                                                                    self.df_energy,
+                                                                                    self.delay,
+                                                                                    self.error,
+                                                                                    self.wireless,
+                                                                                    self.max_conn)
 
     def toScnsl(self):
         ChannelSetupName = ("csb_%s" % (self.id))
