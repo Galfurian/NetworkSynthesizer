@@ -1,10 +1,9 @@
-from Node import Node
-from Channel import Channel
-from Zone import Zone
-from Contiguity import Contiguity
-from Task import Task
-from DataFlow import DataFlow
-
+from Node import *
+from Channel import *
+from Zone import *
+from Contiguity import *
+from Task import *
+from DataFlow import *
 
 class NetworkInstance:
     def __init__(self):

@@ -21,49 +21,71 @@ from networklib.NetworkChecker import *
 from networklib.ScnslGenerator import *
 from networklib.TechLibPrinter import *
 from networklib.UmlForScilabPrinter import *
+from networklib.NetworkInstance import *
 
-def usage():
-    print("Usage: %s [arguments]" % os.path.basename(argv[0]))
-    print("     Argument 1 : Input Instance.")
-    print("     Argument 2 : Nodes Catalogue.")
-    print("     Argument 3 : Channels Catalogue.")
-    print("     Argument 4 : Optimization Objective:")
-    print("                  {1:Cost, 2:Energy, 3:Delay, 4:Error}[Default:1]")
-    print("     Argument 5 : Generate XML:")
-    print("                  {0:No, 1:Yes}[Default:0]")
-    print("     Argument 6 : Generate SCNSL:")
-    print("                  {0:No, 1:Yes}[Default:0]")
+
+def Separator():
+    print("*******************************************************************************")
+
+
+def Usage():
+    About()
+    Separator()
+    print("* Usage:")
+    print("*     %s [Arguments]" % os.path.basename(argv[0]))
+    print("*")
+    print("* Arguments:")
+    print("*     [1] : Input Instance.")
+    print("*     [2] : Nodes Catalogue.")
+    print("*     [3] : Channels Catalogue.")
+    print("*     [4] : Optimization Objective: {1:Cost (Def), 2:Energy, 3:Delay, 4:Error}")
+    print("*     [5] : Generate XML:           {0:No   (Def), 1:Yes}")
+    print("*     [6] : Generate SCNSL:         {0:No   (Def), 1:Yes}")
+    Separator()
     exit(1)
 
 
+def About():
+    Separator()
+    print("* Network Synthesizer")
+    print("* Version : 0.1")
+    print("* Authors : Enrico Fraccaroli, Romeo Rizzi")
+    Separator()
+
+
+# ---------------------------------------------------------------------------------------------------------------------
 # Files parsing starting time.
 parse_timer_begin = time.time()
 
 OPTIMIZATION = 1
 XML_GENERATION = 0
 SCNSL_GENERATION = 0
+VERBOSE = 1
 
 # ---------------------------------------------------------------------------------------------------------------------
 argc = len(argv)
 if (argc <= 2) or (argc >= 7):
-    usage()
+    Usage()
 
 if argc >= 5:
     OPTIMIZATION = int(argv[4])
     if (OPTIMIZATION <= 0) or (OPTIMIZATION >= 6):
-        usage()
+        Usage()
 
 if argc >= 6:
     XML_GENERATION = int(argv[5])
     if (XML_GENERATION != 0) and (XML_GENERATION != 1):
-        usage()
+        Usage()
 
 if argc >= 7:
     SCNSL_GENERATION = int(argv[6])
     if (SCNSL_GENERATION != 0) and (SCNSL_GENERATION != 1):
-        usage()
+        Usage()
 
 # ---------------------------------------------------------------------------------------------------------------------
+# Start with the general information.
+About()
+
 # The catalogs and input lists
 NodeList = []
 ChannelList = []
@@ -73,11 +95,10 @@ TaskList = []
 DataFlowList = []
 
 # ---------------------------------------------------------------------------------------------------------------------
-# ---------------------------------------------------------------------------------------------------------------------
-print("###############################################################################")
-print("# READING CATALOG FILE ########################################################")
-print("###############################################################################")
-print("# Loading nodes catalog...")
+Separator()
+print("* READING NODEs CATALOG FILE")
+Separator()
+print("* %s" % Node.get_header_caps())
 with open(argv[2], "r") as nodeFile:
     for line in nodeFile:
         if (line[0] != ';') and (line[0] != '#'):
@@ -94,11 +115,16 @@ with open(argv[2], "r") as nodeFile:
             # Append the node to the list of nodes.
             NodeList.append(NewNode)
             # Print the node.
-            print(NewNode.to_string())
+            print("* %s" % NewNode.to_string())
             # Delete the auxiliary variables.
             del nodeLine, NewNode, ndLabel, ndId, ndCost, ndSize, ndMobile, ndEnergy, ndTaskEnergy
-print("###############################################################################")
-print("# Loading channel catalog...")
+
+# ---------------------------------------------------------------------------------------------------------------------
+Separator()
+print("* READING CHANNELSs CATALOG FILE")
+Separator()
+print("* %s" % Channel.get_header_caps())
+
 with open(argv[3], "r") as channelFile:
     for line in channelFile:
         if (line[0] != ';') and (line[0] != '#'):
@@ -122,16 +148,14 @@ with open(argv[3], "r") as channelFile:
             # Append the channel to the list of channels.
             ChannelList.append(NewChannel)
             # Print the channel.
-            print(NewChannel.to_string())
+            print("* %s" % NewChannel.to_string())
             # Delete the auxiliary variables.
             del channelLine, NewChannel, chLable, chId, chCost, chSize, chEnergy, chDfEnergy, chDelay, chError, chWireless
 
 # ---------------------------------------------------------------------------------------------------------------------
-# ---------------------------------------------------------------------------------------------------------------------
-print("")
-print("###############################################################################")
-print("# READING INPUT INSTANCE FILE #################################################")
-print("###############################################################################")
+Separator()
+print("* READING INPUT INSTANCE FILE")
+Separator()
 ParsingZone = False
 ParsingContiguity = False
 ParsingTask = False
@@ -145,10 +169,10 @@ with open(argv[1], "r") as inputFile:
         if (inputLine[0] != ';') and (inputLine[0] != '#'):
             if inputLine == "<ZONE>":
                 ParsingZone = True
-                print("# Loading zones...")
+                print("* LOADING ZONES")
             elif inputLine == "</ZONE>":
                 ParsingZone = False
-                print("# Stop loading zones...")
+                print("* LOADING ZONES - Done")
             elif ParsingZone:
                 # Retrieve the values from the file.
                 try:
@@ -161,15 +185,15 @@ with open(argv[1], "r") as inputFile:
                 # Append the zone to the list of zones.
                 ZoneList.append(NewZone)
                 # Print the zone.
-                print(NewZone.to_string())
+                print("* %s" % NewZone.to_string())
                 # Delete the auxiliary variables.
                 del NewZone, znLabel, znX, znY, znZ
             elif inputLine == "<CONTIGUITY>":
                 ParsingContiguity = True
-                print("# Loading contiguities...")
+                print("* LOADING CONTIGUITIES")
             elif inputLine == "</CONTIGUITY>":
                 ParsingContiguity = False
-                print("# Stop loading contiguities...")
+                print("* LOADING CONTIGUITIES - Done")
             elif ParsingContiguity:
                 # Retrieve the values from the file.
                 try:
@@ -202,16 +226,18 @@ with open(argv[1], "r") as inputFile:
                 ContiguityList[SearchedZone1, SearchedZone2, SearchedChannel] = NewContiguity
                 # Set the same values for the vice-versa of the zones.
                 ContiguityList[SearchedZone2, SearchedZone1, SearchedChannel] = NewContiguity
+                # Print the contiguity.
+                print("* %s" % NewContiguity.to_string())
                 # Delete the auxiliary variables.
                 del inputLine, NewContiguity, SearchedZone1, SearchedZone2, SearchedChannel
                 del cntZone1, cntZone2, cntChannel, cntConductance, cntDeploymentCost
 
             elif inputLine == "<TASK>":
                 ParsingTask = True
-                print("# Loading tasks...")
+                print("* LOADING TASKS")
             elif inputLine == "</TASK>":
                 ParsingTask = False
-                print("# Stop loading tasks...")
+                print("* LOADING TASKS - Done")
             elif ParsingTask:
                 # Retrieve the values from the file.
                 try:
@@ -231,16 +257,16 @@ with open(argv[1], "r") as inputFile:
                 # Increment the task index
                 TaskIndex += 1
                 # Print the task.
-                print(NewTask.to_string())
+                print("* %s" % NewTask.to_string())
                 # Clear the variables.
                 del inputLine, taskLabel, taskSize, taskZone, taskMobile, NewTask
 
             elif inputLine == "<DATAFLOW>":
                 ParsingDataflow = True
-                print("# Loading Data-Flows...")
+                print("* LOADING DATA-FLOWS")
             elif inputLine == "</DATAFLOW>":
                 ParsingDataflow = False
-                print("# Stop loading Data-Flows...")
+                print("* LOADING DATA-FLOWS - Done")
             elif ParsingDataflow:
                 # Retrieve the values from the file.
                 try:
@@ -268,7 +294,7 @@ with open(argv[1], "r") as inputFile:
                 # Append the data-flow to the list of data-flows.
                 DataFlowList.append(NewDataFlow)
                 # Print the data-flow.
-                print(NewDataFlow.to_string())
+                print("* %s" % NewDataFlow.to_string())
                 # Increment the index of data-flows.
                 DataFlowIndex += 1
                 # Clear the variables.
@@ -282,11 +308,12 @@ del ParsingTask
 del ParsingDataflow
 del TaskIndex
 del DataFlowIndex
+Separator()
 
 # ---------------------------------------------------------------------------------------------------------------------
 # ---------------------------------------------------------------------------------------------------------------------
 # By default set the unknown contiguities to 0.0, unless the pair is composed by the same zone, in that case its 1.0.
-print("# Filling missing contiguities...")
+print("* DEFINING MISSING CONTIGUITIES")
 for zone1 in ZoneList:
     for zone2 in ZoneList:
         for channel in ChannelList:
@@ -305,7 +332,7 @@ for zone1 in ZoneList:
         for channel in ChannelList:
             contiguity = ContiguityList.get((zone1, zone2, channel))
             if contiguity.conductance > 0 and contiguity.zone_one != contiguity.zone_two:
-                print(contiguity.to_string())
+                print("* %s" % contiguity.to_string())
             del channel, contiguity
         del zone2
     del zone1
@@ -313,14 +340,17 @@ for zone1 in ZoneList:
 # Files parsing ending time.
 parse_timer_end = time.time()
 
+Separator()
+
 # ---------------------------------------------------------------------------------------------------------------------
 # ---------------------------------------------------------------------------------------------------------------------
-print("###############################################################################")
-print("# Preparing the data structures...")
+Separator()
+print("* PRE-PROCESSING")
+Separator()
 
 # Datastructures starting time.
 structure_timer_begin = time.time()
-print("#     Checking in which nodes the tasks can be placed into...")
+print("* Checking in which nodes the tasks can be placed into...")
 for task in TaskList:
     for node in NodeList:
         if task.mobile <= node.mobile:
@@ -328,7 +358,7 @@ for task in TaskList:
                 task.setAllowedNode(node)
                 node.setAllowedTask(task)
 
-print("#     Checking in which channels the data-flows can be placed into...")
+print("* Checking in which channels the data-flows can be placed into...")
 for dataflow in DataFlowList:
     for channel in ChannelList:
         contiguity = ContiguityList.get((dataflow.source.zone, dataflow.target.zone, channel))
@@ -344,65 +374,91 @@ for dataflow in DataFlowList:
                         channel.setAllowedDataFlow(dataflow)
         del contiguity
 
-print("#")
-print("# The tasks can be placed into:")
+print("* Checking if there is a suitable node for each task...")
 for task in TaskList:
-    print("#     Task '%15s' Nodes : %s" % (task, task.getAllowedNode()))
+    # print("*     Task '%15s' Nodes : %s" % (task, task.getAllowedNode()))
     if len(task.getAllowedNode()) == 0:
         print("There are no node which can contain task %s." % task)
         exit(1)
 
-print("#")
-print("# The data-flows can be placed into:")
-for dataflow in DataFlowList:
-    print("#     DataFlow '%15s' Channels : %s" % (dataflow, dataflow.getAllowedChannel()))
+if VERBOSE:
+    Separator()
+    print("* The tasks can be placed into:")
+    for task in TaskList:
+        print("*     Task '%15s' Nodes : %s" % (task, task.getAllowedNode()))
+    print("*")
+    print("* The data-flows can be placed into:")
+    for dataflow in DataFlowList:
+        print("*     DataFlow '%15s' Channels : %s" % (dataflow, dataflow.getAllowedChannel()))
 
-print("#")
-print("# The nodes can host:")
-for node in NodeList:
-    print("#     Node '%15s' Tasks : %s" % (node, node.getAllowedTask()))
+    print("*")
+    print("* The nodes can host:")
+    for node in NodeList:
+        print("*     Node '%15s' Tasks : %s" % (node, node.getAllowedTask()))
 
-print("#")
-print("# The channels can host:")
-for channel in ChannelList:
-    print("#     Channel '%15s' Data-Flows : %s" % (channel, channel.getAllowedDataFlow()))
+    print("*")
+    print("* The channels can host:")
+    for channel in ChannelList:
+        print("*     Channel '%15s' Data-Flows : %s" % (channel, channel.getAllowedDataFlow()))
+
+Separator()
 
 # ---------------------------------------------------------------------------------------------------------------------
 # ---------------------------------------------------------------------------------------------------------------------
-print("###############################################################################")
-print("# Creating the optimization model...")
-m = Model('Mob-NETWORK')
+Separator()
+print("* GENERATING OPTIMIZATION MODEL")
+Separator()
+
+# Create the model.
+m = Model('DistributedEmbededSystem')
 
 # ---------------------------------------------------------------------------------------------------------------------
 # ---------------------------------------------------------------------------------------------------------------------
-print("###############################################################################")
-print("# Defining model variables...")
-print("#")
-print("# Defining variable UB_on_N...")
-print("#   Variable UB_on_N is defined for each node of type node and for each zone as")
-print("#    the maximum number of tasks which reside inside zone. It is the maximum")
-print("#    number of nodes necessary inside a zone.")
+Separator()
+print("* GENERATING VARIABLES")
+Separator()
+
+# Create the model variables.
 UB_on_N = {}
+UB_on_C = {}
+N = {}
+C = {}
+x = {}
+y = {}
+md = {}
+gamma = {}
+rho = {}
+w = {}
+h = {}
+j = {}
+q = {}
+
+# Create the support variables.
 indexSetOfClonesOfNodesInArea = {}
+indexSetOfClonesOfChannel = {}
+
+# ---------------------------------------------------------------------------------------------------------------------
 for zone in ZoneList:
     for node in NodeList:
         UB_on_N[node, zone] = len([task for task in node.getAllowedTask() if task.zone == zone])
         indexSetOfClonesOfNodesInArea[node, zone] = range(1, UB_on_N[node, zone] + 1)
-print("# LEN: %s" % len(UB_on_N))
-print("#")
-print("# Defining variable UB_on_C...")
-print("#   Variable UB_on_C is defined for each type of channel as the maximum number")
-print("#    of dataflow. It is the maximum number of necessary channels.")
-UB_on_C = {}
-indexSetOfClonesOfChannel = {}
+print("*")
+print("* UB_on_N [%s]" % len(UB_on_N))
+print("* \tVariable UB_on_N is the upper-bound on the number of nodes of a certain")
+print("* \ttype inside a given zone. This value can be pre-computed.")
+print("*")
+
+# ---------------------------------------------------------------------------------------------------------------------
 for channel in ChannelList:
     UB_on_C[channel] = len(channel.getAllowedDataFlow())
     indexSetOfClonesOfChannel[channel] = range(1, UB_on_C[channel] + 1)
-print("# LEN: %s" % len(UB_on_C))
-print("#")
-print("# Defining variable N...")
-print("#   Variable N is defined for each node and for each zone.")
-N = {}
+print("*")
+print("* UB_on_C [%s]" % len(UB_on_C))
+print("* \tVariable UB_on_C is the upper-bound on the number of channels of a certain")
+print("* \ttype. This upper-bound can be pre-computed")
+print("*")
+
+# ---------------------------------------------------------------------------------------------------------------------
 for node in NodeList:
     for zone in ZoneList:
         N[node, zone] = m.addVar(lb=0.0,
@@ -410,25 +466,28 @@ for node in NodeList:
                                  obj=0.0,
                                  vtype=GRB.CONTINUOUS,
                                  name='N_%s_%s' % (node, zone))
-        m.update()
-print("# LEN: %s" % len(N))
-print("#")
-print("# Defining variable C...")
-print("#   Variable C is defined for each channel.")
-C = {}
+# Log the information concerning the variable.
+print("*")
+print("* N [%s]" % len(N))
+print("* \tVariable N identifies the number of deployed nodes of a certain type inside")
+print("* \ta given zone. The upper-bound on this variable is equal to UB_on_N.")
+print("*")
+
+# ---------------------------------------------------------------------------------------------------------------------
 for channel in ChannelList:
     C[channel] = m.addVar(lb=0.0,
                           ub=UB_on_C[channel],
                           obj=0.0,
                           vtype=GRB.CONTINUOUS,
                           name='C_%s' % channel)
-    m.update()
-print("# LEN: %s" % len(C))
-print("#")
-print("# Defining variable x...")
-print("#   Variable x is important, if a variable x[v1,z1,p1] is true, it means that")
-print("#     there are p1 nodes of type v1 inside zone z1.")
-x = {}
+# Log the information concerning the variable.
+print("*")
+print("* C [%s]" % len(C))
+print("* \tVariable C identifies the number of deployed channels of a certain type.")
+print("* \tThe upper-bound on this variable is equal to UB_on_C.")
+print("*")
+
+# ---------------------------------------------------------------------------------------------------------------------
 for node in NodeList:
     for zone in ZoneList:
         for nodeIndex in indexSetOfClonesOfNodesInArea[node, zone]:
@@ -437,13 +496,15 @@ for node in NodeList:
                                                 obj=0.0,
                                                 vtype=GRB.BINARY,
                                                 name='x_%s_%s_%s' % (node, nodeIndex, zone))
-            m.update()
-print("# LEN: %s" % len(x))
-print("#")
-print("# Defining variable y...")
-print("#   Variable y is defined for each channel, and for each instance p")
-print("#    of the channel.")
-y = {}
+# Log the information concerning the variable.
+print("*")
+print("* x [%s]" % len(x))
+print("* \tVariable x identifies the number of nodes of a given type deployed inside")
+print("* \ta given zone. If the variable x[n1,n1q,z1] is true, it means that")
+print("* \tthere are n1q nodes of type n1 inside zone z1.")
+print("*")
+
+# ---------------------------------------------------------------------------------------------------------------------
 for channel in ChannelList:
     for channelIndex in indexSetOfClonesOfChannel[channel]:
         y[channel, channelIndex] = m.addVar(lb=0.0,
@@ -451,25 +512,29 @@ for channel in ChannelList:
                                             obj=0.0,
                                             vtype=GRB.BINARY,
                                             name='y_%s_%s' % (channel, channelIndex))
-        m.update()
-print("# LEN: %s" % len(y))
-print("#")
-print("# Defining variable md...")
-print("#   Md is defined for each dataflow which has at least one mobile task.")
-md = {}
+# Log the information concerning the variable.
+print("*")
+print("* y [%s]" % len(y))
+print("* \tVariable y identifies the number of deployed channels for a given type of")
+print("* \tchannel. In particular, if the variable y[c1,c1q] is true, it means that")
+print("* \tthere are c1q channels of type c1 deployed inside the network.")
+print("*")
+
+# ---------------------------------------------------------------------------------------------------------------------
 for dataflow in DataFlowList:
     md[dataflow] = m.addVar(lb=0.0,
                             ub=1.0,
                             obj=0.0,
                             vtype=GRB.BINARY,
                             name='md_%s' % dataflow)
-    m.update()
-print("# LEN: %s" % len(md))
-print("#")
-print("# Defining variable gamma...")
-print("#   For each dataflow and for each task gamma is defined if the task is not ")
-print("#   the source nor the target task of the dataflow.")
-gamma = {}
+# Log the information concerning the variable.
+print("*")
+print("* md [%s]" % len(md))
+print("* \tVariable md identifies if at least one of the tasks connected by a given")
+print("* \tdata-flow is a mobile task.")
+print("*")
+
+# ---------------------------------------------------------------------------------------------------------------------
 for dataflow in DataFlowList:
     for task in TaskList:
         if dataflow.hasTask(task) is False:
@@ -478,19 +543,20 @@ for dataflow in DataFlowList:
                                              obj=0.0,
                                              vtype=GRB.BINARY,
                                              name='gamma_%s_%s' % (dataflow, task))
-            m.update()
         else:
             gamma[dataflow, task] = m.addVar(lb=1.0,
                                              ub=1.0,
                                              obj=0.0,
                                              vtype=GRB.BINARY,
                                              name='gamma_%s_%s' % (dataflow, task))
-            m.update()
-print("# LEN: %s" % len(gamma))
-print("#")
-print("# Defining variable rho...")
-print("#   Rho is used to relate the presence of two tasks into different nodes.")
-rho = {}
+# Log the information concerning the variable.
+print("*")
+print("* gamma [%s]" % len(gamma))
+print("* \tVariable gamma identifies if the given task is not the source or target")
+print("* \ttask of the given data-flow.")
+print("*")
+
+# ---------------------------------------------------------------------------------------------------------------------
 for task1 in TaskList:
     for task2 in TaskList:
         if task1 != task2:
@@ -499,12 +565,14 @@ for task1 in TaskList:
                                          obj=0.0,
                                          vtype=GRB.BINARY,
                                          name='rho_%s_%s' % (task1, task2))
-            m.update()
-print("# LEN: %s" % len(rho))
-print("#")
-print("# Defining variable w...")
-print("#   Variable w identifies the association between a task and a type of node.")
-w = {}
+# Log the information concerning the variable.
+print("*")
+print("* rho [%s]" % len(rho))
+print("* \tVariable rho identifies if two tasks are deployed inside two different")
+print("* \tnodes.")
+print("*")
+
+# ---------------------------------------------------------------------------------------------------------------------
 for task in TaskList:
     for node in task.getAllowedNode():
         for nodeIndex in indexSetOfClonesOfNodesInArea[node, task.zone]:
@@ -513,13 +581,14 @@ for task in TaskList:
                                                 obj=0.0,
                                                 vtype=GRB.BINARY,
                                                 name='w_%s_%s_%s' % (task, node, nodeIndex))
-            m.update()
-print("# LEN: %s" % len(w))
-print("#")
-print("# Defining variable h...")
-print("#   Variable h is defined for each dataflow, for each channel and for each instance p")
-print("#    of the channel.")
-h = {}
+# Log the information concerning the variable.
+print("*")
+print("* w [%s]" % len(w))
+print("* \tVariable w identifies if the given task has been deployed inside the ")
+print("* \tgiven instance of the given type of node.")
+print("*")
+
+# ---------------------------------------------------------------------------------------------------------------------
 for dataflow in DataFlowList:
     for channel in dataflow.getAllowedChannel():
         for channelIndex in indexSetOfClonesOfChannel[channel]:
@@ -528,11 +597,28 @@ for dataflow in DataFlowList:
                                                           obj=0.0,
                                                           vtype=GRB.BINARY,
                                                           name='h_%s_%s_%s' % (dataflow, channel, channelIndex))
-            m.update()
-print("# LEN: %s" % len(h))
-print("#")
-print("# Defining variable j...")
-j = {}
+# Log the information concerning the variable.
+print("*")
+print("* h [%s]" % len(h))
+print("* \tVariable h identifies if the given data-flow has been deployed inside the ")
+print("* \tgiven instance of the given type of channel.")
+print("*")
+
+# ---------------------------------------------------------------------------------------------------------------------
+for zone1 in ZoneList:
+    for zone2 in ZoneList:
+        for channel in ChannelList:
+            if ContiguityList.get((zone1, zone2, channel)).conductance > 0:
+                q[channel, zone1, zone2] = True
+            else:
+                q[channel, zone1, zone2] = False
+print("*")
+print("* q [%s]" % len(q))
+print("* \tVariable q is pre-computed and identifies if the given type of channel")
+print("* \tcan be placed between the given pair of zones.")
+print("*")
+
+# ---------------------------------------------------------------------------------------------------------------------
 for zone1 in ZoneList:
     for zone2 in ZoneList:
         for channel in ChannelList:
@@ -545,7 +631,6 @@ for zone1 in ZoneList:
                                                                       vtype=GRB.BINARY,
                                                                       name='j_%s_%s_%s_%s' % (
                                                                           channel, channelIndex, zone1, zone2))
-                    m.update()
             else:
                 for channelIndex in indexSetOfClonesOfChannel[channel]:
                     j[channel, channelIndex, zone1, zone2] = m.addVar(lb=0.0,
@@ -554,34 +639,26 @@ for zone1 in ZoneList:
                                                                       vtype=GRB.BINARY,
                                                                       name='j_%s_%s_%s_%s' % (
                                                                           channel, channelIndex, zone1, zone2))
-                    m.update()
-print("# LEN: %s" % len(j))
-print("#")
-print("# Defining variable q...")
-q = {}
-for zone1 in ZoneList:
-    for zone2 in ZoneList:
-        for channel in ChannelList:
-            if ContiguityList.get((zone1, zone2, channel)).conductance > 0:
-                q[channel, zone1, zone2] = True
-            else:
-                q[channel, zone1, zone2] = False
-print("# LEN: %s" % len(q))
+# Log the information concerning the variable.
+print("*")
+print("* j [%s]" % len(j))
+print("* \tVariable j identifies if the given instnace of the given channel has a ")
+print("* \tvalid conductance between the given pari of zones.")
+print("*")
 
+# ---------------------------------------------------------------------------------------------------------------------
 # Datastructures ending time.
 structure_timer_end = time.time()
 
 # Model update (force the take in of all the variables):
 m.update()
 
-exit(0)
-
-# BEGIN - The constraints section - BEGIN
-
+# ---------------------------------------------------------------------------------------------------------------------
+# ---------------------------------------------------------------------------------------------------------------------
 # Constraints definition start.
 constraints_timer_begin = time.time()
 
-print("###############################################################################")
+print("*******************************************************************************")
 print("# Defining constraints...")
 ################################################################################
 print("# Defining constraint C1")
@@ -951,7 +1028,7 @@ for channel in ChannelList:
 # Constraints definition end.
 constraints_timer_end = time.time()
 
-print("###############################################################################")
+print("*******************************************************************************")
 print("# Defining the optimization objective:")
 
 if OPTIMIZATION == 1:
@@ -1045,7 +1122,7 @@ elif OPTIMIZATION == 5:
     )
     m.update()
 
-print("###############################################################################")
+print("*******************************************************************************")
 print("# Starting optimization...")
 
 # Optimization start.
@@ -1060,7 +1137,7 @@ optimization_timer_end = time.time()
 # print(solution
 if m.status == GRB.status.OPTIMAL:
     print('Optimal objective: %g' % m.objVal)
-    print("###############################################################################")
+    print("*******************************************************************************")
     print('# Optimal Solution')
     # Economic Cost
     TotalCostCable = 0
@@ -1196,9 +1273,18 @@ else:
 if XML_GENERATION == 1:
     print("###########################################")
     print("# Generating UML for Scilab...")
-    umlPrinter = UmlForScilabPrinter(NodeList, ChannelList, ZoneList, ContiguityList, TaskList, DataFlowList,
+    umlPrinter = UmlForScilabPrinter(NodeList,
+                                     ChannelList,
+                                     ZoneList,
+                                     ContiguityList,
+                                     TaskList,
+                                     DataFlowList,
                                      SolN,
-                                     SolC, SolW, SolH, indexSetOfClonesOfChannel, indexSetOfClonesOfNodesInArea)
+                                     SolC,
+                                     SolW,
+                                     SolH,
+                                     indexSetOfClonesOfChannel,
+                                     indexSetOfClonesOfNodesInArea)
     umlPrinter.printNetwork()
     print("###########################################")
     print("# Generating Technological Library...")

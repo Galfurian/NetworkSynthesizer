@@ -35,16 +35,40 @@ class Channel:
         print("#     Error     : %s" % (self.error))
         print("#     Wireless  : %s" % (self.wireless))
 
+    @staticmethod
+    def get_header():
+        return "%-15s | %2s | %5s | %10s | %6s | %12s | %6s | %6s | %8s |" % ("label",
+                                                                              "id",
+                                                                              "cost",
+                                                                              "size",
+                                                                              "energy",
+                                                                              "df_energy",
+                                                                              "delay",
+                                                                              "error",
+                                                                              "wireless")
+
+    @staticmethod
+    def get_header_caps():
+        return "%-15s | %2s | %5s | %10s | %6s | %12s | %6s | %6s | %8s |" % ("LABEL",
+                                                                              "ID",
+                                                                              "COST",
+                                                                              "SIZE",
+                                                                              "ENERGY",
+                                                                              "DF_ENERGY",
+                                                                              "DELAY",
+                                                                              "ERROR",
+                                                                              "WIRELESS")
+
     def to_string(self):
-        return "%-15s %2s %5s %10s %3s %3s %3s %3s %1s" % (self.label,
-                                                           self.id,
-                                                           self.cost,
-                                                           self.size,
-                                                           self.energy,
-                                                           self.df_energy,
-                                                           self.delay,
-                                                           self.error,
-                                                           self.wireless)
+        return "%-15s | %2s | %5s | %10s | %6s | %12s | %6s | %6s | %8s |" % (self.label,
+                                                                              self.id,
+                                                                              self.cost,
+                                                                              self.size,
+                                                                              self.energy,
+                                                                              self.df_energy,
+                                                                              self.delay,
+                                                                              self.error,
+                                                                              self.wireless)
 
     def toScnsl(self):
         ChannelSetupName = ("csb_%s" % (self.id))
