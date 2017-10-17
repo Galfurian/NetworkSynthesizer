@@ -24,11 +24,11 @@ class NetworkChecker:
         self.SolH = SolH
         self.indexSetOfClonesOfChannel = indexSetOfClonesOfChannel
         self.indexSetOfClonesOfNodesInArea = indexSetOfClonesOfNodesInArea
-        print("# NetworkChecker instantiated...")
+        print("* NetworkChecker instantiated...")
 
     def checkNetwork(self):
         # -------------------------------------------------------------------------------------------------------------
-        print("#     1. Checking if all the tasks have been deployed once...")
+        print("*     - Checking if all the tasks have been deployed once...")
         for task in self.TaskList:
             task_placed = False
             for node in task.getAllowedNode():
@@ -43,7 +43,7 @@ class NetworkChecker:
                 exit(1)
 
         # -------------------------------------------------------------------------------------------------------------
-        print("#     2. Checking if all the dataflows have been deployed...")
+        print("*     - Checking if all the dataflows have been deployed...")
         for dataflow in self.DataFlowList:
             dataflow_placed = False
             source_node = dataflow.source.getDeployedIn()
@@ -64,7 +64,7 @@ class NetworkChecker:
                 exit(1)
 
         # -------------------------------------------------------------------------------------------------------------
-        print("#     3. Checking if the tasks deployment is compliant with the nodes sizes...")
+        print("*     - Checking if the tasks deployment is compliant with the nodes sizes...")
         for zone in self.ZoneList:
             for node in self.NodeList:
                 for nodeIndex in self.indexSetOfClonesOfNodesInArea[node, zone]:
@@ -79,8 +79,7 @@ class NetworkChecker:
 
 
         # -------------------------------------------------------------------------------------------------------------
-        print(
-            "#     4. Checking if cabled channels contain only dataflows which have tasks in the same pair of nodes...")
+        print("*     - Checking if cabled channels contain only dataflows which have tasks in the same pair of nodes...")
         for channel in self.ChannelList:
             if (not channel.wireless):
                 for channelIndex in self.indexSetOfClonesOfChannel[channel]:
@@ -96,7 +95,7 @@ class NetworkChecker:
                         exit(1)
 
         # -------------------------------------------------------------------------------------------------------------
-        print("#     5. Checking if wireless channels has been placed between zones with zero contiguity...")
+        print("*     - Checking if wireless channels has been placed between zones with zero contiguity...")
         for channel in self.ChannelList:
             if channel.wireless:
                 for channelIndex in self.indexSetOfClonesOfChannel[channel]:
@@ -118,3 +117,12 @@ class NetworkChecker:
                                              % (channel, channelIndex, contiguity)
                                     print output
                     del connecting_tasks
+
+        # -------------------------------------------------------------------------------------------------------------
+        print("*     - Checking if a non-mobile node is hosting a mobile task...")
+        for task in self.TaskList:
+            for node in task.getAllowedNode():
+                for nodeIndex in self.indexSetOfClonesOfNodesInArea[node, task.zone]:
+                    if self.SolW[task, node, nodeIndex] and task.mobile and not node.mobile:
+                        print("[Error] Mobile task %s is hosted inside the non-mobile node %s." % (task, node))
+                        exit(1)
