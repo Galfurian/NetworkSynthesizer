@@ -824,6 +824,18 @@ for channel in ChannelList:
                     name="Channel_size_%s_%s" % (channel, channelIndex))
 
 ###############################################################################
+print("* Defining constraint C10-2")
+# \forall c \in \Natu_{C}
+for channel in ChannelList:
+    # \forall p \leq \overline{C}_{c}
+    for channelIndex in Set_UB_on_C[channel]:
+        # C10: \sum\limits_{d}^{\alpha_{d}(c)} \dfrac{d.s * h_{d,c,p}}{cont(d.ts.z, d.td.z, c).c} \leq c.s
+        m.addConstr(lhs=quicksum(h[dataflow, channel, channelIndex] for dataflow in channel.getAllowedDataFlow()),
+                    sense=GRB.LESS_EQUAL,
+                    rhs=channel.max_conn,
+                    name="Channel_max_connections_%s_%s" % (channel, channelIndex))
+
+###############################################################################
 print("* Defining constraint C11")
 # \forall t \in \Natu_{T}
 for task in TaskList:
@@ -1214,9 +1226,8 @@ if m.status == GRB.status.OPTIMAL:
                         if SolW[task, node, nodeIndex]:
                             TotalEnergyNodesUsage += (node.task_energy * task.size)
                             task.setDeployedIn(node, nodeIndex, zone)
-                            print(
-                                '    Task %s inside %s-th node of type %s within zone %s' % (
-                                    task, nodeIndex, node, zone))
+                            print('    Task %-24s inside node Zone%s.%s.%s'
+                                  % (task, zone, node, nodeIndex))
 
     print('# Data-Flows allocation:')
     SolH = m.getAttr('x', h)
@@ -1233,8 +1244,7 @@ if m.status == GRB.status.OPTIMAL:
                     else:
                         TotalDelayCable += (channel.delay / contiguity.conductance)
                         TotalErrorRateCable += (channel.error / contiguity.conductance)
-                    print(
-                        '    Dataflow %s inside %s-th channels of type %s' % (dataflow, channelIndex, channel))
+                    print('    Dataflow %-24s inside channel %s.%s' % (dataflow, channel, channelIndex))
             del contiguity
 
     SolY = m.getAttr('x', y)
