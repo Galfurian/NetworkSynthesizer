@@ -451,14 +451,14 @@ j = {}
 q = {}
 
 # Create the support variables.
-indexSetOfClonesOfNodesInArea = {}
-indexSetOfClonesOfChannel = {}
+Set_UB_on_N = {}
+Set_UB_on_C = {}
 
 # ---------------------------------------------------------------------------------------------------------------------
 for zone in ZoneList:
     for node in NodeList:
         UB_on_N[node, zone] = len([task for task in node.getAllowedTask() if task.zone == zone])
-        indexSetOfClonesOfNodesInArea[node, zone] = range(1, UB_on_N[node, zone] + 1)
+        Set_UB_on_N[node, zone] = range(1, UB_on_N[node, zone] + 1)
 print("*")
 print("* UB_on_N [%s]" % len(UB_on_N))
 print("* \tVariable UB_on_N is the upper-bound on the number of nodes of a certain")
@@ -468,7 +468,7 @@ print("*")
 # ---------------------------------------------------------------------------------------------------------------------
 for channel in ChannelList:
     UB_on_C[channel] = len(channel.getAllowedDataFlow())
-    indexSetOfClonesOfChannel[channel] = range(1, UB_on_C[channel] + 1)
+    Set_UB_on_C[channel] = range(1, UB_on_C[channel] + 1)
 print("*")
 print("* UB_on_C [%s]" % len(UB_on_C))
 print("* \tVariable UB_on_C is the upper-bound on the number of channels of a certain")
@@ -507,7 +507,7 @@ print("*")
 # ---------------------------------------------------------------------------------------------------------------------
 for node in NodeList:
     for zone in ZoneList:
-        for nodeIndex in indexSetOfClonesOfNodesInArea[node, zone]:
+        for nodeIndex in Set_UB_on_N[node, zone]:
             x[node, nodeIndex, zone] = m.addVar(lb=0.0,
                                                 ub=1.0,
                                                 obj=0.0,
@@ -523,7 +523,7 @@ print("*")
 
 # ---------------------------------------------------------------------------------------------------------------------
 for channel in ChannelList:
-    for channelIndex in indexSetOfClonesOfChannel[channel]:
+    for channelIndex in Set_UB_on_C[channel]:
         y[channel, channelIndex] = m.addVar(lb=0.0,
                                             ub=1.0,
                                             obj=0.0,
@@ -602,7 +602,7 @@ print("*")
 # ---------------------------------------------------------------------------------------------------------------------
 for task in TaskList:
     for node in task.getAllowedNode():
-        for nodeIndex in indexSetOfClonesOfNodesInArea[node, task.zone]:
+        for nodeIndex in Set_UB_on_N[node, task.zone]:
             w[task, node, nodeIndex] = m.addVar(lb=0.0,
                                                 ub=1.0,
                                                 obj=0.0,
@@ -618,7 +618,7 @@ print("*")
 # ---------------------------------------------------------------------------------------------------------------------
 for dataflow in DataFlowList:
     for channel in dataflow.getAllowedChannel():
-        for channelIndex in indexSetOfClonesOfChannel[channel]:
+        for channelIndex in Set_UB_on_C[channel]:
             h[dataflow, channel, channelIndex] = m.addVar(lb=0.0,
                                                           ub=1.0,
                                                           obj=0.0,
@@ -650,7 +650,7 @@ for zone1 in ZoneList:
     for zone2 in ZoneList:
         for channel in ChannelList:
             if ContiguityList.get((zone1, zone2, channel)).conductance > 0:
-                for channelIndex in indexSetOfClonesOfChannel[channel]:
+                for channelIndex in Set_UB_on_C[channel]:
                     channel.setAllowedBetween(zone1, zone2)
                     j[channel, channelIndex, zone1, zone2] = m.addVar(lb=0.0,
                                                                       ub=1.0,
@@ -659,7 +659,7 @@ for zone1 in ZoneList:
                                                                       name='j_%s_%s_%s_%s' % (
                                                                           channel, channelIndex, zone1, zone2))
             else:
-                for channelIndex in indexSetOfClonesOfChannel[channel]:
+                for channelIndex in Set_UB_on_C[channel]:
                     j[channel, channelIndex, zone1, zone2] = m.addVar(lb=0.0,
                                                                       ub=0.0,
                                                                       obj=0.0,
@@ -697,7 +697,7 @@ for node in NodeList:
         m.addConstr(lhs=N[node, zone],
                     sense=GRB.EQUAL,
                     rhs=quicksum(x[node, nodeIndex, zone]
-                                 for nodeIndex in indexSetOfClonesOfNodesInArea[node, zone]),
+                                 for nodeIndex in Set_UB_on_N[node, zone]),
                     name="Define_N_%s_%s" % (node, zone))
 
 ################################################################################
@@ -707,7 +707,7 @@ for node in NodeList:
     # \forall z \in \Natu_{Z}
     for zone in ZoneList:
         # \forall p \leq \overline{N}_{n,z}
-        for nodeIndex in indexSetOfClonesOfNodesInArea[node, zone]:
+        for nodeIndex in Set_UB_on_N[node, zone]:
             # C2: N_{n,z} \geq p * x_{n,z,p}
             m.addConstr(lhs=N[node, zone],
                         sense=GRB.GREATER_EQUAL,
@@ -722,14 +722,14 @@ for channel in ChannelList:
     m.addConstr(lhs=C[channel],
                 sense=GRB.EQUAL,
                 rhs=quicksum(y[channel, channelIndex]
-                             for channelIndex in indexSetOfClonesOfChannel[channel]),
+                             for channelIndex in Set_UB_on_C[channel]),
                 name="Define_C_%s" % channel)
 ################################################################################
 print("* Defining constraint C4")
 # \forall c \in \Natu_{C}
 for channel in ChannelList:
     # \forall p \leq \overline{C}_{c}
-    for channelIndex in indexSetOfClonesOfChannel[channel]:
+    for channelIndex in Set_UB_on_C[channel]:
         # C4: C_{c} \geq p * y_{c,p}
         m.addConstr(lhs=C[channel],
                     sense=GRB.GREATER_EQUAL,
@@ -743,7 +743,7 @@ for task in TaskList:
     # \forall n \in \alpha_{n}(t)
     for node in task.getAllowedNode():
         # \forall p \leq \overline{N}_{n,t.z}
-        for nodeIndex in indexSetOfClonesOfNodesInArea[node, task.zone]:
+        for nodeIndex in Set_UB_on_N[node, task.zone]:
             # C5: w_{t,n,p} \leq x_{n,t.z,p}
             m.addConstr(lhs=w[task, node, nodeIndex],
                         sense=GRB.LESS_EQUAL,
@@ -757,7 +757,7 @@ for dataflow in DataFlowList:
     # \forall c \in \alpha_{c}(d)
     for channel in dataflow.getAllowedChannel():
         # \forall p \leq \overline{C}_{c}
-        for channelIndex in indexSetOfClonesOfChannel[channel]:
+        for channelIndex in Set_UB_on_C[channel]:
             # C6: h_{d,c,p} \leq y_{c,p}
             m.addConstr(lhs=h[dataflow, channel, channelIndex],
                         sense=GRB.LESS_EQUAL,
@@ -771,7 +771,7 @@ for node in NodeList:
     # \forall z \in \Natu_{Z}
     for zone in ZoneList:
         # \forall p \leq \overline{N}_{n,z}
-        for nodeIndex in indexSetOfClonesOfNodesInArea[node, zone]:
+        for nodeIndex in Set_UB_on_N[node, zone]:
             # C7: x_{n,z,p} \leq \sum\limits_{t}^{(\alpha_{t}(n) \wedge t.z = z)} w_{t,n,p}
             m.addConstr(lhs=x[node, nodeIndex, zone],
                         sense=GRB.LESS_EQUAL,
@@ -785,7 +785,7 @@ print("* Defining constraint C8")
 # \forall c \in \Natu_{C}
 for channel in ChannelList:
     # \forall p \leq \overline{C}_{c}
-    for channelIndex in indexSetOfClonesOfChannel[channel]:
+    for channelIndex in Set_UB_on_C[channel]:
         # C8: y_{c,p} \leq \sum\limits_{d}^{\alpha_{d}(c)} h_{d,c,p}
         m.addConstr(lhs=y[channel, channelIndex],
                     sense=GRB.LESS_EQUAL,
@@ -800,7 +800,7 @@ for node in NodeList:
     # \forall z \in \Natu_{Z}
     for zone in ZoneList:
         # \forall p \leq \overline{N}_{n,z}
-        for nodeIndex in indexSetOfClonesOfNodesInArea[node, zone]:
+        for nodeIndex in Set_UB_on_N[node, zone]:
             # C9: \sum\limits_{t}^{(\alpha_{t}(n) \wedge t.z = z)} t.s * w_{t,n,p} \leq n.s
             m.addConstr(lhs=quicksum((task.size * w[task, node, nodeIndex])
                                      for task in node.getAllowedTask()
@@ -814,7 +814,7 @@ print("* Defining constraint C10")
 # \forall c \in \Natu_{C}
 for channel in ChannelList:
     # \forall p \leq \overline{C}_{c}
-    for channelIndex in indexSetOfClonesOfChannel[channel]:
+    for channelIndex in Set_UB_on_C[channel]:
         # C10: \sum\limits_{d}^{\alpha_{d}(c)} \dfrac{d.s * h_{d,c,p}}{cont(d.ts.z, d.td.z, c).c} \leq c.s
         m.addConstr(lhs=quicksum(((dataflow.size * h[dataflow, channel, channelIndex]) /
                                   ContiguityList.get((dataflow.source.zone, dataflow.target.zone, channel)).conductance)
@@ -830,7 +830,7 @@ for task in TaskList:
     # C11: \sum\limits_{n}^{\alpha_{n}(t)} \sum\limits_{p=1}^{\overline{N}_{n,t.z}} w_{t,n,p} = 1
     m.addConstr(lhs=quicksum(w[task, node, nodeIndex]
                              for node in task.getAllowedNode()
-                             for nodeIndex in indexSetOfClonesOfNodesInArea[node, task.zone]),
+                             for nodeIndex in Set_UB_on_N[node, task.zone]),
                 sense=GRB.EQUAL,
                 rhs=1,
                 name="Unique_mapping_of_task_%s" % task)
@@ -844,7 +844,7 @@ for dataflow in DataFlowList:
         # C12: \sum\limits_{c}^{\alpha_{c}(d)} \sum\limits_{p=1}^{\overline{C}_{c}} h_{d,c,p} = 1
         m.addConstr(lhs=quicksum(h[dataflow, channel, channelIndex]
                                  for channel in dataflow.getAllowedChannel()
-                                 for channelIndex in indexSetOfClonesOfChannel[channel]),
+                                 for channelIndex in Set_UB_on_C[channel]),
                     sense=GRB.EQUAL,
                     rhs=1,
                     name="Unique_mapping_of_dataflow_%s" % dataflow)
@@ -853,7 +853,7 @@ for dataflow in DataFlowList:
         # C13: \sum\limits_{c}^{\alpha_{c}(d)} \sum\limits_{p = 1}^{\overline{C}_{c}} h_{d,c,p} = \rho_{d.ts, d.td}
         m.addConstr(lhs=quicksum(h[dataflow, channel, channelIndex]
                                  for channel in dataflow.getAllowedChannel()
-                                 for channelIndex in indexSetOfClonesOfChannel[channel]),
+                                 for channelIndex in Set_UB_on_C[channel]),
                     sense=GRB.EQUAL,
                     rhs=rho[dataflow.source, dataflow.target],
                     name="Unique_mapping_of_dataflow_%s" % dataflow)
@@ -868,7 +868,7 @@ for dataflow in DataFlowList:
         m.addConstr(lhs=quicksum(w[dataflow.source, node, nodeIndex]
                                  for node in dataflow.source.getAllowedNode()
                                  if node.mobile
-                                 for nodeIndex in indexSetOfClonesOfNodesInArea[node, dataflow.source.zone]),
+                                 for nodeIndex in Set_UB_on_N[node, dataflow.source.zone]),
                     sense=GRB.LESS_EQUAL,
                     rhs=md[dataflow],
                     name="Define_md_for_dataflow_%s" % dataflow)
@@ -878,7 +878,7 @@ for dataflow in DataFlowList:
         m.addConstr(lhs=quicksum(w[dataflow.target, node, nodeIndex]
                                  for node in dataflow.target.getAllowedNode()
                                  if node.mobile
-                                 for nodeIndex in indexSetOfClonesOfNodesInArea[node, dataflow.target.zone]),
+                                 for nodeIndex in Set_UB_on_N[node, dataflow.target.zone]),
                     sense=GRB.LESS_EQUAL,
                     rhs=md[dataflow],
                     name="Define_md_for_dataflow_%s" % dataflow)
@@ -895,7 +895,7 @@ for dataflow in DataFlowList:
                     rhs=quicksum(h[dataflow, channel, channelIndex]
                                  for channel in dataflow.getAllowedChannel()
                                  if channel.wireless
-                                 for channelIndex in indexSetOfClonesOfChannel[channel]),
+                                 for channelIndex in Set_UB_on_C[channel]),
                     name="Unique_mapping_of_dataflow_%s_wrt_wireless_channels" % dataflow)
     else:
         # d.ts.z = d.td.z
@@ -906,7 +906,7 @@ for dataflow in DataFlowList:
                     rhs=quicksum(h[dataflow, channel, channelIndex]
                                  for channel in dataflow.getAllowedChannel()
                                  if channel.wireless
-                                 for channelIndex in indexSetOfClonesOfChannel[channel]),
+                                 for channelIndex in Set_UB_on_C[channel]),
                     name="Unique_mapping_of_dataflow_%s_wrt_wireless_channels" % dataflow)
 
 ###############################################################################
@@ -924,9 +924,9 @@ for task1 in TaskList:
                     # \forall n' \in \alpha_{n}(t')
                     for node2 in task2.getAllowedNode():
                         # \forall p  \in \overline{N}_{n,t.z}
-                        for node1Index in indexSetOfClonesOfNodesInArea[node1, task1.zone]:
+                        for node1Index in Set_UB_on_N[node1, task1.zone]:
                             # \forall p' \in \overline{N}_{n',t'.z}
-                            for node2Index in indexSetOfClonesOfNodesInArea[node2, task2.zone]:
+                            for node2Index in Set_UB_on_N[node2, task2.zone]:
                                 # (n \neq n') \wedge (p \neq p')
                                 if [node1, node1Index] != [node2, node2Index]:
                                     # C18: (w_{t, n, p} + w_{t', n', p'} - 1) \leq \rho_{t,t'}
@@ -947,7 +947,7 @@ for channel in ChannelList:
     # c.w = false
     if not channel.wireless:
         # \forall p \leq \overline{C}_{c}
-        for channelIndex in indexSetOfClonesOfChannel[channel]:
+        for channelIndex in Set_UB_on_C[channel]:
             # \forall d \in \alpha_{d}(c)
             for dataflow1 in channel.getAllowedDataFlow():
                 # \forall d' \in \alpha_{d}(c)
@@ -1011,7 +1011,7 @@ for zone1 in ZoneList:
         for channel in ChannelList:
             if not channel.wireless:
                 # \forall p \leq \overline{C}_{c}
-                for channelIndex in indexSetOfClonesOfChannel[channel]:
+                for channelIndex in Set_UB_on_C[channel]:
                     # \forall d \in \alpha_{d}(c)
                     for dataflow in channel.getAllowedDataFlow():
                         # (d.ts.z = z_1) AND (d.td.z = z_2) OR (d.ts.z = z_2) AND (d.td.z = z_1)
@@ -1031,7 +1031,7 @@ for channel in ChannelList:
     # c.w = true
     if channel.wireless:
         # \forall p \leq \overline{C}_{c}
-        for channelIndex in indexSetOfClonesOfChannel[channel]:
+        for channelIndex in Set_UB_on_C[channel]:
             # \forall d \in \alpha_{d}(c)
             for dataflow1 in channel.getAllowedDataFlow():
                 # \forall d' \in \alpha_{d}(c)
@@ -1069,17 +1069,17 @@ if OPTIMIZATION == 1:
         quicksum(x[node, nodeIndex, zone] * node.cost
                  for node in NodeList
                  for zone in ZoneList
-                 for nodeIndex in indexSetOfClonesOfNodesInArea[node, zone]) +
+                 for nodeIndex in Set_UB_on_N[node, zone]) +
         quicksum(y[channel, channelIndex] * channel.cost
                  for channel in ChannelList
-                 for channelIndex in indexSetOfClonesOfChannel[channel]) +
+                 for channelIndex in Set_UB_on_C[channel]) +
         quicksum(j[channel, channelIndex, zone1, zone2] * ContiguityList.get((zone1, zone2, channel)).deploymentCost
                  for zone1 in ZoneList
                  for zone2 in ZoneList
                  for channel in ChannelList
                  if not channel.wireless
                  if channel.isAllowedBetween(zone1, zone2)
-                 for channelIndex in indexSetOfClonesOfChannel[channel]),
+                 for channelIndex in Set_UB_on_C[channel]),
         GRB.MINIMIZE
     )
     m.update()
@@ -1091,19 +1091,19 @@ elif OPTIMIZATION == 2:
         quicksum(x[node, nodeIndex, zone] * node.energy
                  for node in NodeList
                  for zone in ZoneList
-                 for nodeIndex in indexSetOfClonesOfNodesInArea[node, zone]) +
+                 for nodeIndex in Set_UB_on_N[node, zone]) +
         quicksum(w[task, node, nodeIndex] * node.task_energy * task.size
                  for task in TaskList
                  for node in task.getAllowedNode()
-                 for nodeIndex in indexSetOfClonesOfNodesInArea[node, task.zone]) +
+                 for nodeIndex in Set_UB_on_N[node, task.zone]) +
         quicksum(y[channel, channelIndex] * channel.energy
                  for channel in ChannelList
-                 for channelIndex in indexSetOfClonesOfChannel[channel]) +
+                 for channelIndex in Set_UB_on_C[channel]) +
         quicksum(h[dataflow, channel, channelIndex] * channel.df_energy * dataflow.size /
                  ContiguityList.get((dataflow.source.zone, dataflow.target.zone, channel)).conductance
                  for dataflow in DataFlowList
                  for channel in dataflow.getAllowedChannel()
-                 for channelIndex in indexSetOfClonesOfChannel[channel]),
+                 for channelIndex in Set_UB_on_C[channel]),
         GRB.MINIMIZE
     )
     m.update()
@@ -1117,7 +1117,7 @@ elif OPTIMIZATION == 3:
                  ContiguityList.get((dataflow.source.zone, dataflow.target.zone, channel)).conductance
                  for dataflow in DataFlowList
                  for channel in dataflow.getAllowedChannel()
-                 for channelIndex in indexSetOfClonesOfChannel[channel]),
+                 for channelIndex in Set_UB_on_C[channel]),
         GRB.MINIMIZE
     )
     m.update()
@@ -1130,7 +1130,7 @@ elif OPTIMIZATION == 4:
                  ContiguityList.get((dataflow.source.zone, dataflow.target.zone, channel)).conductance
                  for dataflow in DataFlowList
                  for channel in dataflow.getAllowedChannel()
-                 for channelIndex in indexSetOfClonesOfChannel[channel]),
+                 for channelIndex in Set_UB_on_C[channel]),
         GRB.MINIMIZE
     )
     m.update()
@@ -1146,7 +1146,7 @@ elif OPTIMIZATION == 5:
                 (channel.error * h[dataflow, channel, channelIndex]) / (
                     ContiguityList.get((dataflow.source.zone, dataflow.target.zone, channel)).conductance)
             ) for dataflow in DataFlowList for channel in dataflow.getAllowedChannel() for channelIndex in
-            indexSetOfClonesOfChannel[channel]
+            Set_UB_on_C[channel]
         ),
         GRB.MINIMIZE
     )
@@ -1210,7 +1210,7 @@ if m.status == GRB.status.OPTIMAL:
         for task in TaskList:
             if task.zone == zone:
                 for node in task.getAllowedNode():
-                    for nodeIndex in indexSetOfClonesOfNodesInArea[node, zone]:
+                    for nodeIndex in Set_UB_on_N[node, zone]:
                         if SolW[task, node, nodeIndex]:
                             TotalEnergyNodesUsage += (node.task_energy * task.size)
                             task.setDeployedIn(node, nodeIndex, zone)
@@ -1223,7 +1223,7 @@ if m.status == GRB.status.OPTIMAL:
     for dataflow in DataFlowList:
         for channel in dataflow.getAllowedChannel():
             contiguity = ContiguityList.get((dataflow.source.zone, dataflow.target.zone, channel))
-            for channelIndex in indexSetOfClonesOfChannel[channel]:
+            for channelIndex in Set_UB_on_C[channel]:
                 if SolH[dataflow, channel, channelIndex]:
                     dataflow.setDeployedIn(channel, channelIndex)
                     TotalEnergyChannelUsage += (channel.df_energy * dataflow.size)
@@ -1240,7 +1240,7 @@ if m.status == GRB.status.OPTIMAL:
     SolY = m.getAttr('x', y)
     for channel in dataflow.getAllowedChannel():
         if not channel.wireless:
-            for channelIndex in indexSetOfClonesOfChannel[channel]:
+            for channelIndex in Set_UB_on_C[channel]:
                 if SolY[channel, channelIndex]:
                     deploymentCost = sys.maxint
                     for dataflow in channel.getAllowedDataFlow():
@@ -1283,8 +1283,8 @@ if m.status == GRB.status.OPTIMAL:
                              SolC,
                              SolW,
                              SolH,
-                             indexSetOfClonesOfChannel,
-                             indexSetOfClonesOfNodesInArea)
+                             Set_UB_on_C,
+                             Set_UB_on_N)
     checker.checkNetwork()
 
 elif m.status == GRB.Status.INF_OR_UNBD:
@@ -1313,8 +1313,8 @@ if XML_GENERATION == 1:
                                      SolC,
                                      SolW,
                                      SolH,
-                                     indexSetOfClonesOfChannel,
-                                     indexSetOfClonesOfNodesInArea)
+                                     Set_UB_on_C,
+                                     Set_UB_on_N)
     umlPrinter.printNetwork()
     print("*##########################################")
     print("* Generating Technological Library...")
@@ -1324,7 +1324,7 @@ if XML_GENERATION == 1:
 if SCNSL_GENERATION == 1:
     scnslPrinter = ScnslGenerator(NodeList, ChannelList, ZoneList, ContiguityList, TaskList, DataFlowList, SolN,
                                   SolC,
-                                  SolW, SolH, indexSetOfClonesOfChannel, indexSetOfClonesOfNodesInArea)
+                                  SolW, SolH, Set_UB_on_C, Set_UB_on_N)
     scnslPrinter.printScnslNetwork("main.cc")
 
 elapsed_parse = parse_timer_end - parse_timer_begin
