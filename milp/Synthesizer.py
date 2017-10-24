@@ -412,6 +412,20 @@ for dataflow in DataFlowList:
     # print("*     Task '%15s' Nodes : %s" % (task, task.getAllowedNode()))
     if (len(dataflow.getAllowedChannel()) == 0) and (dataflow.source.zone != dataflow.target.zone):
         print("There are no channels that can contain data-flow %s." % dataflow)
+        for channel in ChannelList:
+            reason = "no reason"
+            contiguity = ContiguityList.get((dataflow.source.zone, dataflow.target.zone, channel))
+            if contiguity.conductance <= 0:
+                reason = "low conductance %s" % contiguity.conductance
+            elif channel.size < (dataflow.size / contiguity.conductance):
+                reason = "low size"
+            elif channel.error > (dataflow.max_error * contiguity.conductance):
+                reason = "higher error rate"
+            elif channel.delay > (dataflow.max_delay * contiguity.conductance):
+                reason = "higher delay"
+            elif ((dataflow.source.mobile or dataflow.target.mobile) and not channel.wireless):
+                reason = "unacceptable mobile/wireless"
+            print("\tChannel %s for %s." % (channel, reason))
         exit(1)
 
 if VERBOSE:
@@ -602,7 +616,9 @@ print("*")
 # ---------------------------------------------------------------------------------------------------------------------
 for task1 in TaskList:
     for task2 in TaskList:
-        if task1 != task2:
+        if task1 == task2:
+            rho[task1, task2] = False
+        else:
             rho[task1, task2] = m.addVar(lb=0.0,
                                          ub=1.0,
                                          obj=0.0,
@@ -864,21 +880,19 @@ for task in TaskList:
                 name="Unique_mapping_of_task_%s" % task)
 
 ###############################################################################
-print("* Defining constraint C12 and C13")
-# \forall d \in \Natu_{D}
+print("* Defining constraint C12")
 for dataflow in DataFlowList:
     if dataflow.source.zone != dataflow.target.zone:
-        # d.ts.z \neq d.td.z
-        # C12: \sum\limits_{c}^{\alpha_{c}(d)} \sum\limits_{p=1}^{\overline{C}_{c}} h_{d,c,p} = 1
         m.addConstr(lhs=quicksum(h[dataflow, channel, channelIndex]
                                  for channel in dataflow.getAllowedChannel()
                                  for channelIndex in Set_UB_on_C[channel]),
                     sense=GRB.EQUAL,
                     rhs=1,
                     name="Unique_mapping_of_dataflow_%s" % dataflow)
-    else:
-        # d.ts.z = d.td.z
-        # C13: \sum\limits_{c}^{\alpha_{c}(d)} \sum\limits_{p = 1}^{\overline{C}_{c}} h_{d,c,p} = \rho_{d.ts, d.td}
+
+print("* Defining constraint C13")
+for dataflow in DataFlowList:
+    if dataflow.source.zone == dataflow.target.zone:
         m.addConstr(lhs=quicksum(h[dataflow, channel, channelIndex]
                                  for channel in dataflow.getAllowedChannel()
                                  for channelIndex in Set_UB_on_C[channel]),
@@ -887,55 +901,56 @@ for dataflow in DataFlowList:
                     name="Unique_mapping_of_dataflow_%s" % dataflow)
 
 ###############################################################################
-print("* Defining constraint C14 and C15")
-# \forall d \in \Natu_{D}
-for dataflow in DataFlowList:
-    # (d.ts.m = true)
-    if dataflow.source.mobile:
-        # C14: \sum\limits_{n}^{\alpha_{n}(d.ts)} \sum\limits_{p = 1}^{\overline{N}_{n,d.ts.z}} w_{d.ts,v,p} \leq m_{d}
-        m.addConstr(lhs=quicksum(w[dataflow.source, node, nodeIndex]
-                                 for node in dataflow.source.getAllowedNode()
-                                 if node.mobile
-                                 for nodeIndex in Set_UB_on_N[node, dataflow.source.zone]),
-                    sense=GRB.LESS_EQUAL,
-                    rhs=md[dataflow],
-                    name="Define_md_for_dataflow_%s" % dataflow)
-    # (d.td.m = true)
-    if dataflow.target.mobile:
-        # C15: \sum\limits_{n}^{\alpha_{n}(d.td)} \sum\limits_{p = 1}^{\overline{N}_{n,d.td.z}} w_{d.td,v,p} \leq m_{d}
-        m.addConstr(lhs=quicksum(w[dataflow.target, node, nodeIndex]
-                                 for node in dataflow.target.getAllowedNode()
-                                 if node.mobile
-                                 for nodeIndex in Set_UB_on_N[node, dataflow.target.zone]),
-                    sense=GRB.LESS_EQUAL,
-                    rhs=md[dataflow],
-                    name="Define_md_for_dataflow_%s" % dataflow)
+# print("* Defining constraint C14")
+# # \forall d \in \Natu_{D}
+# for dataflow in DataFlowList:
+#     # (d.ts.m = true)
+#     if dataflow.source.mobile:
+#         # C14: \sum\limits_{n}^{\alpha_{n}(d.ts)} \sum\limits_{p = 1}^{\overline{N}_{n,d.ts.z}} w_{d.ts,v,p} \leq m_{d}
+#         m.addConstr(lhs=quicksum(w[dataflow.source, node, nodeIndex]
+#                                  for node in dataflow.source.getAllowedNode()
+#                                  if node.mobile
+#                                  for nodeIndex in Set_UB_on_N[node, dataflow.source.zone]),
+#                     sense=GRB.LESS_EQUAL,
+#                     rhs=md[dataflow],
+#                     name="Define_md_for_dataflow_%s" % dataflow)
+#
+# print("* Defining constraint C15")
+# # \forall d \in \Natu_{D}
+# for dataflow in DataFlowList:
+#     # (d.td.m = true)
+#     if dataflow.target.mobile:
+#         # C15: \sum\limits_{n}^{\alpha_{n}(d.td)} \sum\limits_{p = 1}^{\overline{N}_{n,d.td.z}} w_{d.td,v,p} \leq m_{d}
+#         m.addConstr(lhs=quicksum(w[dataflow.target, node, nodeIndex]
+#                                  for node in dataflow.target.getAllowedNode()
+#                                  if node.mobile
+#                                  for nodeIndex in Set_UB_on_N[node, dataflow.target.zone]),
+#                     sense=GRB.LESS_EQUAL,
+#                     rhs=md[dataflow],
+#                     name="Define_md_for_dataflow_%s" % dataflow)
 
 ###############################################################################
-print("* Defining constraint C16 and C17")
-# \forall d \in \Natu_{D}
-for dataflow in DataFlowList:
-    # d.ts.z \neq d.td.z
-    if dataflow.source.zone != dataflow.target.zone:
-        # C16: \sum\limits_{c}^{\alpha_{wc}(d)} \sum\limits_{p = 1}^{\overline{C}_{c}} h_{d,c,p} \leq m_{d}
-        m.addConstr(lhs=md[dataflow],
-                    sense=GRB.GREATER_EQUAL,
-                    rhs=quicksum(h[dataflow, channel, channelIndex]
-                                 for channel in dataflow.getAllowedChannel()
-                                 if channel.wireless
-                                 for channelIndex in Set_UB_on_C[channel]),
-                    name="Unique_mapping_of_dataflow_%s_wrt_wireless_channels" % dataflow)
-    else:
-        # d.ts.z = d.td.z
-        # C17: \sum\limits_{c}^{\alpha_{wc}(d)}
-        #      \sum\limits_{p = 1}^{\overline{C}_{c}} h_{d,c,p} \leq m_{d} + \rho_{d.ts, d.td} - 1
-        m.addConstr(lhs=md[dataflow] + rho[dataflow.source, dataflow.target] - 1,
-                    sense=GRB.GREATER_EQUAL,
-                    rhs=quicksum(h[dataflow, channel, channelIndex]
-                                 for channel in dataflow.getAllowedChannel()
-                                 if channel.wireless
-                                 for channelIndex in Set_UB_on_C[channel]),
-                    name="Unique_mapping_of_dataflow_%s_wrt_wireless_channels" % dataflow)
+# print("* Defining constraint C16")
+# for dataflow in DataFlowList:
+#     if dataflow.source.zone != dataflow.target.zone:
+#         m.addConstr(lhs=md[dataflow],
+#                     sense=GRB.GREATER_EQUAL,
+#                     rhs=quicksum(h[dataflow, channel, channelIndex]
+#                                  for channel in dataflow.getAllowedChannel()
+#                                  if channel.wireless
+#                                  for channelIndex in Set_UB_on_C[channel]),
+#                     name="Unique_mapping_of_dataflow_%s_wrt_wireless_channels" % dataflow)
+#
+# print("* Defining constraint C17")
+# for dataflow in DataFlowList:
+#     if dataflow.source.zone == dataflow.target.zone:
+#         m.addConstr(lhs=rho[dataflow.source, dataflow.target] - 1,
+#                     sense=GRB.GREATER_EQUAL,
+#                     rhs=quicksum(h[dataflow, channel, channelIndex]
+#                                  for channel in dataflow.getAllowedChannel()
+#                                  if channel.wireless
+#                                  for channelIndex in Set_UB_on_C[channel]),
+#                     name="Unique_mapping_of_dataflow_%s_wrt_wireless_channels" % dataflow)
 
 ###############################################################################
 print("* Defining constraint C18")
@@ -1192,6 +1207,8 @@ m.optimize()
 # Optimization end.
 optimization_timer_end = time.time()
 
+outcome = open("result.txt", 'a+')
+
 # print(solution
 if m.status == GRB.status.OPTIMAL:
     print('Optimal objective: %g' % m.objVal)
@@ -1313,17 +1330,35 @@ if m.status == GRB.status.OPTIMAL:
                              Set_UB_on_N)
     checker.checkNetwork()
 
+    outcome.write("[%s] OK\n" % argv[1])
+    outcome.close()
 elif m.status == GRB.Status.INF_OR_UNBD:
     print('Model is infeasible or unbounded')
+
+    outcome.write("[%s] FAILED\n" % argv[1])
+    outcome.close()
+
     exit(0)
 elif m.status == GRB.Status.INFEASIBLE:
     print('Model is infeasible')
+
+    outcome.write("[%s] FAILED\n" % argv[1])
+    outcome.close()
+
     exit(0)
 elif m.status == GRB.Status.UNBOUNDED:
     print('Model is unbounded')
+
+    outcome.write("[%s] FAILED\n" % argv[1])
+    outcome.close()
+
     exit(0)
 else:
     print('Optimization ended with status %d' % m.status)
+
+    outcome.write("[%s] FAILED\n" % argv[1])
+    outcome.close()
+
     exit(0)
 
 if XML_GENERATION == 1:
