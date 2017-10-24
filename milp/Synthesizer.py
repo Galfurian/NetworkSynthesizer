@@ -358,30 +358,46 @@ Separator()
 print("* PRE-PROCESSING")
 Separator()
 
-# Datastructures starting time.
+# Make the timer start.
 structure_timer_begin = time.time()
+
+# Datastructures starting time.
 print("* Checking in which nodes the tasks can be placed into...")
 for task in TaskList:
     for node in NodeList:
-        if task.mobile <= node.mobile:
-            if task.size <= node.size:
-                task.setAllowedNode(node)
-                node.setAllowedTask(task)
+        # Check if the task and the node are compatible.
+        if task.mobile != node.mobile:
+            continue
+        # Check if the task can be contained inside the node.
+        if task.size > node.size:
+            continue
+        # Link node and task.
+        task.setAllowedNode(node)
+        node.setAllowedTask(task)
 
 print("* Checking in which channels the data-flows can be placed into...")
 for dataflow in DataFlowList:
     for channel in ChannelList:
         contiguity = ContiguityList.get((dataflow.source.zone, dataflow.target.zone, channel))
         # Check the conductance of the contiguity.
-        if contiguity.conductance > 0:
-            # Check if the channel can hold the data-flow give the conductance value.
-            if channel.size >= (dataflow.size / contiguity.conductance):
-                # Check if the channel has the required error_rate demanded by the data-flow give the conductance value.
-                if channel.error <= (dataflow.max_error * contiguity.conductance):
-                    # Check if the channel has the required delay demanded by the data-flow give the conductance value.
-                    if channel.delay <= (dataflow.max_delay * contiguity.conductance):
-                        dataflow.setAllowedChannel(channel)
-                        channel.setAllowedDataFlow(dataflow)
+        if contiguity.conductance <= 0:
+            continue
+        # Check if the channel can hold the data-flow give the conductance value.
+        if channel.size < (dataflow.size / contiguity.conductance):
+            continue
+        # Check if the channel has the required error_rate demanded by the data-flow give the conductance value.
+        if channel.error > (dataflow.max_error * contiguity.conductance):
+            continue
+        # Check if the channel has the required delay demanded by the data-flow give the conductance value.
+        if channel.delay > (dataflow.max_delay * contiguity.conductance):
+            continue
+        # If a node is mobile, then it can be connected only to wireless channels.
+        if ((dataflow.source.mobile or dataflow.target.mobile) and not channel.wireless):
+            continue
+        # Link dataflow and channel.
+        dataflow.setAllowedChannel(channel)
+        channel.setAllowedDataFlow(dataflow)
+        # Delete the contiguity.
         del contiguity
 
 print("* Checking if there is at least one suitable node for each task...")
