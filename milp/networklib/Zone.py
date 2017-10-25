@@ -19,7 +19,7 @@ class Zone:
         return "%s" % (self.label)
 
     def __hash__(self):
-        return hash("%s" % (self.label))
+        return hash(self.label)
 
     def __str__(self):
         return "%s" % (self.label)

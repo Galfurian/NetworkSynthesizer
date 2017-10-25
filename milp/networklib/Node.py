@@ -57,7 +57,7 @@ class Node:
         return "%s" % (self.label)
 
     def __hash__(self):
-        return hash(self.label)
+        return hash(self.id)
 
     def __str__(self):
         return "%s" % (self.label)
