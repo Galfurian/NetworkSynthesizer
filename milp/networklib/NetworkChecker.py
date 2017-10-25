@@ -11,7 +11,8 @@ class NetworkChecker:
                  SolW,
                  SolH,
                  indexSetOfClonesOfChannel,
-                 indexSetOfClonesOfNodesInArea):
+                 indexSetOfClonesOfNodesInArea,
+                 outfile):
         self.NodeList = NodeList
         self.ChannelList = ChannelList
         self.ZoneList = ZoneList
@@ -24,26 +25,27 @@ class NetworkChecker:
         self.SolH = SolH
         self.indexSetOfClonesOfChannel = indexSetOfClonesOfChannel
         self.indexSetOfClonesOfNodesInArea = indexSetOfClonesOfNodesInArea
-        print("* NetworkChecker instantiated...")
+        self.outfile = outfile
+        self.outfile.write("* NetworkChecker instantiated...\n")
 
     def checkNetwork(self):
         # -------------------------------------------------------------------------------------------------------------
-        print("*     - Checking if all the tasks have been deployed once...")
+        self.outfile.write("*     - Checking if all the tasks have been deployed once...\n")
         for task in self.TaskList:
             task_placed = False
             for node in task.getAllowedNode():
                 for nodeIndex in self.indexSetOfClonesOfNodesInArea[node, task.zone]:
                     if self.SolW[task, node, nodeIndex]:
                         if task_placed:
-                            print("[Error] Task %s has already been placed." % (task))
+                            self.outfile.write("[Error] Task %s has already been placed.\n" % (task))
                             exit(1)
                         task_placed = True
             if not task_placed:
-                print("[Error] Task %s has not been placed." % (task))
+                self.outfile.write("[Error] Task %s has not been placed.\n" % (task))
                 exit(1)
 
         # -------------------------------------------------------------------------------------------------------------
-        print("*     - Checking if all the dataflows have been deployed...")
+        self.outfile.write("*     - Checking if all the dataflows have been deployed...\n")
         for dataflow in self.DataFlowList:
             dataflow_placed = False
             source_node = dataflow.source.getDeployedIn()
@@ -52,21 +54,22 @@ class NetworkChecker:
                 for channelIndex in self.indexSetOfClonesOfChannel[channel]:
                     if self.SolH[dataflow, channel, channelIndex]:
                         if source_node == target_node:
-                            print("* [Warning] Unnecessary deployment of %s, inside the channel (%s, %s),"
-                                  % (dataflow, channel, channelIndex))
-                            print("*           in fact source and target are in %s and %s respectively."
-                                  % (source_node, target_node))
+                            self.outfile.write(
+                                "* [Warning] Unnecessary deployment of %s, inside the channel (%s, %s),\n"
+                                % (dataflow, channel, channelIndex))
+                            self.outfile.write("*           in fact source and target are in %s and %s respectively.\n"
+                                               % (source_node, target_node))
                         else:
                             if dataflow_placed:
-                                print("[Error] Dataflow %s has already been placed." % (dataflow))
+                                self.outfile.write("[Error] Dataflow %s has already been placed.\n" % (dataflow))
                                 exit(1)
                             dataflow_placed = True
             if (source_node != target_node) and not dataflow_placed:
-                print("[Error] Dataflow %s has not been placed." % (dataflow))
+                self.outfile.write("[Error] Dataflow %s has not been placed.\n" % (dataflow))
                 exit(1)
 
         # -------------------------------------------------------------------------------------------------------------
-        print("*     - Checking if the tasks deployment is compliant with the nodes sizes...")
+        self.outfile.write("*     - Checking if the tasks deployment is compliant with the nodes sizes...\n")
         for zone in self.ZoneList:
             for node in self.NodeList:
                 for nodeIndex in self.indexSetOfClonesOfNodesInArea[node, zone]:
@@ -76,12 +79,12 @@ class NetworkChecker:
                             if self.SolW.get((task, node, nodeIndex), False):
                                 occupied_space += task.size
                     if occupied_space > node.size:
-                        print("[Error] The space occupied inside node %s is over the limit." % (node))
+                        self.outfile.write("[Error] The space occupied inside node %s is over the limit.\n" % (node))
                         exit(1)
 
         # -------------------------------------------------------------------------------------------------------------
-        print(
-            "*     - Checking if cabled channels contain only dataflows which have tasks in the same pair of nodes...")
+        self.outfile.write(
+            "*     - Checking if cabled channels contain only dataflows which have tasks in the same pair of nodes...\n")
         for channel in self.ChannelList:
             if (not channel.wireless):
                 for channelIndex in self.indexSetOfClonesOfChannel[channel]:
@@ -93,11 +96,12 @@ class NetworkChecker:
                             target_node = dataflow.target.getDeployedIn()
                             ConnectedNodes.add("%s_%s_%s" % (target_node[0], target_node[1], target_node[2]))
                     if (len(ConnectedNodes) > 2):
-                        print("[Error] Cabled channel %s is connecting more than two nodes." % (channel))
+                        self.outfile.write("[Error] Cabled channel %s is connecting more than two nodes.\n" % (channel))
                         exit(1)
 
         # -------------------------------------------------------------------------------------------------------------
-        print("*     - Checking if wireless channels has been placed between zones with zero contiguity...")
+        self.outfile.write(
+            "*     - Checking if wireless channels has been placed between zones with zero contiguity...\n")
         for channel in self.ChannelList:
             if channel.wireless:
                 for channelIndex in self.indexSetOfClonesOfChannel[channel]:
@@ -108,23 +112,26 @@ class NetworkChecker:
                             connecting_tasks.append(dataflow.target)
                             contiguity = self.ContiguityList.get((dataflow.source.zone, dataflow.target.zone, channel))
                             if contiguity.conductance <= 0:
-                                print "[Error] The %s-th wireless channel %s contains a " % (channelIndex, channel)
-                                print "dataflow connecting tasks inside two zones with zero conductance."
+                                self.outfile.write(
+                                    "[Error] The %s-th wireless channel %s contains a \n" % (channelIndex, channel))
+                                self.outfile.write(
+                                    "dataflow connecting tasks inside two zones with zero conductance.\n")
                     for task1 in connecting_tasks:
                         for task2 in connecting_tasks:
                             if task1 < task2:
                                 contiguity = self.ContiguityList.get((task1.zone, task2.zone, channel))
                                 if contiguity.conductance <= 0:
-                                    output = "[Error] Channel %s-%s contiguity %s" \
+                                    output = "[Error] Channel %s-%s contiguity %s\n" \
                                              % (channel, channelIndex, contiguity)
-                                    print output
+                                    self.outfile.write("%s.\n" % output)
                     del connecting_tasks
 
         # -------------------------------------------------------------------------------------------------------------
-        print("*     - Checking if a non-mobile node is hosting a mobile task...")
+        self.outfile.write("*     - Checking if a non-mobile node is hosting a mobile task...\n")
         for task in self.TaskList:
             for node in task.getAllowedNode():
                 for nodeIndex in self.indexSetOfClonesOfNodesInArea[node, task.zone]:
                     if self.SolW[task, node, nodeIndex] and task.mobile and not node.mobile:
-                        print("[Error] Mobile task %s is hosted inside the non-mobile node %s." % (task, node))
+                        self.outfile.write(
+                            "[Error] Mobile task %s is hosted inside the non-mobile node %s.\n" % (task, node))
                         exit(1)
