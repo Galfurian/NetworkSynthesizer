@@ -570,6 +570,8 @@ for task1 in TaskList:
     for task2 in TaskList:
         if task1 == task2:
             rho[task1, task2] = False
+        elif (task1.zone != task2.zone):
+            rho[task1, task2] = True
         else:
             rho[task1, task2] = m.addVar(lb=0.0, ub=1.0, obj=0.0, vtype=GRB.BINARY,
                                          name='rho_%s_%s' % (task1, task2))
@@ -657,7 +659,7 @@ print("*************************************************************************
 print("* Defining constraints...")
 
 # ---------------------------------------------------------------------------------------------------------------------
-print("* Defining constraint C1")
+print("* Constraint C1")
 for node in NodeList:
     for zone in ZoneList:
         m.addConstr(lhs=N[node, zone],
@@ -666,7 +668,7 @@ for node in NodeList:
                     name="define_N_%s_%s" % (node, zone))
 
 # ---------------------------------------------------------------------------------------------------------------------
-print("* Defining constraint C2")
+print("* Constraint C2")
 for node in NodeList:
     for zone in ZoneList:
         for nodeIndex in Set_UB_on_N[node, zone]:
@@ -676,43 +678,44 @@ for node in NodeList:
                         name="mono_clones_of_N_%s_%s_%s" % (node, zone, nodeIndex))
 
 # ---------------------------------------------------------------------------------------------------------------------
-print("* Defining constraint C3")
+print("* Constraint C3")
 for channel in ChannelList:
     m.addConstr(lhs=C[channel],
                 sense=GRB.EQUAL,
                 rhs=quicksum(y[channel, channelIndex] for channelIndex in Set_UB_on_C[channel]),
                 name="define_C_%s" % channel)
+
 # ---------------------------------------------------------------------------------------------------------------------
-print("* Defining constraint C4")
+print("* Constraint C4")
 for channel in ChannelList:
     for channelIndex in Set_UB_on_C[channel]:
         m.addConstr(lhs=C[channel],
                     sense=GRB.GREATER_EQUAL,
                     rhs=channelIndex * y[channel, channelIndex],
-                    name="Mono_clones_of_C_%s_%s" % (channel, channelIndex))
+                    name="mono_clones_of_C_%s_%s" % (channel, channelIndex))
 
 # ---------------------------------------------------------------------------------------------------------------------
-print("* Defining constraint C5")
+print("* Constraint C5")
 for task in TaskList:
     for node in task.getAllowedNode():
         for nodeIndex in Set_UB_on_N[node, task.zone]:
             m.addConstr(lhs=w[task, node, nodeIndex],
                         sense=GRB.LESS_EQUAL,
                         rhs=x[node, nodeIndex, task.zone],
-                        name="Codomain_existance_for_w_%s_%s_%s" % (task, node, nodeIndex))
+                        name="codomain_existance_for_w_%s_%s_%s" % (task, node, nodeIndex))
 
 # ---------------------------------------------------------------------------------------------------------------------
-print("* Defining constraint C6")
+print("* Constraint C6")
 for dataflow in DataFlowList:
     for channel in dataflow.getAllowedChannel():
         for channelIndex in Set_UB_on_C[channel]:
             m.addConstr(lhs=h[dataflow, channel, channelIndex],
                         sense=GRB.LESS_EQUAL,
                         rhs=y[channel, channelIndex],
-                        name="Codomain_existance_for_h_%s_%s_%s" % (dataflow, channel, channelIndex))
+                        name="codomain_existance_for_h_%s_%s_%s" % (dataflow, channel, channelIndex))
 
 # ---------------------------------------------------------------------------------------------------------------------
-print("* Defining constraint C7")
+print("* Constraint C7")
 for node in NodeList:
     for zone in ZoneList:
         for nodeIndex in Set_UB_on_N[node, zone]:
@@ -721,20 +724,20 @@ for node in NodeList:
                         rhs=quicksum(w[task, node, nodeIndex]
                                      for task in node.getAllowedTask()
                                      if task.zone == zone),
-                        name="Deactivate_unecessary_clones_of_x_%s_%s_%s" % (node, zone, nodeIndex))
+                        name="deactivate_unecessary_clones_of_x_%s_%s_%s" % (node, zone, nodeIndex))
 
 # ---------------------------------------------------------------------------------------------------------------------
-print("* Defining constraint C8")
+print("* Constraint C8")
 for channel in ChannelList:
     for channelIndex in Set_UB_on_C[channel]:
         m.addConstr(lhs=y[channel, channelIndex],
                     sense=GRB.LESS_EQUAL,
                     rhs=quicksum(h[dataflow, channel, channelIndex]
                                  for dataflow in channel.getAllowedDataFlow()),
-                    name="Deactivate_unecessary_clones_of_y_%s_%s" % (channel, channelIndex))
+                    name="deactivate_unecessary_clones_of_y_%s_%s" % (channel, channelIndex))
 
 # ---------------------------------------------------------------------------------------------------------------------
-print("* Defining constraint C9")
+print("* Constraint C9")
 for node in NodeList:
     for zone in ZoneList:
         for nodeIndex in Set_UB_on_N[node, zone]:
@@ -743,10 +746,10 @@ for node in NodeList:
                                      if task.zone == zone),
                         sense=GRB.LESS_EQUAL,
                         rhs=node.size,
-                        name="Node_size_%s_%s" % (node, nodeIndex))
+                        name="node_size_%s_%s" % (node, nodeIndex))
 
 # ---------------------------------------------------------------------------------------------------------------------
-print("* Defining constraint C10")
+print("* Constraint C10")
 for channel in ChannelList:
     for channelIndex in Set_UB_on_C[channel]:
         m.addConstr(lhs=quicksum(((dataflow.size * h[dataflow, channel, channelIndex]) /
@@ -754,20 +757,20 @@ for channel in ChannelList:
                                  for dataflow in channel.getAllowedDataFlow()),
                     sense=GRB.LESS_EQUAL,
                     rhs=channel.size,
-                    name="Channel_size_%s_%s" % (channel, channelIndex))
+                    name="channel_size_%s_%s" % (channel, channelIndex))
 
 # ---------------------------------------------------------------------------------------------------------------------
-print("* Defining constraint C11")
+print("* Constraint C11")
 for task in TaskList:
     m.addConstr(lhs=quicksum(w[task, node, nodeIndex]
                              for node in task.getAllowedNode()
                              for nodeIndex in Set_UB_on_N[node, task.zone]),
                 sense=GRB.EQUAL,
                 rhs=1,
-                name="Unique_mapping_of_task_%s" % task)
+                name="unique_mapping_of_task_%s" % task)
 
 # ---------------------------------------------------------------------------------------------------------------------
-print("* Defining constraint C12")
+print("* Constraint C12")
 for dataflow in DataFlowList:
     if dataflow.source.zone != dataflow.target.zone:
         m.addConstr(lhs=quicksum(h[dataflow, channel, channelIndex]
@@ -775,9 +778,9 @@ for dataflow in DataFlowList:
                                  for channelIndex in Set_UB_on_C[channel]),
                     sense=GRB.EQUAL,
                     rhs=1,
-                    name="Unique_mapping_of_dataflow_%s" % dataflow)
+                    name="unique_mapping_of_dataflow_%s" % dataflow)
 
-print("* Defining constraint C13")
+print("* Constraint C13")
 for dataflow in DataFlowList:
     if dataflow.source.zone == dataflow.target.zone:
         m.addConstr(lhs=quicksum(h[dataflow, channel, channelIndex]
@@ -785,15 +788,12 @@ for dataflow in DataFlowList:
                                  for channelIndex in Set_UB_on_C[channel]),
                     sense=GRB.EQUAL,
                     rhs=rho[dataflow.source, dataflow.target],
-                    name="Unique_mapping_of_dataflow_%s" % dataflow)
+                    name="unique_mapping_of_dataflow_%s" % dataflow)
 
 # ---------------------------------------------------------------------------------------------------------------------
-# print("* Defining constraint C14")
-# # \forall d \in \Natu_{D}
+# print("* Constraint C14")
 # for dataflow in DataFlowList:
-#     # (d.ts.m = true)
 #     if dataflow.source.mobile:
-#         # C14: \sum\limits_{n}^{\alpha_{n}(d.ts)} \sum\limits_{p = 1}^{\overline{N}_{n,d.ts.z}} w_{d.ts,v,p} \leq m_{d}
 #         m.addConstr(lhs=quicksum(w[dataflow.source, node, nodeIndex]
 #                                  for node in dataflow.source.getAllowedNode()
 #                                  if node.mobile
@@ -802,12 +802,9 @@ for dataflow in DataFlowList:
 #                     rhs=md[dataflow],
 #                     name="Define_md_for_dataflow_%s" % dataflow)
 #
-# print("* Defining constraint C15")
-# # \forall d \in \Natu_{D}
+# print("* Constraint C15")
 # for dataflow in DataFlowList:
-#     # (d.td.m = true)
 #     if dataflow.target.mobile:
-#         # C15: \sum\limits_{n}^{\alpha_{n}(d.td)} \sum\limits_{p = 1}^{\overline{N}_{n,d.td.z}} w_{d.td,v,p} \leq m_{d}
 #         m.addConstr(lhs=quicksum(w[dataflow.target, node, nodeIndex]
 #                                  for node in dataflow.target.getAllowedNode()
 #                                  if node.mobile
@@ -817,7 +814,7 @@ for dataflow in DataFlowList:
 #                     name="Define_md_for_dataflow_%s" % dataflow)
 
 # ---------------------------------------------------------------------------------------------------------------------
-# print("* Defining constraint C16")
+# print("* Constraint C16")
 # for dataflow in DataFlowList:
 #     if dataflow.source.zone != dataflow.target.zone:
 #         m.addConstr(lhs=md[dataflow],
@@ -828,7 +825,7 @@ for dataflow in DataFlowList:
 #                                  for channelIndex in Set_UB_on_C[channel]),
 #                     name="Unique_mapping_of_dataflow_%s_wrt_wireless_channels" % dataflow)
 #
-# print("* Defining constraint C17")
+# print("* Constraint C17")
 # for dataflow in DataFlowList:
 #     if dataflow.source.zone == dataflow.target.zone:
 #         m.addConstr(lhs=rho[dataflow.source, dataflow.target] - 1,
@@ -840,28 +837,24 @@ for dataflow in DataFlowList:
 #                     name="Unique_mapping_of_dataflow_%s_wrt_wireless_channels" % dataflow)
 
 # ---------------------------------------------------------------------------------------------------------------------
-print("* Defining constraint C18")
+print("* Constraint C18")
 for task1 in TaskList:
     for task2 in TaskList:
-        if task1 != task2:
-            if task1.zone == task2.zone:
-                for node1 in task1.getAllowedNode():
-                    for node2 in task2.getAllowedNode():
-                        for node1Index in Set_UB_on_N[node1, task1.zone]:
-                            for node2Index in Set_UB_on_N[node2, task2.zone]:
-                                if [node1, node1Index] != [node2, node2Index]:
-                                    m.addConstr(lhs=rho[task1, task2],
-                                                sense=GRB.GREATER_EQUAL,
-                                                rhs=w[task1, node1, node1Index] + w[task2, node2, node2Index] - 1,
-                                                name="Task_mapping_in_different_nodes_of_%s_%s" % (task1, task2))
-            else:
-                m.addConstr(lhs=rho[task1, task2],
-                            sense=GRB.EQUAL,
-                            rhs=1,
-                            name='TwoTasks_%s_%s_IntoDifferentNodes' % (task1, task2))
+        if (task1 == task2) or (task1.zone != task2.zone):
+            continue
+        for node1 in task1.getAllowedNode():
+            for node2 in task2.getAllowedNode():
+                for node1Index in Set_UB_on_N[node1, task1.zone]:
+                    for node2Index in Set_UB_on_N[node2, task2.zone]:
+                        if [node1, node1Index] == [node2, node2Index]:
+                            continue
+                        m.addConstr(lhs=rho[task1, task2],
+                                    sense=GRB.GREATER_EQUAL,
+                                    rhs=w[task1, node1, node1Index] + w[task2, node2, node2Index] - 1,
+                                    name="Task_mapping_in_different_nodes_of_%s_%s" % (task1, task2))
 
 # ---------------------------------------------------------------------------------------------------------------------
-print("* Defining constraint C19")
+print("* Constraint C19")
 for channel in ChannelList:
     if channel.wireless:
         continue
@@ -870,57 +863,62 @@ for channel in ChannelList:
             for dataflow2 in channel.getAllowedDataFlow():
                 if dataflow1 >= dataflow2:
                     continue
-                if (gamma[dataflow1, dataflow2.source] or gamma[dataflow1, dataflow2.target]):
-                    m.addConstr(lhs=h[dataflow1, channel, channelIndex] + h[dataflow2, channel, channelIndex],
-                                sense=GRB.LESS_EQUAL,
-                                rhs=1,
-                                name="Cabled_channel_%s_%s_serves_only_two_nodes_SOURCE_CLASH%s_%s" % (
-                                    channel, channelIndex, dataflow1, dataflow2))
+                if not (gamma[dataflow1, dataflow2.source] or gamma[dataflow1, dataflow2.target]):
+                    continue
+                m.addConstr(lhs=h[dataflow1, channel, channelIndex] + h[dataflow2, channel, channelIndex],
+                            sense=GRB.LESS_EQUAL,
+                            rhs=1,
+                            name="Cabled_channel_%s_%s_serves_only_two_nodes_SOURCE_CLASH%s_%s" % (
+                                channel, channelIndex, dataflow1, dataflow2))
 
 # ---------------------------------------------------------------------------------------------------------------------
-print("* Defining constraint C20")
+print("* Constraint C20")
 for dataflow in DataFlowList:
     for task in TaskList:
-        if dataflow.hasTask(task) is False:
-            if not gamma[dataflow, task]:
-                m.addConstr(lhs=1,
-                            sense=GRB.GREATER_EQUAL,
-                            rhs=rho[task, dataflow.source] +
-                                rho[task, dataflow.target] +
-                                rho[dataflow.source, dataflow.target] - 2,
-                            name="Define_gamma_variable_for_%s_%s_%s" % (task, dataflow.source, dataflow.target))
+        if not gamma[dataflow, task]:
+            continue
+        m.addConstr(lhs=rho[task, dataflow.source] +
+                        rho[task, dataflow.target] +
+                        rho[dataflow.source, dataflow.target] - 2,
+                    sense=GRB.LESS_EQUAL,
+                    rhs=1,
+                    name="Define_gamma_variable_for_%s_%s_%s" % (task, dataflow.source, dataflow.target))
 
 # ---------------------------------------------------------------------------------------------------------------------
-print("* Defining constraint C21")
+print("* Constraint C21")
 for zone1 in ZoneList:
     for zone2 in ZoneList:
         for channel in ChannelList:
-            if not channel.wireless:
-                for channelIndex in Set_UB_on_C[channel]:
-                    for dataflow in channel.getAllowedDataFlow():
-                        if dataflow.concernsZones(zone1, zone2):
-                            m.addConstr(lhs=j[channel, channelIndex, zone1, zone2],
-                                        sense=GRB.GREATER_EQUAL,
-                                        rhs=h[dataflow, channel, channelIndex] * q[channel, zone1, zone2],
-                                        name="Cabled_channel_%s_%s_between_zones_%s_%s" % (
-                                            channel, channelIndex, zone1, zone2))
+            if channel.wireless:
+                continue
+            for channelIndex in Set_UB_on_C[channel]:
+                for dataflow in channel.getAllowedDataFlow():
+                    if not dataflow.concernsZones(zone1, zone2):
+                        continue
+                    m.addConstr(lhs=j[channel, channelIndex, zone1, zone2],
+                                sense=GRB.GREATER_EQUAL,
+                                rhs=h[dataflow, channel, channelIndex] * q[channel, zone1, zone2],
+                                name="Cabled_channel_%s_%s_between_zones_%s_%s" % (
+                                    channel, channelIndex, zone1, zone2))
 
 # ---------------------------------------------------------------------------------------------------------------------
-print("* Defining constraint C22")
+print("* Constraint C22")
 for channel in ChannelList:
-    if channel.wireless:
-        for channelIndex in Set_UB_on_C[channel]:
-            for dataflow1 in channel.getAllowedDataFlow():
-                for dataflow2 in channel.getAllowedDataFlow():
-                    if dataflow1 < dataflow2:
-                        m.addConstr(lhs=h[dataflow1, channel, channelIndex] + h[dataflow2, channel, channelIndex],
-                                    sense=GRB.LESS_EQUAL,
-                                    rhs=(1 +
-                                         q[channel, dataflow1.source.zone, dataflow2.source.zone] *
-                                         q[channel, dataflow1.source.zone, dataflow2.target.zone] *
-                                         q[channel, dataflow1.target.zone, dataflow2.source.zone] *
-                                         q[channel, dataflow1.target.zone, dataflow2.target.zone]),
-                                    name="Wireless_with_df_%s_%s" % (dataflow1.label, dataflow2.label))
+    if not channel.wireless:
+        continue
+    for channelIndex in Set_UB_on_C[channel]:
+        for dataflow1 in channel.getAllowedDataFlow():
+            for dataflow2 in channel.getAllowedDataFlow():
+                if dataflow1 >= dataflow2:
+                    continue
+                m.addConstr(lhs=h[dataflow1, channel, channelIndex] + h[dataflow2, channel, channelIndex],
+                            sense=GRB.LESS_EQUAL,
+                            rhs=(1 +
+                                 q[channel, dataflow1.source.zone, dataflow2.source.zone] *
+                                 q[channel, dataflow1.source.zone, dataflow2.target.zone] *
+                                 q[channel, dataflow1.target.zone, dataflow2.source.zone] *
+                                 q[channel, dataflow1.target.zone, dataflow2.target.zone]),
+                            name="Wireless_with_df_%s_%s" % (dataflow1.label, dataflow2.label))
 
 # END - The constraints section - END
 
