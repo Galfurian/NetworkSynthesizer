@@ -8,6 +8,9 @@
 import os
 import time
 from sys import argv, exit
+import array
+import psutil
+from pprint import pprint
 
 from gurobipy import *
 
@@ -51,6 +54,13 @@ def About():
     print("* Version : 0.1")
     print("* Authors : Enrico Fraccaroli, Romeo Rizzi")
     Separator()
+
+
+def GetMemoryUsage():
+    # return the memory usage in MB
+    process = psutil.Process(os.getpid())
+    mem = process.memory_info()[0] / float(2 ** 20)
+    return mem
 
 
 # ---------------------------------------------------------------------------------------------------------------------
@@ -469,6 +479,7 @@ w = {}
 h = {}
 j = {}
 q = {}
+sigma = {}
 
 # ---------------------------------------------------------------------------------------------------------------------
 for zone in ZoneList:
@@ -643,6 +654,32 @@ print("* \tVariable j identifies if the given instnace of the given channel has 
 print("* \tvalid conductance between the given pari of zones.")
 print("*")
 
+for dataflow in DataFlowList:
+    for channel in dataflow.getAllowedChannel():
+        for channelIndex in Set_UB_on_C[channel]:
+            for node in dataflow.source.getAllowedNode():
+                for nodeIndex in Set_UB_on_N[node, dataflow.source.zone]:
+                    sigma[channel, channelIndex, node, nodeIndex] = m.addVar(lb=0.0,
+                                                                             ub=1.0,
+                                                                             obj=0.0,
+                                                                             vtype=GRB.BINARY,
+                                                                             name='sigma_%s_%s_%s_%s' % (
+                                                                                 channel, channelIndex,
+                                                                                 node, nodeIndex))
+            for node in dataflow.target.getAllowedNode():
+                for nodeIndex in Set_UB_on_N[node, dataflow.target.zone]:
+                    sigma[channel, channelIndex, node, nodeIndex] = m.addVar(lb=0.0,
+                                                                             ub=1.0,
+                                                                             obj=0.0,
+                                                                             vtype=GRB.BINARY,
+                                                                             name='sigma_%s_%s_%s_%s' % (
+                                                                                 channel, channelIndex,
+                                                                                 node, nodeIndex))
+print("*")
+print("* sigma [%s]" % len(sigma))
+print("* \tVariable sigma identifies if the given instance of a channel is ")
+print("* \tconnected with the instance of the given node.")
+print("*")
 # ---------------------------------------------------------------------------------------------------------------------
 # Datastructures ending time.
 structure_timer_end = time.time()
@@ -868,7 +905,7 @@ for channel in ChannelList:
                 m.addConstr(lhs=h[dataflow1, channel, channelIndex] + h[dataflow2, channel, channelIndex],
                             sense=GRB.LESS_EQUAL,
                             rhs=1,
-                            name="Cabled_channel_%s_%s_serves_only_two_nodes_SOURCE_CLASH%s_%s" % (
+                            name="Cabled_channel_%s_%s_serves_only_two_nodes_%s_%s" % (
                                 channel, channelIndex, dataflow1, dataflow2))
 
 # ---------------------------------------------------------------------------------------------------------------------
@@ -920,6 +957,38 @@ for channel in ChannelList:
                                  q[channel, dataflow1.target.zone, dataflow2.target.zone]),
                             name="Wireless_with_df_%s_%s" % (dataflow1.label, dataflow2.label))
 
+# ---------------------------------------------------------------------------------------------------------------------
+# print("* Constraint C23")
+# for dataflow in DataFlowList:
+#     for channel in dataflow.getAllowedChannel():
+#         for channelIndex in Set_UB_on_C[channel]:
+#             for node in dataflow.source.getAllowedNode():
+#                 for nodeIndex in Set_UB_on_N[node, dataflow.source.zone]:
+#                     m.addConstr(lhs=sigma[channel, channelIndex, node, nodeIndex],
+#                                 sense=GRB.LESS_EQUAL,
+#                                 rhs=h[dataflow, channel, channelIndex] * w[dataflow.source, node, nodeIndex],
+#                                 name="channel_%s_%s_connection_with_%s_%s" % (channel, channelIndex, node, nodeIndex))
+#             for node in dataflow.target.getAllowedNode():
+#                 for nodeIndex in Set_UB_on_N[node, dataflow.target.zone]:
+#                     m.addConstr(lhs=sigma[channel, channelIndex, node, nodeIndex],
+#                                 sense=GRB.LESS_EQUAL,
+#                                 rhs=h[dataflow, channel, channelIndex] * w[dataflow.target, node, nodeIndex],
+#                                 name="channel_%s_%s_connection_with_%s_%s" % (channel, channelIndex, node, nodeIndex))
+
+# ---------------------------------------------------------------------------------------------------------------------
+# print("* Constraint C24")
+# for dataflow in DataFlowList:
+#     for channel in dataflow.getAllowedChannel():
+#         for channelIndex in Set_UB_on_C[channel]:
+#             m.addConstr(lhs=quicksum(sigma[channel, channelIndex, node, nodeIndex]
+#                                      for node in dataflow.source.getAllowedNode()
+#                                      for nodeIndex in Set_UB_on_N[node, dataflow.source.zone]) +
+#                             quicksum(sigma[channel, channelIndex, node, nodeIndex]
+#                                      for node in dataflow.target.getAllowedNode()
+#                                      for nodeIndex in Set_UB_on_N[node, dataflow.target.zone]),
+#                         sense=GRB.LESS_EQUAL,
+#                         rhs=channel.max_conn,
+#                         name="channel_%s_%s_max_connections" % (channel, channelIndex))
 # END - The constraints section - END
 
 m.update()
@@ -1024,6 +1093,37 @@ elif OPTIMIZATION == 5:
 print("*******************************************************************************")
 print("* Starting optimization...")
 
+# ---------------------------------------------------------------------------------------------------------------------
+# ---------------------------------------------------------------------------------------------------------------------
+# SOLVER PARAMETERS
+# ---------------------------------------------------------------------------------------------------------------------
+
+# ---------------------------------------------------------------------------------------------------------------------
+# Controls the presolve level.
+#
+# A value of -1 corresponds to an automatic setting.
+# Other options are off (0), conservative (1), or aggressive (2). More aggressive application of presolve
+# takes more time, but can sometimes lead to a significantly tighter model.
+m.setParam("Presolve", 2)
+
+# ---------------------------------------------------------------------------------------------------------------------
+# Algorithm used to solve continuous models or the root node of a MIP model.
+# Type:	int
+# Default value:	-1
+# Minimum value:	-1
+# Maximum value:	4
+#
+# Options are: -1=automatic, 0=primal simplex, 1=dual simplex, 2=barrier, 3=concurrent, 4=deterministic concurrent.
+# In the current release, the default Automatic (-1) setting will typically choose
+# non-deterministic concurrent (Method=3) for an LP, barrier (Method=2) for a QP or QCP,
+# and dual (Method=1) for the MIP root node. Only the simplex and barrier algorithms are available for continuous
+# QP models. Only primal and dual simplex are available for solving the root of an MIQP model.
+# Only barrier is available for continuous QCP models.
+# Concurrent optimizers run multiple solvers on multiple threads simultaneously, and choose the one that
+# finishes first. Deterministic concurrent (Method=4) gives the exact same result each time,
+# while Method=3 is often faster but can produce different optimal bases when run multiple times.
+m.setParam("Method", 3)
+
 # Optimization start.
 optimization_timer_begin = time.time()
 
@@ -1033,7 +1133,11 @@ m.optimize()
 # Optimization end.
 optimization_timer_end = time.time()
 
+used_memory = GetMemoryUsage()
+used_cpu = psutil.cpu_percent(interval=1)
+
 outcome = open("result.txt", 'a+')
+outcome_txt = "SUCCESS"
 outfile = open(str(argv[1]).replace("/", "_"), 'a+')
 
 # print(solution
@@ -1157,29 +1261,23 @@ if m.status == GRB.status.OPTIMAL:
                              Set_UB_on_N,
                              outfile)
     if not checker.checkNetwork():
-        outcome.write("[%s] FAILED\n" % argv[1])
-    else:
-        outcome.write("[%s] OK\n" % argv[1])
+        outcome_txt = "FAILED"
 
 elif m.status == GRB.Status.INF_OR_UNBD:
     outfile.write('Model is infeasible or unbounded\n')
-
-    outcome.write("[%s] FAILED\n" % argv[1])
+    outcome_txt = "FAILED"
 
 elif m.status == GRB.Status.INFEASIBLE:
     outfile.write('Model is infeasible\n')
-
-    outcome.write("[%s] FAILED\n" % argv[1])
+    outcome_txt = "FAILED"
 
 elif m.status == GRB.Status.UNBOUNDED:
     outfile.write('Model is unbounded\n')
-
-    outcome.write("[%s] FAILED\n" % argv[1])
+    outcome_txt = "FAILED"
 
 else:
     outfile.write('Optimization ended with status %d\n' % m.status)
-
-    outcome.write("[%s] FAILED\n" % argv[1])
+    outcome_txt = "FAILED"
 
 if XML_GENERATION == 1:
     print("*##########################################")
@@ -1226,10 +1324,13 @@ outfile.write("*    Optimization           : %s s\n" % elapsed_optim)
 outfile.write("*    Total : %s s\n" % elapsed_total)
 outfile.write("*##########################################\n")
 
+outcome.write("[%-36s] OBJ-%d %-12s |   %8.6s s | %8.6s s | %8.6s s | %8.6s s | %8.6s s | %16.14s Mb | %8.4s |\n" %
+              (argv[1], OPTIMIZATION, outcome_txt, elapsed_parse, elapsed_struc, elapsed_const, elapsed_optim,
+               elapsed_total, used_memory, used_cpu))
 outcome.flush()
-outfile.flush()
-
 outcome.close()
+
+outfile.flush()
 outfile.close()
 
 exit(0)
