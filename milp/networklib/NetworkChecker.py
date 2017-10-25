@@ -38,11 +38,11 @@ class NetworkChecker:
                     if self.SolW[task, node, nodeIndex]:
                         if task_placed:
                             self.outfile.write("[Error] Task %s has already been placed.\n" % (task))
-                            exit(1)
+                            return False
                         task_placed = True
             if not task_placed:
                 self.outfile.write("[Error] Task %s has not been placed.\n" % (task))
-                exit(1)
+                return False
 
         # -------------------------------------------------------------------------------------------------------------
         self.outfile.write("*     - Checking if all the dataflows have been deployed...\n")
@@ -62,11 +62,11 @@ class NetworkChecker:
                         else:
                             if dataflow_placed:
                                 self.outfile.write("[Error] Dataflow %s has already been placed.\n" % (dataflow))
-                                exit(1)
+                                return False
                             dataflow_placed = True
             if (source_node != target_node) and not dataflow_placed:
                 self.outfile.write("[Error] Dataflow %s has not been placed.\n" % (dataflow))
-                exit(1)
+                return False
 
         # -------------------------------------------------------------------------------------------------------------
         self.outfile.write("*     - Checking if the tasks deployment is compliant with the nodes sizes...\n")
@@ -80,7 +80,7 @@ class NetworkChecker:
                                 occupied_space += task.size
                     if occupied_space > node.size:
                         self.outfile.write("[Error] The space occupied inside node %s is over the limit.\n" % (node))
-                        exit(1)
+                        return False
 
         # -------------------------------------------------------------------------------------------------------------
         self.outfile.write(
@@ -97,7 +97,7 @@ class NetworkChecker:
                             ConnectedNodes.add("%s_%s_%s" % (target_node[0], target_node[1], target_node[2]))
                     if (len(ConnectedNodes) > 2):
                         self.outfile.write("[Error] Cabled channel %s is connecting more than two nodes.\n" % (channel))
-                        exit(1)
+                        return False
 
         # -------------------------------------------------------------------------------------------------------------
         self.outfile.write(
@@ -116,6 +116,7 @@ class NetworkChecker:
                                     "[Error] The %s-th wireless channel %s contains a \n" % (channelIndex, channel))
                                 self.outfile.write(
                                     "dataflow connecting tasks inside two zones with zero conductance.\n")
+                                return False
                     for task1 in connecting_tasks:
                         for task2 in connecting_tasks:
                             if task1 < task2:
@@ -124,6 +125,7 @@ class NetworkChecker:
                                     output = "[Error] Channel %s-%s contiguity %s\n" \
                                              % (channel, channelIndex, contiguity)
                                     self.outfile.write("%s.\n" % output)
+                                    return False
                     del connecting_tasks
 
         # -------------------------------------------------------------------------------------------------------------
@@ -134,4 +136,5 @@ class NetworkChecker:
                     if self.SolW[task, node, nodeIndex] and task.mobile and not node.mobile:
                         self.outfile.write(
                             "[Error] Mobile task %s is hosted inside the non-mobile node %s.\n" % (task, node))
-                        exit(1)
+                        return False
+        return True

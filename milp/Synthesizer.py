@@ -1156,9 +1156,10 @@ if m.status == GRB.status.OPTIMAL:
                              Set_UB_on_C,
                              Set_UB_on_N,
                              outfile)
-    checker.checkNetwork()
-
-    outcome.write("[%s] OK\n" % argv[1])
+    if not checker.checkNetwork():
+        outcome.write("[%s] FAILED\n" % argv[1])
+    else:
+        outcome.write("[%s] OK\n" % argv[1])
 
 elif m.status == GRB.Status.INF_OR_UNBD:
     outfile.write('Model is infeasible or unbounded\n')
