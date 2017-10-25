@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-rm -f result.txt
+rm -f *.txt
+rm -f *.log
 python Synthesizer.py examples/TestCase1/input.txt examples/nodes.txt examples/channels.txt 1
 python Synthesizer.py examples/TestCase1/input.txt examples/nodes.txt examples/channels.txt 2
 python Synthesizer.py examples/TestCase1/input.txt examples/nodes.txt examples/channels.txt 3
