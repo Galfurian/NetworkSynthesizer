@@ -494,10 +494,7 @@ print("*")
 # ---------------------------------------------------------------------------------------------------------------------
 for node in NodeList:
     for zone in ZoneList:
-        N[node, zone] = m.addVar(lb=0.0,
-                                 ub=UB_on_N[node, zone],
-                                 obj=0.0,
-                                 vtype=GRB.CONTINUOUS,
+        N[node, zone] = m.addVar(lb=0.0, ub=UB_on_N[node, zone], obj=0.0, vtype=GRB.CONTINUOUS,
                                  name='N_%s_%s' % (node, zone))
 # Log the information concerning the variable.
 print("*")
@@ -508,10 +505,7 @@ print("*")
 
 # ---------------------------------------------------------------------------------------------------------------------
 for channel in ChannelList:
-    C[channel] = m.addVar(lb=0.0,
-                          ub=UB_on_C[channel],
-                          obj=0.0,
-                          vtype=GRB.CONTINUOUS,
+    C[channel] = m.addVar(lb=0.0, ub=UB_on_C[channel], obj=0.0, vtype=GRB.CONTINUOUS,
                           name='C_%s' % channel)
 # Log the information concerning the variable.
 print("*")
@@ -524,10 +518,7 @@ print("*")
 for node in NodeList:
     for zone in ZoneList:
         for nodeIndex in Set_UB_on_N[node, zone]:
-            x[node, nodeIndex, zone] = m.addVar(lb=0.0,
-                                                ub=1.0,
-                                                obj=0.0,
-                                                vtype=GRB.BINARY,
+            x[node, nodeIndex, zone] = m.addVar(lb=0.0, ub=1.0, obj=0.0, vtype=GRB.BINARY,
                                                 name='x_%s_%s_%s' % (node, nodeIndex, zone))
 # Log the information concerning the variable.
 print("*")
@@ -540,10 +531,7 @@ print("*")
 # ---------------------------------------------------------------------------------------------------------------------
 for channel in ChannelList:
     for channelIndex in Set_UB_on_C[channel]:
-        y[channel, channelIndex] = m.addVar(lb=0.0,
-                                            ub=1.0,
-                                            obj=0.0,
-                                            vtype=GRB.BINARY,
+        y[channel, channelIndex] = m.addVar(lb=0.0, ub=1.0, obj=0.0, vtype=GRB.BINARY,
                                             name='y_%s_%s' % (channel, channelIndex))
 # Log the information concerning the variable.
 print("*")
@@ -555,10 +543,7 @@ print("*")
 
 # ---------------------------------------------------------------------------------------------------------------------
 for dataflow in DataFlowList:
-    if dataflow.source.mobile or dataflow.target.mobile:
-        md[dataflow] = True
-    else:
-        md[dataflow] = False
+    md[dataflow] = (dataflow.source.mobile or dataflow.target.mobile)
 
 # Log the information concerning the variable.
 print("*")
@@ -572,10 +557,7 @@ print("*")
 # ---------------------------------------------------------------------------------------------------------------------
 for dataflow in DataFlowList:
     for task in TaskList:
-        if dataflow.hasTask(task):
-            gamma[dataflow, task] = False
-        else:
-            gamma[dataflow, task] = True
+        gamma[dataflow, task] = not (dataflow.hasTask(task))
 # Log the information concerning the variable.
 print("*")
 print("* gamma [%s]" % len(gamma))
@@ -589,10 +571,7 @@ for task1 in TaskList:
         if task1 == task2:
             rho[task1, task2] = False
         else:
-            rho[task1, task2] = m.addVar(lb=0.0,
-                                         ub=1.0,
-                                         obj=0.0,
-                                         vtype=GRB.BINARY,
+            rho[task1, task2] = m.addVar(lb=0.0, ub=1.0, obj=0.0, vtype=GRB.BINARY,
                                          name='rho_%s_%s' % (task1, task2))
 # Log the information concerning the variable.
 print("*")
@@ -605,10 +584,7 @@ print("*")
 for task in TaskList:
     for node in task.getAllowedNode():
         for nodeIndex in Set_UB_on_N[node, task.zone]:
-            w[task, node, nodeIndex] = m.addVar(lb=0.0,
-                                                ub=1.0,
-                                                obj=0.0,
-                                                vtype=GRB.BINARY,
+            w[task, node, nodeIndex] = m.addVar(lb=0.0, ub=1.0, obj=0.0, vtype=GRB.BINARY,
                                                 name='w_%s_%s_%s' % (task, node, nodeIndex))
 # Log the information concerning the variable.
 print("*")
@@ -621,10 +597,7 @@ print("*")
 for dataflow in DataFlowList:
     for channel in dataflow.getAllowedChannel():
         for channelIndex in Set_UB_on_C[channel]:
-            h[dataflow, channel, channelIndex] = m.addVar(lb=0.0,
-                                                          ub=1.0,
-                                                          obj=0.0,
-                                                          vtype=GRB.BINARY,
+            h[dataflow, channel, channelIndex] = m.addVar(lb=0.0, ub=1.0, obj=0.0, vtype=GRB.BINARY,
                                                           name='h_%s_%s_%s' % (dataflow, channel, channelIndex))
 # Log the information concerning the variable.
 print("*")
@@ -637,10 +610,7 @@ print("*")
 for zone1 in ZoneList:
     for zone2 in ZoneList:
         for channel in ChannelList:
-            if ContiguityList.get((zone1, zone2, channel)).conductance > 0:
-                q[channel, zone1, zone2] = True
-            else:
-                q[channel, zone1, zone2] = False
+            q[channel, zone1, zone2] = (ContiguityList.get((zone1, zone2, channel)).conductance > 0)
 # Log the information concerning the variable.
 print("*")
 print("* q [%s]" % len(q))
@@ -652,7 +622,7 @@ print("*")
 for zone1 in ZoneList:
     for zone2 in ZoneList:
         for channel in ChannelList:
-            if ContiguityList.get((zone1, zone2, channel)).conductance > 0:
+            if q[channel, zone1, zone2]:
                 for channelIndex in Set_UB_on_C[channel]:
                     channel.setAllowedBetween(zone1, zone2)
                     j[channel, channelIndex, zone1, zone2] = m.addVar(lb=0.0,
@@ -1119,7 +1089,7 @@ if m.status == GRB.status.OPTIMAL:
                             TotalEnergyNodesUsage += (node.task_energy * task.size)
                             task.setDeployedIn(node, nodeIndex, zone)
                             outfile.write('    Task %-24s inside node Zone%s.%s.%s\n'
-                                              % (task, zone, node, nodeIndex))
+                                          % (task, zone, node, nodeIndex))
 
     outfile.write('# Data-Flows allocation:\n')
     SolH = m.getAttr('x', h)
@@ -1211,7 +1181,6 @@ else:
     outfile.write('Optimization ended with status %d\n' % m.status)
 
     outcome.write("[%s] FAILED\n" % argv[1])
-
 
 if XML_GENERATION == 1:
     print("*##########################################")
