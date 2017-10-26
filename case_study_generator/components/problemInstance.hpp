@@ -65,7 +65,8 @@ public:
                                         int _energyPerDataFlow,
                                         int _transmissionDelay,
                                         int _errorRate,
-                                        bool _wireless);
+                                        bool _wireless,
+                                        int _maxConnection);
 
     std::shared_ptr<Node> addNode(int _id,
                                   std::string _label,
@@ -106,4 +107,10 @@ public:
     std::string toString();
 
     void printToFile() const;
+
+    std::string printNodesCatalog() const;
+
+    std::string printChannelsCatalog() const;
+
+    std::string printInputInstance() const;
 };

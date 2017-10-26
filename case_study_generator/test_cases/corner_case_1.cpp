@@ -19,14 +19,15 @@
 /// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 /// DEALINGS IN THE SOFTWARE.
 
+#include <climits>
 #include "corner_case_1.hpp"
 
 ProblemInstance corner_case_1()
 {
     ProblemInstance inst;
     // Add the channels.
-    inst.addChannel(1, "Bluetooth-4.0", 9, 24, 1, 1, 12, 10, 1);
-    inst.addChannel(2, "Wi-Fi-AC", 34, 256, 3, 2, 8, 7, 1);
+    inst.addChannel(1, "Bluetooth-4.0", 9, 24, 1, 1, 12, 10, true, 1);
+    inst.addChannel(2, "Wi-Fi-AC", 34, 256, 3, 2, 8, 7, true, INT_MAX);
 //    inst.addChannel(3, "Wi-Fi-AD", 79, 7400, 7, 4, 3, 2, 1);
 //    inst.addChannel(3, "ethernet", 27, 100000, 20, 2, 5, 2, 0);
 //    inst.addChannel(5, "fiber", 367, 273000, 14, 1, 1, 1, 0);

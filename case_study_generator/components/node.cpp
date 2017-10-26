@@ -19,6 +19,8 @@
 /// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 /// DEALINGS IN THE SOFTWARE.
 
+#include <iomanip>
+#include <fstream>
 #include "node.hpp"
 #include "utils.hpp"
 
@@ -32,7 +34,7 @@ Node::Node() :
     taskPowerConsumption(),
     mobile()
 {
-
+    // Nothing to do.
 }
 
 Node::Node(int _id,
@@ -43,47 +45,43 @@ Node::Node(int _id,
            int _taskPowerConsumption,
            bool _mobile) :
     id(_id),
-    label(_label),
+    label(std::move(_label)),
     cost(_cost),
     size(_size),
     powerConsumption(_powerConsumption),
     taskPowerConsumption(_taskPowerConsumption),
     mobile(_mobile)
 {
-
+    // Nothing to do.
 }
 
 Node::~Node()
 {
-
+    // Nothing to do.
 }
 
 std::string Node::getHeader()
 {
-    std::string output;
-    output += "#";
-    output += AlignString("Label", StringAlign::Left, 15);
-    output += AlignString("Id", StringAlign::Left, 5);
-    output += AlignString("Cost", StringAlign::Right, 5);
-    output += AlignString("Size", StringAlign::Right, 5);
-    output += AlignString("PC", StringAlign::Right, 5);
-    output += AlignString("TPC", StringAlign::Right, 5);
-    output += AlignString("Mobile", StringAlign::Right, 7);
-    return output;
+    std::stringstream ss;
+    ss << "# " << std::left << std::setw(15) << "LABEL";
+    ss << "| " << std::left << std::setw(4) << "ID";
+    ss << "| " << std::right << std::setw(6) << "COST";
+    ss << " |" << std::right << std::setw(12) << "SIZE";
+    ss << " |" << std::right << std::setw(8) << "ENERGY";
+    ss << " |" << std::right << std::setw(14) << "TASK ENERGY";
+    ss << " |" << std::right << std::setw(12) << "MOBILE";
+    return ss.str();
 }
 
 std::string Node::toString() const
 {
-    std::string output;
-    // Values
-    output += " ";
-    output += AlignString(label, StringAlign::Left, 15);
-    output += AlignString(ToString(id), StringAlign::Left, 5);
-    output += AlignString(ToString(cost), StringAlign::Right, 5);
-    output += AlignString(ToString(size), StringAlign::Right, 5);
-    output += AlignString(ToString(powerConsumption), StringAlign::Right, 5);
-    output += AlignString(ToString(taskPowerConsumption), StringAlign::Right,
-                          5);
-    output += AlignString(ToString(mobile), StringAlign::Center, 7);
-    return output;
+    std::stringstream ss;
+    ss << "  " << std::left << std::setw(15) << label;
+    ss << "| " << std::left << std::setw(4) << ToString(id);
+    ss << "| " << std::right << std::setw(6) << ToString(cost);
+    ss << " |" << std::right << std::setw(12) << ToString(size);
+    ss << " |" << std::right << std::setw(8) << ToString(powerConsumption);
+    ss << " |" << std::right << std::setw(14) << ToString(taskPowerConsumption);
+    ss << " |" << std::right << std::setw(12) << ToString(mobile);
+    return ss.str();
 }

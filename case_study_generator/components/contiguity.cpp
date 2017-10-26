@@ -19,6 +19,7 @@
 /// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 /// DEALINGS IN THE SOFTWARE.
 
+#include <iomanip>
 #include "contiguity.hpp"
 #include "channel.hpp"
 #include "utils.hpp"
@@ -31,6 +32,7 @@ Contiguity::Contiguity() :
     conductivity(),
     deploymentCost()
 {
+    // Nothing to do.
 }
 
 Contiguity::Contiguity(std::shared_ptr<Zone> _zone1,
@@ -38,37 +40,38 @@ Contiguity::Contiguity(std::shared_ptr<Zone> _zone1,
                        std::shared_ptr<Channel> _channel,
                        double _conductivity,
                        double _deploymentCost) :
-    zone1(_zone1),
-    zone2(_zone2),
-    channel(_channel),
+    zone1(std::move(_zone1)),
+    zone2(std::move(_zone2)),
+    channel(std::move(_channel)),
     conductivity(_conductivity),
     deploymentCost(_deploymentCost)
 {
+    // Nothing to do.
 }
 
 Contiguity::~Contiguity()
 {
+    // Nothing to do.
 }
 
 std::string Contiguity::getHeader()
 {
-    std::string output;
-    output += "#";
-    output += AlignString("Zone1", StringAlign::Right, 8);
-    output += AlignString("Zone2", StringAlign::Right, 8);
-    output += AlignString("Channel", StringAlign::Right, 8);
-    output += AlignString("Conductivity", StringAlign::Right, 15);
-    output += AlignString("DeploymentCost", StringAlign::Right, 15);
-    return output;
+    std::stringstream ss;
+    ss << "# " << std::right << std::setw(8) << "ZONE1";
+    ss << " |" << std::right << std::setw(8) << "ZONE2";
+    ss << " |" << std::right << std::setw(8) << "CHANNEL";
+    ss << " |" << std::right << std::setw(16) << "CONDUCTIVITY";
+    ss << " |" << std::right << std::setw(16) << "DEPLOYMENT COST";
+    return ss.str();
 }
 
 std::string Contiguity::toString() const
 {
-    std::string output;
-    output += AlignString(ToString(zone1->label), StringAlign::Right, 8);
-    output += AlignString(ToString(zone2->label), StringAlign::Right, 8);
-    output += AlignString(ToString(channel->id), StringAlign::Right, 8);
-    output += AlignString(ToString(conductivity), StringAlign::Right, 15);
-    output += AlignString(ToString(deploymentCost), StringAlign::Right, 15);
-    return output;
+    std::stringstream ss;
+    ss << "  " << std::right << std::setw(8) << zone1->label;
+    ss << " |" << std::right << std::setw(8) << ToString(zone2->label);
+    ss << " |" << std::right << std::setw(8) << ToString(channel->id);
+    ss << " |" << std::right << std::setw(16) << ToString(conductivity);
+    ss << " |" << std::right << std::setw(16) << ToString(deploymentCost);
+    return ss.str();
 }

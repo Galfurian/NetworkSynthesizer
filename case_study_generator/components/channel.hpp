@@ -35,6 +35,7 @@ public:
     int transmissionDelay;
     int errorRate;
     bool wireless;
+    int maxConnection;
 
     Channel();
 
@@ -46,7 +47,8 @@ public:
             int _energyPerDataFlow,
             int _transmissionDelay,
             int _errorRate,
-            bool _wireless);
+            bool _wireless,
+            int _maxConnection);
 
     ~Channel();
 

@@ -19,6 +19,8 @@
 /// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 /// DEALINGS IN THE SOFTWARE.
 
+#include <iomanip>
+#include <climits>
 #include "channel.hpp"
 #include "utils.hpp"
 
@@ -31,19 +33,21 @@ Channel::Channel() :
     energyPerDataFlow(),
     transmissionDelay(),
     errorRate(),
-    wireless()
+    wireless(),
+    maxConnection()
 {
 }
 
 Channel::Channel(int _id,
-        std::string _label,
-        int _cost,
-        int _size,
-        int _energyConsumption,
-        int _energyPerDataFlow,
-        int _transmissionDelay,
-        int _errorRate,
-        bool _wireless) :
+                 std::string _label,
+                 int _cost,
+                 int _size,
+                 int _energyConsumption,
+                 int _energyPerDataFlow,
+                 int _transmissionDelay,
+                 int _errorRate,
+                 bool _wireless,
+                 int _maxConnection) :
     id(_id),
     label(_label),
     cost(_cost),
@@ -52,7 +56,8 @@ Channel::Channel(int _id,
     energyPerDataFlow(_energyPerDataFlow),
     transmissionDelay(_transmissionDelay),
     errorRate(_errorRate),
-    wireless(_wireless)
+    wireless(_wireless),
+    maxConnection(_maxConnection)
 {
 }
 
@@ -62,32 +67,33 @@ Channel::~Channel()
 
 std::string Channel::getHeader()
 {
-    std::string output;
-    output += "#";
-    output += AlignString("Label", StringAlign::Left, 15);
-    output += AlignString("Id", StringAlign::Left, 5);
-    output += AlignString("Cost", StringAlign::Right, 5);
-    output += AlignString("Size", StringAlign::Right, 10);
-    output += AlignString("EnCons", StringAlign::Right, 10);
-    output += AlignString("EcPerDF", StringAlign::Right, 10);
-    output += AlignString("TD", StringAlign::Right, 5);
-    output += AlignString("ER", StringAlign::Right, 5);
-    output += AlignString("W", StringAlign::Right, 5);
-    return output;
+    std::stringstream ss;
+    ss << "# " << std::left << std::setw(15) << "LABEL";
+    ss << "| " << std::left << std::setw(4) << "ID";
+    ss << "| " << std::right << std::setw(6) << "COST";
+    ss << " |" << std::right << std::setw(12) << "SIZE";
+    ss << " |" << std::right << std::setw(8) << "ENERGY";
+    ss << " |" << std::right << std::setw(16) << "DATAFLOW ENERGY";
+    ss << " |" << std::right << std::setw(12) << "DELAY";
+    ss << " |" << std::right << std::setw(12) << "ERROR";
+    ss << " |" << std::right << std::setw(12) << "WIRELESS";
+    ss << " |" << std::right << std::setw(18) << "MAX CONNECTIONS";
+    return ss.str();
 }
 
 std::string Channel::toString() const
 {
-    std::string output;
-    output += " ";
-    output += AlignString(label, StringAlign::Left, 15);
-    output += AlignString(ToString(id), StringAlign::Left, 5);
-    output += AlignString(ToString(cost), StringAlign::Right, 5);
-    output += AlignString(ToString(size), StringAlign::Right, 10);
-    output += AlignString(ToString(energyConsumption), StringAlign::Right, 10);
-    output += AlignString(ToString(energyPerDataFlow), StringAlign::Right, 10);
-    output += AlignString(ToString(transmissionDelay), StringAlign::Right, 5);
-    output += AlignString(ToString(errorRate), StringAlign::Right, 5);
-    output += AlignString(ToString(wireless), StringAlign::Right, 5);
-    return output;
+    std::stringstream ss;
+    ss << "  " << std::left << std::setw(15) << label;
+    ss << "| " << std::left << std::setw(4) << ToString(id);
+    ss << "| " << std::right << std::setw(6) << ToString(cost);
+    ss << " |" << std::right << std::setw(12) << ToString(size);
+    ss << " |" << std::right << std::setw(8) << ToString(energyConsumption);
+    ss << " |" << std::right << std::setw(16) << ToString(energyPerDataFlow);
+    ss << " |" << std::right << std::setw(12) << ToString(transmissionDelay);
+    ss << " |" << std::right << std::setw(12) << ToString(errorRate);
+    ss << " |" << std::right << std::setw(12) << ToString(wireless);
+    ss << " |" << std::right << std::setw(18) <<
+       ((maxConnection == INT_MAX) ? "Inf" : ToString(maxConnection));
+    return ss.str();
 }

@@ -57,7 +57,8 @@ std::shared_ptr<Channel> ProblemInstance::addChannel(int _id,
                                                      int _energyPerDataFlow,
                                                      int _transmissionDelay,
                                                      int _errorRate,
-                                                     bool _wireless)
+                                                     bool _wireless,
+                                                     int _maxConnection)
 {
     auto channel = std::make_shared<Channel>(_id,
                                              _label,
@@ -67,7 +68,8 @@ std::shared_ptr<Channel> ProblemInstance::addChannel(int _id,
                                              _energyPerDataFlow,
                                              _transmissionDelay,
                                              _errorRate,
-                                             _wireless);
+                                             _wireless,
+                                             _maxConnection);
     channels[_id] = channel;
 
     if (channelMaxSize < _size)
@@ -224,119 +226,83 @@ std::shared_ptr<Task> ProblemInstance::getTask(std::string label)
 
 std::string ProblemInstance::toString()
 {
-    std::string output;
-//    output += "# Nodes Number\n";
-//    output += "\t" + ToString(nodes.size()) + "\n";
-//    output += Node::getHeader() + "\n";
-//    for (auto node : nodes)
-//    {
-//        output += node.second->toString() + "\n";
-//    }
-//    output += "# Channels Number\n";
-//    output += "\t" + ToString(channels.size()) + "\n";
-//    output += Channel::getHeader() + "\n";
-//    for (auto channel : channels)
-//    {
-//        output += channel.second->toString() + "\n";
-//    }
-    output += "#";
-    output += AlignString("Zones", StringAlign::Center, 15);
-    output += AlignString("Contiguities", StringAlign::Left, 15);
-    output += AlignString("Tasks", StringAlign::Center, 15);
-    output += AlignString("DataFlows", StringAlign::Center, 15);
-    output += "\n";
-    output += " ";
-    output += AlignString(ToString(zones.size()), StringAlign::Center, 15);
-    output += AlignString(ToString(contiguities.size()), StringAlign::Center,
-                          15);
-    output += AlignString(ToString(tasks.size()), StringAlign::Center, 15);
-    output += AlignString(ToString(dataFlows.size()), StringAlign::Center, 15);
-    output += "\n";
-    output += "# Zones\n";
-    output += Zone::getHeader() + "\n";
-    for (auto zone : zones)
-    {
-        output += zone.second->toString() + "\n";
-    }
-    output += "# Continuities\n";
-    output += Contiguity::getHeader() + "\n";
-    for (auto contiguity : contiguities)
-    {
-        output += contiguity->toString() + "\n";
-    }
-    output += "# Tasks\n";
-    output += Task::getHeader() + "\n";
-    for (auto task : tasks)
-    {
-        output += task->toString() + "\n";
-    }
-    output += "# Data Flows\n";
-    output += DataFlow::getHeader() + "\n";
-    for (auto dataFlow : dataFlows)
-    {
-        output += dataFlow->toString() + "\n";
-    }
-    return output;
+    std::stringstream ss;
+    ss << "\n# NODES\n";
+    ss << this->printNodesCatalog() + "\n";
+    ss << "\n# CHANNELS\n";
+    ss << this->printChannelsCatalog() + "\n";
+    ss << "\n# INPUT INSTANCE\n";
+    ss << this->printInputInstance() + "\n";
+    return ss.str();
 }
 
 void ProblemInstance::printToFile() const
 {
     std::ofstream output;
-    output.open("nodes");
-    output << "# Nodes Number\n";
-    output << "\t" + ToString(nodes.size()) + "\n";
-    output << Node::getHeader() + "\n";
+    // ------------------------------------------------------------------------
+    output.open("nodes.txt");
+    output << this->printNodesCatalog() + "\n";
+    output.close();
+
+    // ------------------------------------------------------------------------
+    output.open("channels.txt");
+    output << this->printChannelsCatalog() + "\n";
+    output.close();
+
+    // ------------------------------------------------------------------------
+    output.open("input.txt");
+    output << this->printInputInstance() + "\n";
+    output.close();
+}
+
+std::string ProblemInstance::printNodesCatalog() const
+{
+    std::stringstream ss;
+    ss << Node::getHeader() + "\n";
     for (auto node : nodes)
     {
-        output << node.second->toString() + "\n";
+        ss << node.second->toString() + "\n";
     }
-    output.close();
-    output.open("channels");
-    output << "# Channels Number\n";
-    output << "\t" + ToString(channels.size()) + "\n";
-    output << Channel::getHeader() + "\n";
+    return ss.str();
+}
+
+std::string ProblemInstance::printChannelsCatalog() const
+{
+    std::stringstream ss;
+    ss << Channel::getHeader() + "\n";
     for (auto channel : channels)
     {
-        output << channel.second->toString() + "\n";
+        ss << channel.second->toString() + "\n";
     }
-    output.close();
-    output.open("input");
-    output << "#";
-    output << AlignString("Zones", StringAlign::Center, 15);
-    output << AlignString("Contiguities", StringAlign::Left, 15);
-    output << AlignString("Tasks", StringAlign::Center, 15);
-    output << AlignString("DataFlows", StringAlign::Center, 15);
-    output << "\n";
-    output << " ";
-    output << AlignString(ToString(zones.size()), StringAlign::Center, 15);
-    output << AlignString(ToString(contiguities.size()), StringAlign::Center,
-                          15);
-    output << AlignString(ToString(tasks.size()), StringAlign::Center, 15);
-    output << AlignString(ToString(dataFlows.size()), StringAlign::Center, 15);
-    output << "\n";
-    output << "# Zones\n";
-    output << Zone::getHeader() + "\n";
-    for (auto zone : zones)
+    return ss.str();
+}
+
+std::string ProblemInstance::printInputInstance() const
+{
+    std::stringstream ss;
+    ss << "# Zones\n";
+    ss << Zone::getHeader() + "\n";
+    for (const auto & zone : zones)
     {
-        output << zone.second->toString() + "\n";
+        ss << zone.second->toString() + "\n";
     }
-    output << "# Continuities\n";
-    output << Contiguity::getHeader() + "\n";
-    for (auto contiguity : contiguities)
+    ss << "# Continuities\n";
+    ss << Contiguity::getHeader() + "\n";
+    for (const auto & contiguity : contiguities)
     {
-        output << contiguity->toString() + "\n";
+        ss << contiguity->toString() + "\n";
     }
-    output << "# Tasks\n";
-    output << Task::getHeader() + "\n";
-    for (auto task : tasks)
+    ss << "# Tasks\n";
+    ss << Task::getHeader() + "\n";
+    for (const auto & task : tasks)
     {
-        output << task->toString() + "\n";
+        ss << task->toString() + "\n";
     }
-    output << "# Data Flows\n";
-    output << DataFlow::getHeader() + "\n";
-    for (auto dataFlow : dataFlows)
+    ss << "# Data Flows\n";
+    ss << DataFlow::getHeader() + "\n";
+    for (const auto & dataFlow : dataFlows)
     {
-        output << dataFlow->toString() + "\n";
+        ss << dataFlow->toString() + "\n";
     }
-    output.close();
+    return ss.str();
 }

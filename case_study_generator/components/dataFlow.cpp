@@ -19,6 +19,7 @@
 /// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 /// DEALINGS IN THE SOFTWARE.
 
+#include <iomanip>
 #include "dataFlow.hpp"
 #include "utils.hpp"
 #include "task.hpp"
@@ -57,25 +58,24 @@ DataFlow::~DataFlow()
 
 std::string DataFlow::getHeader()
 {
-    std::string output;
-    output += "#";
-    output += AlignString("Label", StringAlign::Right, 10);
-    output += AlignString("Source", StringAlign::Right, 10);
-    output += AlignString("Target", StringAlign::Right, 10);
-    output += AlignString("Bandwidth", StringAlign::Right, 10);
-    output += AlignString("MaxDelay", StringAlign::Right, 10);
-    output += AlignString("MaxError", StringAlign::Right, 10);
-    return output;
+    std::stringstream ss;
+    ss << "# " << std::left << std::setw(24) << "LABEL";
+    ss << " | " << std::left << std::setw(16) << "SOURCE";
+    ss << " | " << std::left << std::setw(16) << "TARGET";
+    ss << " | " << std::right << std::setw(16) << "BANDWIDTH";
+    ss << " | " << std::right << std::setw(16) << "MAX DELAY";
+    ss << " | " << std::right << std::setw(16) << "MAX ERROR";
+    return ss.str();
 }
 
 std::string DataFlow::toString() const
 {
-    std::string output;
-    output += AlignString(label, StringAlign::Right, 10);
-    output += AlignString(source->label, StringAlign::Right, 10);
-    output += AlignString(target->label, StringAlign::Right, 10);
-    output += AlignString(ToString(bandwidth), StringAlign::Right, 10);
-    output += AlignString(ToString(maximumDelay), StringAlign::Right, 10);
-    output += AlignString(ToString(maximumError), StringAlign::Right, 10);
-    return output;
+    std::stringstream ss;
+    ss << "  " << std::left << std::setw(24) << label;
+    ss << " | " << std::left << std::setw(16) << source->label;
+    ss << " | " << std::left << std::setw(16) << target->label;
+    ss << " | " << std::right << std::setw(16) << ToString(bandwidth);
+    ss << " | " << std::right << std::setw(16) << ToString(maximumDelay);
+    ss << " | " << std::right << std::setw(16) << ToString(maximumError);
+    return ss.str();
 }
