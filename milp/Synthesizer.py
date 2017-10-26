@@ -590,11 +590,13 @@ for task1 in TaskList:
     for task2 in TaskList:
         if task1 == task2:
             rho[task1, task2] = False
-        elif (task1.zone != task2.zone):
+            rho[task2, task1] = False
+        elif task1.zone != task2.zone:
             rho[task1, task2] = True
-        else:
-            rho[task1, task2] = m.addVar(lb=0.0, ub=1.0, obj=0.0, vtype=GRB.BINARY,
-                                         name='rho_%s_%s' % (task1, task2))
+            rho[task2, task1] = True
+        elif task1 < task2:
+            rho[task1, task2] = m.addVar(lb=0.0, ub=1.0, obj=0.0, vtype=GRB.BINARY, name='rho_%s_%s' % (task1, task2))
+            rho[task2, task1] = rho[task1, task2]
 # Log the information concerning the variable.
 print("*")
 print("* rho [%s]" % len(rho))
