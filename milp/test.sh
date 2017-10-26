@@ -40,3 +40,13 @@ python Synthesizer.py examples/case_study_2/input.txt examples/nodes.txt example
 python Synthesizer.py examples/case_study_2/input.txt examples/nodes.txt examples/channels.txt 2
 python Synthesizer.py examples/case_study_2/input.txt examples/nodes.txt examples/channels.txt 3
 python Synthesizer.py examples/case_study_2/input.txt examples/nodes.txt examples/channels.txt 4
+
+python Synthesizer.py examples/case_study_3/input.txt examples/nodes.txt examples/channels.txt 1
+python Synthesizer.py examples/case_study_3/input.txt examples/nodes.txt examples/channels.txt 2
+python Synthesizer.py examples/case_study_3/input.txt examples/nodes.txt examples/channels.txt 3
+python Synthesizer.py examples/case_study_3/input.txt examples/nodes.txt examples/channels.txt 4
+
+python Synthesizer.py examples/case_study_4/input.txt examples/nodes.txt examples/channels.txt 1
+python Synthesizer.py examples/case_study_4/input.txt examples/nodes.txt examples/channels.txt 2
+python Synthesizer.py examples/case_study_4/input.txt examples/nodes.txt examples/channels.txt 3
+python Synthesizer.py examples/case_study_4/input.txt examples/nodes.txt examples/channels.txt 4
