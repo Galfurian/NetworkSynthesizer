@@ -177,149 +177,155 @@ DataFlowIndex = 1
 with open(argv[1], "r") as inputFile:
     for line in inputFile:
         inputLine = line.strip()
-        if (inputLine[0] != ';') and (inputLine[0] != '#'):
-            if inputLine == "<ZONE>":
-                ParsingZone = True
-                print("* LOADING ZONES")
-            elif inputLine == "</ZONE>":
-                ParsingZone = False
-                print("* LOADING ZONES - Done")
-            elif ParsingZone:
-                # Retrieve the values from the file.
-                try:
-                    zn_label, zn_x, zn_y, zn_z = inputLine.split()
-                except ValueError:
-                    print("Error: Wrong line format '%s'" % inputLine)
-                    exit(1)
-                # Create a new zone.
-                NewZone = Zone(int(zn_label),
-                               int(zn_x),
-                               int(zn_y),
-                               int(zn_z))
-                # Append the zone to the list of zones.
-                ZoneList.append(NewZone)
-                # Print the zone.
-                print("* %s" % NewZone.to_string())
-                # Delete the auxiliary variables.
-                del NewZone, zn_label, zn_x, zn_y, zn_z
+        # Skip empty lines.
+        if not inputLine:
+            continue
+        # Skip comments.
+        if (inputLine[0] == ';') or (inputLine[0] == '#'):
+            continue
+        # Parse the line.
+        if inputLine == "<ZONE>":
+            ParsingZone = True
+            print("* LOADING ZONES")
+        elif inputLine == "</ZONE>":
+            ParsingZone = False
+            print("* LOADING ZONES - Done")
+        elif ParsingZone:
+            # Retrieve the values from the file.
+            try:
+                zn_label, zn_x, zn_y, zn_z = inputLine.split()
+            except ValueError:
+                print("Error: Wrong line format '%s'" % inputLine)
+                exit(1)
+            # Create a new zone.
+            NewZone = Zone(int(zn_label),
+                           int(zn_x),
+                           int(zn_y),
+                           int(zn_z))
+            # Append the zone to the list of zones.
+            ZoneList.append(NewZone)
+            # Print the zone.
+            print("* %s" % NewZone.to_string())
+            # Delete the auxiliary variables.
+            del NewZone, zn_label, zn_x, zn_y, zn_z
 
-            elif inputLine == "<CONTIGUITY>":
-                ParsingContiguity = True
-                print("* LOADING CONTIGUITIES")
-            elif inputLine == "</CONTIGUITY>":
-                ParsingContiguity = False
-                print("* LOADING CONTIGUITIES - Done")
-            elif ParsingContiguity:
-                # Retrieve the values from the file.
-                try:
-                    cnt_zone1, cnt_zone2, cnt_channel, cnt_conductance, cnt_deployment_cost = inputLine.split()
-                except ValueError:
-                    print("Error: Wrong line format '%s'" % inputLine)
-                    exit(1)
-                # Search the instance of the first zone.
-                SearchedZone1 = SearchZone(ZoneList, int(cnt_zone1))
-                if SearchedZone1 is None:
-                    print("[Error] Can't find zone : %s" % cnt_zone1)
-                    exit(1)
-                # Search the instance of the first zone.
-                SearchedZone2 = SearchZone(ZoneList, int(cnt_zone2))
-                if SearchedZone2 is None:
-                    print("[Error] Can't find zone : %s" % cnt_zone2)
-                    exit(1)
-                # Search the instance of the channel.
-                SearchedChannel = SearchChannel(ChannelList, int(cnt_channel))
-                if SearchedChannel is None:
-                    print("[Error] Can't find channel : %s" % cnt_channel)
-                    exit(1)
-                # Create the new contiguity.
-                NewContiguity = Contiguity(SearchedZone1,
-                                           SearchedZone2,
-                                           SearchedChannel,
-                                           float(cnt_conductance),
-                                           float(cnt_deployment_cost))
-                # Add the contiguity to the list of contiguities.
-                ContiguityList[SearchedZone1, SearchedZone2, SearchedChannel] = NewContiguity
-                # Set the same values for the vice-versa of the zones.
-                ContiguityList[SearchedZone2, SearchedZone1, SearchedChannel] = NewContiguity
-                # Print the contiguity.
-                print("* %s" % NewContiguity.to_string())
-                # Delete the auxiliary variables.
-                del inputLine, NewContiguity, SearchedZone1, SearchedZone2, SearchedChannel
-                del cnt_zone1, cnt_zone2, cnt_channel, cnt_conductance, cnt_deployment_cost
+        elif inputLine == "<CONTIGUITY>":
+            ParsingContiguity = True
+            print("* LOADING CONTIGUITIES")
+        elif inputLine == "</CONTIGUITY>":
+            ParsingContiguity = False
+            print("* LOADING CONTIGUITIES - Done")
+        elif ParsingContiguity:
+            # Retrieve the values from the file.
+            try:
+                cnt_zone1, cnt_zone2, cnt_channel, cnt_conductance, cnt_deployment_cost = inputLine.split()
+            except ValueError:
+                print("Error: Wrong line format '%s'" % inputLine)
+                exit(1)
+            # Search the instance of the first zone.
+            SearchedZone1 = SearchZone(ZoneList, int(cnt_zone1))
+            if SearchedZone1 is None:
+                print("[Error] Can't find zone : %s" % cnt_zone1)
+                exit(1)
+            # Search the instance of the first zone.
+            SearchedZone2 = SearchZone(ZoneList, int(cnt_zone2))
+            if SearchedZone2 is None:
+                print("[Error] Can't find zone : %s" % cnt_zone2)
+                exit(1)
+            # Search the instance of the channel.
+            SearchedChannel = SearchChannel(ChannelList, int(cnt_channel))
+            if SearchedChannel is None:
+                print("[Error] Can't find channel : %s" % cnt_channel)
+                exit(1)
+            # Create the new contiguity.
+            NewContiguity = Contiguity(SearchedZone1,
+                                       SearchedZone2,
+                                       SearchedChannel,
+                                       float(cnt_conductance),
+                                       float(cnt_deployment_cost))
+            # Add the contiguity to the list of contiguities.
+            ContiguityList[SearchedZone1, SearchedZone2, SearchedChannel] = NewContiguity
+            # Set the same values for the vice-versa of the zones.
+            ContiguityList[SearchedZone2, SearchedZone1, SearchedChannel] = NewContiguity
+            # Print the contiguity.
+            print("* %s" % NewContiguity.to_string())
+            # Delete the auxiliary variables.
+            del inputLine, NewContiguity, SearchedZone1, SearchedZone2, SearchedChannel
+            del cnt_zone1, cnt_zone2, cnt_channel, cnt_conductance, cnt_deployment_cost
 
-            elif inputLine == "<TASK>":
-                ParsingTask = True
-                print("* LOADING TASKS")
-            elif inputLine == "</TASK>":
-                ParsingTask = False
-                print("* LOADING TASKS - Done")
-            elif ParsingTask:
-                # Retrieve the values from the file.
-                try:
-                    tsk_label, tsk_size, tsk_zone, tsk_mobile = inputLine.split()
-                except ValueError:
-                    print("Error: Wrong line format '%s'" % inputLine)
-                    exit(1)
-                # Search the instance of the zone.
-                SearchedZone = SearchZone(ZoneList, int(tsk_zone))
-                if SearchedZone is None:
-                    print("[Error] Can't find zone : %s" % tsk_zone)
-                    exit(1)
-                # Create the new task.
-                NewTask = Task(TaskIndex, tsk_label, int(tsk_size), SearchedZone, int(tsk_mobile))
-                # Append the task to the list of tasks.
-                TaskList.append(NewTask)
-                # Increment the task index
-                TaskIndex += 1
-                # Print the task.
-                print("* %s" % NewTask.to_string())
-                # Clear the variables.
-                del inputLine, tsk_label, tsk_size, tsk_zone, tsk_mobile, NewTask
+        elif inputLine == "<TASK>":
+            ParsingTask = True
+            print("* LOADING TASKS")
+        elif inputLine == "</TASK>":
+            ParsingTask = False
+            print("* LOADING TASKS - Done")
+        elif ParsingTask:
+            # Retrieve the values from the file.
+            try:
+                tsk_label, tsk_size, tsk_zone, tsk_mobile = inputLine.split()
+            except ValueError:
+                print("Error: Wrong line format '%s'" % inputLine)
+                exit(1)
+            # Search the instance of the zone.
+            SearchedZone = SearchZone(ZoneList, int(tsk_zone))
+            if SearchedZone is None:
+                print("[Error] Can't find zone : %s" % tsk_zone)
+                exit(1)
+            # Create the new task.
+            NewTask = Task(TaskIndex, tsk_label, int(tsk_size), SearchedZone, int(tsk_mobile))
+            # Append the task to the list of tasks.
+            TaskList.append(NewTask)
+            # Increment the task index
+            TaskIndex += 1
+            # Print the task.
+            print("* %s" % NewTask.to_string())
+            # Clear the variables.
+            del inputLine, tsk_label, tsk_size, tsk_zone, tsk_mobile, NewTask
 
-            elif inputLine == "<DATAFLOW>":
-                ParsingDataflow = True
-                print("* LOADING DATA-FLOWS")
-            elif inputLine == "</DATAFLOW>":
-                ParsingDataflow = False
-                print("* LOADING DATA-FLOWS - Done")
-            elif ParsingDataflow:
-                # Retrieve the values from the file.
-                try:
-                    df_label, df_source, df_target, df_band, df_delay, df_error = inputLine.split()
-                except ValueError:
-                    print("Error: Wrong line format '%s'" % inputLine)
-                    exit(1)
-                # Search the instance of the source task.
-                SourceTask = SearchTask(TaskList, df_source)
-                if SourceTask is None:
-                    print("[Error] Can't find the source task : %s" % df_source)
-                    exit(1)
-                # Search the instance of the target task.
-                TargetTask = SearchTask(TaskList, df_target)
-                if TargetTask is None:
-                    print("[Error] Can't find the target task : %s" % df_target)
-                    exit(1)
-                # Check if the source and target task are the same.
-                if SourceTask == TargetTask:
-                    print("[Error] Can't define a dataflow between the same task : %s -> %s" % (SourceTask, TargetTask))
-                    exit(1)
-                # Create the new Data-Flow
-                NewDataFlow = DataFlow(DataFlowIndex,
-                                       df_label,
-                                       SourceTask,
-                                       TargetTask,
-                                       int(df_band),
-                                       int(df_delay),
-                                       int(df_error))
-                # Append the data-flow to the list of data-flows.
-                DataFlowList.append(NewDataFlow)
-                # Print the data-flow.
-                print("* %s" % NewDataFlow.to_string())
-                # Increment the index of data-flows.
-                DataFlowIndex += 1
-                # Clear the variables.
-                del df_label, df_source, df_target, df_band, df_delay, df_error
-                del SourceTask, TargetTask, NewDataFlow
+        elif inputLine == "<DATAFLOW>":
+            ParsingDataflow = True
+            print("* LOADING DATA-FLOWS")
+        elif inputLine == "</DATAFLOW>":
+            ParsingDataflow = False
+            print("* LOADING DATA-FLOWS - Done")
+        elif ParsingDataflow:
+            # Retrieve the values from the file.
+            try:
+                df_label, df_source, df_target, df_band, df_delay, df_error = inputLine.split()
+            except ValueError:
+                print("Error: Wrong line format '%s'" % inputLine)
+                exit(1)
+            # Search the instance of the source task.
+            SourceTask = SearchTask(TaskList, df_source)
+            if SourceTask is None:
+                print("[Error] Can't find the source task : %s" % df_source)
+                exit(1)
+            # Search the instance of the target task.
+            TargetTask = SearchTask(TaskList, df_target)
+            if TargetTask is None:
+                print("[Error] Can't find the target task : %s" % df_target)
+                exit(1)
+            # Check if the source and target task are the same.
+            if SourceTask == TargetTask:
+                print("[Error] Can't define a dataflow between the same task : %s -> %s" % (SourceTask, TargetTask))
+                exit(1)
+            # Create the new Data-Flow
+            NewDataFlow = DataFlow(DataFlowIndex,
+                                   df_label,
+                                   SourceTask,
+                                   TargetTask,
+                                   int(df_band),
+                                   int(df_delay),
+                                   int(df_error))
+            # Append the data-flow to the list of data-flows.
+            DataFlowList.append(NewDataFlow)
+            # Print the data-flow.
+            print("* %s" % NewDataFlow.to_string())
+            # Increment the index of data-flows.
+            DataFlowIndex += 1
+            # Clear the variables.
+            del df_label, df_source, df_target, df_band, df_delay, df_error
+            del SourceTask, TargetTask, NewDataFlow
 
 # Clean auxiliary variables.
 del ParsingZone
@@ -458,6 +464,7 @@ Separator()
 m = Model('DistributedEmbededSystem')
 
 # ---------------------------------------------------------------------------------------------------------------------
+# VARIABLE GENERATION
 # ---------------------------------------------------------------------------------------------------------------------
 Separator()
 print("* GENERATING VARIABLES")
@@ -479,13 +486,14 @@ w = {}
 h = {}
 j = {}
 q = {}
-sigma = {}
+# sigma = {}
 
 # ---------------------------------------------------------------------------------------------------------------------
 for zone in ZoneList:
     for node in NodeList:
         UB_on_N[node, zone] = len([task for task in node.getAllowedTask() if task.zone == zone])
         Set_UB_on_N[node, zone] = range(1, UB_on_N[node, zone] + 1)
+# Log the information concerning the variable.
 print("*")
 print("* UB_on_N [%s]" % len(UB_on_N))
 print("* \tVariable UB_on_N is the upper-bound on the number of nodes of a certain")
@@ -496,6 +504,7 @@ print("*")
 for channel in ChannelList:
     UB_on_C[channel] = len(channel.getAllowedDataFlow())
     Set_UB_on_C[channel] = range(1, UB_on_C[channel] + 1)
+# Log the information concerning the variable.
 print("*")
 print("* UB_on_C [%s]" % len(UB_on_C))
 print("* \tVariable UB_on_C is the upper-bound on the number of channels of a certain")
@@ -654,32 +663,32 @@ print("* \tVariable j identifies if the given instnace of the given channel has 
 print("* \tvalid conductance between the given pari of zones.")
 print("*")
 
-for dataflow in DataFlowList:
-    for channel in dataflow.getAllowedChannel():
-        for channelIndex in Set_UB_on_C[channel]:
-            for node in dataflow.source.getAllowedNode():
-                for nodeIndex in Set_UB_on_N[node, dataflow.source.zone]:
-                    sigma[channel, channelIndex, node, nodeIndex] = m.addVar(lb=0.0,
-                                                                             ub=1.0,
-                                                                             obj=0.0,
-                                                                             vtype=GRB.BINARY,
-                                                                             name='sigma_%s_%s_%s_%s' % (
-                                                                                 channel, channelIndex,
-                                                                                 node, nodeIndex))
-            for node in dataflow.target.getAllowedNode():
-                for nodeIndex in Set_UB_on_N[node, dataflow.target.zone]:
-                    sigma[channel, channelIndex, node, nodeIndex] = m.addVar(lb=0.0,
-                                                                             ub=1.0,
-                                                                             obj=0.0,
-                                                                             vtype=GRB.BINARY,
-                                                                             name='sigma_%s_%s_%s_%s' % (
-                                                                                 channel, channelIndex,
-                                                                                 node, nodeIndex))
-print("*")
-print("* sigma [%s]" % len(sigma))
-print("* \tVariable sigma identifies if the given instance of a channel is ")
-print("* \tconnected with the instance of the given node.")
-print("*")
+# for dataflow in DataFlowList:
+#     for channel in dataflow.getAllowedChannel():
+#         for channelIndex in Set_UB_on_C[channel]:
+#             for node in dataflow.source.getAllowedNode():
+#                 for nodeIndex in Set_UB_on_N[node, dataflow.source.zone]:
+#                     sigma[channel, channelIndex, node, nodeIndex] = m.addVar(lb=0.0,
+#                                                                              ub=1.0,
+#                                                                              obj=0.0,
+#                                                                              vtype=GRB.BINARY,
+#                                                                              name='sigma_%s_%s_%s_%s' % (
+#                                                                                  channel, channelIndex,
+#                                                                                  node, nodeIndex))
+#             for node in dataflow.target.getAllowedNode():
+#                 for nodeIndex in Set_UB_on_N[node, dataflow.target.zone]:
+#                     sigma[channel, channelIndex, node, nodeIndex] = m.addVar(lb=0.0,
+#                                                                              ub=1.0,
+#                                                                              obj=0.0,
+#                                                                              vtype=GRB.BINARY,
+#                                                                              name='sigma_%s_%s_%s_%s' % (
+#                                                                                  channel, channelIndex,
+#                                                                                  node, nodeIndex))
+# print("*")
+# print("* sigma [%s]" % len(sigma))
+# print("* \tVariable sigma identifies if the given instance of a channel is ")
+# print("* \tconnected with the instance of the given node.")
+# print("*")
 # ---------------------------------------------------------------------------------------------------------------------
 # Datastructures ending time.
 structure_timer_end = time.time()
