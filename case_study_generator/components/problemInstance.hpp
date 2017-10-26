@@ -112,5 +112,5 @@ public:
 
     std::string printChannelsCatalog() const;
 
-    std::string printInputInstance() const;
+    std::string printInputInstance(bool withDelimiters = false) const;
 };

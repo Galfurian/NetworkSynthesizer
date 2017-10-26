@@ -251,7 +251,7 @@ void ProblemInstance::printToFile() const
 
     // ------------------------------------------------------------------------
     output.open("input.txt");
-    output << this->printInputInstance() + "\n";
+    output << this->printInputInstance(true) + "\n";
     output.close();
 }
 
@@ -277,32 +277,53 @@ std::string ProblemInstance::printChannelsCatalog() const
     return ss.str();
 }
 
-std::string ProblemInstance::printInputInstance() const
+std::string ProblemInstance::printInputInstance(bool withDelimiters) const
 {
     std::stringstream ss;
+
+    // ------------------------------------------------------------------------
     ss << "# Zones\n";
     ss << Zone::getHeader() + "\n";
+    if (withDelimiters) ss << "<ZONE>";
     for (const auto & zone : zones)
     {
         ss << zone.second->toString() + "\n";
     }
+    if (withDelimiters) ss << "</ZONE>";
+    ss << "\n";
+
+    // ------------------------------------------------------------------------
     ss << "# Continuities\n";
     ss << Contiguity::getHeader() + "\n";
+    if (withDelimiters) ss << "<CONTIGUITY>";
     for (const auto & contiguity : contiguities)
     {
         ss << contiguity->toString() + "\n";
     }
+    if (withDelimiters) ss << "</CONTIGUITY>";
+    ss << "\n";
+
+    // ------------------------------------------------------------------------
     ss << "# Tasks\n";
     ss << Task::getHeader() + "\n";
+    if (withDelimiters) ss << "<TASK>";
     for (const auto & task : tasks)
     {
         ss << task->toString() + "\n";
     }
+    if (withDelimiters) ss << "</TASK>";
+    ss << "\n";
+
+    // ------------------------------------------------------------------------
     ss << "# Data Flows\n";
     ss << DataFlow::getHeader() + "\n";
+    if (withDelimiters) ss << "<DATAFLOW>";
     for (const auto & dataFlow : dataFlows)
     {
         ss << dataFlow->toString() + "\n";
     }
+    if (withDelimiters) ss << "</DATAFLOW>";
+    ss << "\n";
+
     return ss.str();
 }
