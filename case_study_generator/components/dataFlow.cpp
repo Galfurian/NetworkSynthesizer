@@ -68,14 +68,19 @@ std::string DataFlow::getHeader()
     return ss.str();
 }
 
-std::string DataFlow::toString() const
+std::string DataFlow::toString(bool for_milp) const
 {
     std::stringstream ss;
     ss << "  " << std::left << std::setw(24) << label;
-    ss << " | " << std::left << std::setw(16) << source->label;
-    ss << " | " << std::left << std::setw(16) << target->label;
-    ss << " | " << std::right << std::setw(16) << ToString(bandwidth);
-    ss << " | " << std::right << std::setw(16) << ToString(maximumDelay);
-    ss << " | " << std::right << std::setw(16) << ToString(maximumError);
+    ss << ((for_milp) ? "   " : " | ")
+       << std::left << std::setw(16) << source->label;
+    ss << ((for_milp) ? "   " : " | ")
+       << std::left << std::setw(16) << target->label;
+    ss << ((for_milp) ? "   " : " | ")
+       << std::right << std::setw(16) << ToString(bandwidth);
+    ss << ((for_milp) ? "   " : " | ")
+       << std::right << std::setw(16) << ToString(maximumDelay);
+    ss << ((for_milp) ? "   " : " | ")
+       << std::right << std::setw(16) << ToString(maximumError);
     return ss.str();
 }

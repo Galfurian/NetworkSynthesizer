@@ -37,7 +37,7 @@ static double GetDistance(std::shared_ptr<Zone> z1, std::shared_ptr<Zone> z2)
 
 ProblemInstance init_test_case_02()
 {
-    ProblemInstance inst;
+    ProblemInstance inst("test_case_02");
 
     // ------------------------------------------------------------------------
     auto numArea = 16;

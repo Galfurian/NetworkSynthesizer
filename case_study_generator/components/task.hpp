@@ -42,5 +42,5 @@ public:
 
     static std::string getHeader();
 
-    std::string toString() const;
+    std::string toString(bool for_milp = false) const;
 };

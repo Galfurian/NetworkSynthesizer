@@ -56,12 +56,15 @@ std::string Zone::getHeader()
     return ss.str();
 }
 
-std::string Zone::toString() const
+std::string Zone::toString(bool for_milp) const
 {
     std::stringstream ss;
     ss << "  " << std::left << std::setw(6) << label;
-    ss << " |" << std::right << std::setw(6) << ToString(x);
-    ss << " |" << std::right << std::setw(6) << ToString(y);
-    ss << " |" << std::right << std::setw(6) << ToString(z);
+    ss << ((for_milp) ? "  " : " |")
+       <<  std::right << std::setw(6) << ToString(x);
+    ss << ((for_milp) ? "  " : " |")
+       <<  std::right << std::setw(6) << ToString(y);
+    ss << ((for_milp) ? "  " : " |")
+       <<  std::right << std::setw(6) << ToString(z);
     return ss.str();
 }

@@ -65,13 +65,17 @@ std::string Contiguity::getHeader()
     return ss.str();
 }
 
-std::string Contiguity::toString() const
+std::string Contiguity::toString(bool for_milp) const
 {
     std::stringstream ss;
     ss << "  " << std::right << std::setw(8) << zone1->label;
-    ss << " |" << std::right << std::setw(8) << ToString(zone2->label);
-    ss << " |" << std::right << std::setw(8) << ToString(channel->id);
-    ss << " |" << std::right << std::setw(16) << ToString(conductivity);
-    ss << " |" << std::right << std::setw(16) << ToString(deploymentCost);
+    ss << ((for_milp) ? "  " : " |")
+       <<  std::right << std::setw(8) << ToString(zone2->label);
+    ss << ((for_milp) ? "  " : " |")
+       <<  std::right << std::setw(8) << ToString(channel->id);
+    ss << ((for_milp) ? "  " : " |")
+       <<  std::right << std::setw(16) << ToString(conductivity);
+    ss << ((for_milp) ? "  " : " |")
+       <<  std::right << std::setw(16) << ToString(deploymentCost);
     return ss.str();
 }

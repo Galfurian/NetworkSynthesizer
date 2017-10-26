@@ -73,15 +73,21 @@ std::string Node::getHeader()
     return ss.str();
 }
 
-std::string Node::toString() const
+std::string Node::toString(bool for_milp) const
 {
     std::stringstream ss;
     ss << "  " << std::left << std::setw(15) << label;
-    ss << "| " << std::left << std::setw(4) << ToString(id);
-    ss << "| " << std::right << std::setw(6) << ToString(cost);
-    ss << " |" << std::right << std::setw(12) << ToString(size);
-    ss << " |" << std::right << std::setw(8) << ToString(powerConsumption);
-    ss << " |" << std::right << std::setw(14) << ToString(taskPowerConsumption);
-    ss << " |" << std::right << std::setw(12) << ToString(mobile);
+    ss << ((for_milp) ? "  " : "| ")
+       <<   std::left << std::setw(4) << ToString(id);
+    ss << ((for_milp) ? "  " : "| ")
+       <<   std::right << std::setw(6) << ToString(cost);
+    ss << ((for_milp) ? "  " : " |")
+       <<   std::right << std::setw(12) << ToString(size);
+    ss << ((for_milp) ? "  " : " |")
+       <<   std::right << std::setw(8) << ToString(powerConsumption);
+    ss << ((for_milp) ? "  " : " |")
+       <<   std::right << std::setw(14) << ToString(taskPowerConsumption);
+    ss << ((for_milp) ? "  " : " |")
+       <<   std::right << std::setw(12) << ToString(mobile);
     return ss.str();
 }

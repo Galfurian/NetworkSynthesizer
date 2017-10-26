@@ -23,7 +23,8 @@
 #include <cassert>
 #include <fstream>
 
-ProblemInstance::ProblemInstance() :
+ProblemInstance::ProblemInstance(std::string _name) :
+    name(std::move(_name)),
     zones(),
     channels(),
     nodes(),
@@ -238,91 +239,97 @@ std::string ProblemInstance::toString()
 
 void ProblemInstance::printToFile() const
 {
+    const int dir_err = system(("mkdir -p " + name).c_str());
+    if (dir_err < 0)
+    {
+        printf("Error creating directory!n");
+        exit(1);
+    }
     std::ofstream output;
     // ------------------------------------------------------------------------
-    output.open("nodes.txt");
-    output << this->printNodesCatalog() + "\n";
+    output.open(name + "/nodes.txt");
+    output << this->printNodesCatalog(true) + "\n";
     output.close();
 
     // ------------------------------------------------------------------------
-    output.open("channels.txt");
-    output << this->printChannelsCatalog() + "\n";
+    output.open(name + "/channels.txt");
+    output << this->printChannelsCatalog(true) + "\n";
     output.close();
 
     // ------------------------------------------------------------------------
-    output.open("input.txt");
+    output.open(name + "/input.txt");
     output << this->printInputInstance(true) + "\n";
     output.close();
 }
 
-std::string ProblemInstance::printNodesCatalog() const
+std::string ProblemInstance::printNodesCatalog(bool for_milp) const
 {
     std::stringstream ss;
     ss << Node::getHeader() + "\n";
     for (auto node : nodes)
     {
-        ss << node.second->toString() + "\n";
+        ss << node.second->toString(for_milp) + "\n";
     }
     return ss.str();
 }
 
-std::string ProblemInstance::printChannelsCatalog() const
+std::string ProblemInstance::printChannelsCatalog(bool for_milp) const
 {
     std::stringstream ss;
     ss << Channel::getHeader() + "\n";
     for (auto channel : channels)
     {
-        ss << channel.second->toString() + "\n";
+        ss << channel.second->toString(for_milp) + "\n";
     }
     return ss.str();
 }
 
-std::string ProblemInstance::printInputInstance(bool withDelimiters) const
+std::string ProblemInstance::printInputInstance(bool for_milp) const
 {
     std::stringstream ss;
 
     // ------------------------------------------------------------------------
     ss << "# Zones\n";
     ss << Zone::getHeader() + "\n";
-    if (withDelimiters) ss << "<ZONE>";
+    if (for_milp) ss << "<ZONE>\n";
     for (const auto & zone : zones)
     {
-        ss << zone.second->toString() + "\n";
+        ss << zone.second->toString(for_milp) + "\n";
     }
-    if (withDelimiters) ss << "</ZONE>";
+    if (for_milp) ss << "</ZONE>\n";
     ss << "\n";
 
     // ------------------------------------------------------------------------
     ss << "# Continuities\n";
     ss << Contiguity::getHeader() + "\n";
-    if (withDelimiters) ss << "<CONTIGUITY>";
+    if (for_milp) ss << "<CONTIGUITY>\n";
     for (const auto & contiguity : contiguities)
     {
-        ss << contiguity->toString() + "\n";
+        ss << contiguity->toString(for_milp) + "\n";
     }
-    if (withDelimiters) ss << "</CONTIGUITY>";
+    if (for_milp) ss << "</CONTIGUITY>\n";
     ss << "\n";
 
     // ------------------------------------------------------------------------
     ss << "# Tasks\n";
     ss << Task::getHeader() + "\n";
-    if (withDelimiters) ss << "<TASK>";
+    if (for_milp) ss << "<TASK>\n";
     for (const auto & task : tasks)
     {
-        ss << task->toString() + "\n";
+        ss << task->toString(for_milp) + "\n";
     }
-    if (withDelimiters) ss << "</TASK>";
+    if (for_milp) ss << "</TASK>\n";
     ss << "\n";
 
     // ------------------------------------------------------------------------
     ss << "# Data Flows\n";
     ss << DataFlow::getHeader() + "\n";
-    if (withDelimiters) ss << "<DATAFLOW>";
+    if (for_milp) ss << "<DATAFLOW>\n";
     for (const auto & dataFlow : dataFlows)
     {
-        ss << dataFlow->toString() + "\n";
+        ss << dataFlow->toString(for_milp) + "\n";
     }
-    if (withDelimiters) ss << "</DATAFLOW>";
+    if (for_milp) ss << "</DATAFLOW>\n";
     ss << "\n";
 
     return ss.str();

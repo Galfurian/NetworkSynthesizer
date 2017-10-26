@@ -24,7 +24,7 @@
 
 ProblemInstance corner_case_1()
 {
-    ProblemInstance inst;
+    ProblemInstance inst("corner_case_1");
     // Add the channels.
     inst.addChannel(1, "Bluetooth-4.0", 9, 24, 1, 1, 12, 10, true, 1);
     inst.addChannel(2, "Wi-Fi-AC", 34, 256, 3, 2, 8, 7, true, INT_MAX);

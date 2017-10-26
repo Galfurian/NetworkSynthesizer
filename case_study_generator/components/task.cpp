@@ -60,12 +60,15 @@ std::string Task::getHeader()
     return ss.str();
 }
 
-std::string Task::toString() const
+std::string Task::toString(bool for_milp) const
 {
     std::stringstream ss;
     ss << "  " << std::left << std::setw(12) << label;
-    ss << " |" << std::right << std::setw(12) << ToString(size);
-    ss << " |" << std::right << std::setw(12) << ToString(zone->label);
-    ss << " |" << std::right << std::setw(12) << ToString(mobile);
+    ss << ((for_milp) ? "  " : " |")
+       <<  std::right << std::setw(12) << ToString(size);
+    ss << ((for_milp) ? "  " : " |")
+       <<  std::right << std::setw(12) << ToString(zone->label);
+    ss << ((for_milp) ? "  " : " |")
+       <<  std::right << std::setw(12) << ToString(mobile);
     return ss.str();
 }

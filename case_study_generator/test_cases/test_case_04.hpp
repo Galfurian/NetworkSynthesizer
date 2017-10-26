@@ -1,4 +1,4 @@
-/// @file   node.hpp
+/// @file   test_case_02.hpp
 /// @author Enrico Fraccaroli
 /// @date   Jan 09 2017
 /// @copyright
@@ -21,39 +21,6 @@
 
 #pragma once
 
-#include <string>
+#include "problemInstance.hpp"
 
-class Node
-{
-public:
-    /// a unique id from 1 to N associated to each node tipology
-    int id;
-    /// is just a name assigned to a node tipology
-    std::string label;
-    /// is the cost of buying a device of type node_label
-    int cost;
-    /// the processing capacity of the device
-    int size;
-    /// is the intrinsic power consumption of the node.
-    int powerConsumption;
-    /// is the power consumed by a task placed inside the node.
-    int taskPowerConsumption;
-    /// boolean attribute. Is the device mobile?
-    bool mobile;
-
-    Node();
-
-    Node(int _id,
-         std::string _label,
-         int _cost,
-         int _size,
-         int _powerConsumption,
-         int _taskPowerConsumption,
-         bool _mobile);
-
-    ~Node();
-
-    static std::string getHeader();
-
-    std::string toString(bool for_milp = false) const;
-};
+ProblemInstance init_test_case_04();

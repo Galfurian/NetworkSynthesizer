@@ -81,19 +81,28 @@ std::string Channel::getHeader()
     return ss.str();
 }
 
-std::string Channel::toString() const
+std::string Channel::toString(bool for_milp) const
 {
     std::stringstream ss;
     ss << "  " << std::left << std::setw(15) << label;
-    ss << "| " << std::left << std::setw(4) << ToString(id);
-    ss << "| " << std::right << std::setw(6) << ToString(cost);
-    ss << " |" << std::right << std::setw(12) << ToString(size);
-    ss << " |" << std::right << std::setw(8) << ToString(energyConsumption);
-    ss << " |" << std::right << std::setw(16) << ToString(energyPerDataFlow);
-    ss << " |" << std::right << std::setw(12) << ToString(transmissionDelay);
-    ss << " |" << std::right << std::setw(12) << ToString(errorRate);
-    ss << " |" << std::right << std::setw(12) << ToString(wireless);
-    ss << " |" << std::right << std::setw(18) <<
+    ss << ((for_milp) ? "  " : "| ")
+       <<   std::left << std::setw(4) << ToString(id);
+    ss << ((for_milp) ? "  " : "| ")
+       <<   std::right << std::setw(6) << ToString(cost);
+    ss << ((for_milp) ? "  " : " |")
+       <<   std::right << std::setw(12) << ToString(size);
+    ss << ((for_milp) ? "  " : " |")
+       <<   std::right << std::setw(8) << ToString(energyConsumption);
+    ss << ((for_milp) ? "  " : " |")
+       <<   std::right << std::setw(16) << ToString(energyPerDataFlow);
+    ss << ((for_milp) ? "  " : " |")
+       <<   std::right << std::setw(12) << ToString(transmissionDelay);
+    ss << ((for_milp) ? "  " : " |")
+       <<   std::right << std::setw(12) << ToString(errorRate);
+    ss << ((for_milp) ? "  " : " |")
+       <<   std::right << std::setw(12) << ToString(wireless);
+    ss << ((for_milp) ? "  " : " |")
+       <<   std::right << std::setw(18) <<
        ((maxConnection == INT_MAX) ? "Inf" : ToString(maxConnection));
     return ss.str();
 }

@@ -36,6 +36,8 @@
 class ProblemInstance
 {
 public:
+    std::string name;
+
     std::map<int, std::shared_ptr<Zone>> zones;
     std::map<int, std::shared_ptr<Channel>> channels;
     std::map<int, std::shared_ptr<Node>> nodes;
@@ -53,7 +55,7 @@ public:
     int nodeMaxSize;
     int nodeMinSize;
 
-    ProblemInstance();
+    ProblemInstance(std::string _name);
 
     std::shared_ptr<Zone> addZone(int _label, int _x, int _y, int _z);
 
@@ -108,9 +110,9 @@ public:
 
     void printToFile() const;
 
-    std::string printNodesCatalog() const;
+    std::string printNodesCatalog(bool for_milp = false) const;
 
-    std::string printChannelsCatalog() const;
+    std::string printChannelsCatalog(bool for_milp = false) const;
 
-    std::string printInputInstance(bool withDelimiters = false) const;
+    std::string printInputInstance(bool for_milp = false) const;
 };

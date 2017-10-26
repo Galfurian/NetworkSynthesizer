@@ -35,12 +35,12 @@ static double GetDistance(std::shared_ptr<Zone> z1, std::shared_ptr<Zone> z2)
                      pow(z1->z - z2->z, 2));
 }
 
-ProblemInstance init_test_case_03()
+ProblemInstance init_test_case_04()
 {
-    ProblemInstance inst("test_case_03");
+    ProblemInstance inst("test_case_04");
 
     // ------------------------------------------------------------------------
-    auto numArea = 24;
+    auto numArea = 30;
     auto minNodesPerZone = 2;
     auto maxNodesPerZone = 6;
 
