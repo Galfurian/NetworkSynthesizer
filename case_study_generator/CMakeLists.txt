@@ -29,6 +29,7 @@ set(PROJECT_SRC
         components/task.cpp
         test_cases/test_case_01.cpp
         test_cases/test_case_02.cpp
+        test_cases/test_case_03.cpp
         test_cases/corner_case_1.cpp
         )
 

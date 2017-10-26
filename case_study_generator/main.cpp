@@ -1,12 +1,9 @@
-#include "test_case_01.hpp"
-#include "test_case_02.hpp"
+#include <test_case_03.hpp>
 
 int main()
 {
-//    std::cout << init_test_case_01().toString() << "\n";
-//    init_test_case_01().printToFile("init_test_case_01");
-    init_test_case_02().printToFile();
-    std::cout << init_test_case_02().toString() << "\n";
-//    corner_case_1().printToFile("corner_case_1");
+    ProblemInstance instance = init_test_case_03();
+    std::cout << instance.toString() << "\n";
+    instance.printToFile();
     return 0;
 }
