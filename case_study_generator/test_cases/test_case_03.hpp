@@ -1,4 +1,4 @@
-/// @file   zone.cpp
+/// @file   test_case_02.hpp
 /// @author Enrico Fraccaroli
 /// @date   Jan 09 2017
 /// @copyright
@@ -19,49 +19,8 @@
 /// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 /// DEALINGS IN THE SOFTWARE.
 
-#include <iomanip>
-#include "zone.hpp"
-#include "utils.hpp"
+#pragma once
 
-Zone::Zone() :
-    label(),
-    x(),
-    y(),
-    z()
-{
-    // Nothing to do.
-}
+#include "problemInstance.hpp"
 
-Zone::Zone(int _label, int _x, int _y, int _z) :
-    label(_label),
-    x(_x),
-    y(_y),
-    z(_z)
-{
-    // Nothing to do.
-}
-
-Zone::~Zone()
-{
-    // Nothing to do.
-}
-
-std::string Zone::getHeader()
-{
-    std::stringstream ss;
-    ss << "# " << std::left << std::setw(6) << "LABEL";
-    ss << " |" << std::right << std::setw(6) << "X";
-    ss << " |" << std::right << std::setw(6) << "Y";
-    ss << " |" << std::right << std::setw(6) << "Z";
-    return ss.str();
-}
-
-std::string Zone::toString() const
-{
-    std::stringstream ss;
-    ss << "  " << std::left << std::setw(6) << label;
-    ss << " |" << std::right << std::setw(6) << ToString(x);
-    ss << " |" << std::right << std::setw(6) << ToString(y);
-    ss << " |" << std::right << std::setw(6) << ToString(z);
-    return ss.str();
-}
+ProblemInstance init_test_case_03();

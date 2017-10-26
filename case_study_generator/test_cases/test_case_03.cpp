@@ -35,7 +35,7 @@ static double GetDistance(std::shared_ptr<Zone> z1, std::shared_ptr<Zone> z2)
                      pow(z1->z - z2->z, 2));
 }
 
-ProblemInstance init_test_case_02()
+ProblemInstance init_test_case_03()
 {
     ProblemInstance inst;
 
@@ -60,10 +60,13 @@ ProblemInstance init_test_case_02()
 
     // ------------------------------------------------------------------------
     // Add the nodes.
-    inst.addNode(1, "pic", 5, 21, 5, 1, 0);
-    inst.addNode(2, "board", 22, 29, 8, 2, 1);
-    inst.addNode(3, "net_board", 98, 70, 12, 5, 1);
-    inst.addNode(4, "laptop", 128, 256, 15, 6, 0);
+    inst.addNode(1, "db_lc", 5, 24, 5, 1, false);
+    inst.addNode(2, "db_iot_lc", 22, 64, 8, 2, true);
+    inst.addNode(3, "db_iot", 98, 128, 12, 5, true);
+    inst.addNode(4, "db_iot_he", 127, 178, 15, 6, true);
+    inst.addNode(5, "db_hc", 273, 264, 25, 8, false);
+    inst.addNode(6, "db_srv_lc", 345, 334, 41, 4, false);
+    inst.addNode(7, "db_srv", 421, 421, 65, 5, false);
 
     int personal_min_index = 1;
     int personal_max_index = 3;

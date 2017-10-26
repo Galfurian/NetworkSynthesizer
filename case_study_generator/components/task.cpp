@@ -19,6 +19,7 @@
 /// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 /// DEALINGS IN THE SOFTWARE.
 
+#include <iomanip>
 #include "task.hpp"
 #include "utils.hpp"
 #include "zone.hpp"
@@ -29,43 +30,42 @@ Task::Task() :
     zone(),
     mobile()
 {
-
+    // Nothing to do.
 }
 
 Task::Task(std::string _label,
            int _size,
            std::shared_ptr<Zone> _zone,
            bool _mobile) :
-    label(_label),
+    label(std::move(_label)),
     size(_size),
-    zone(_zone),
+    zone(std::move(_zone)),
     mobile(_mobile)
 {
-
+    // Nothing to do.
 }
 
 Task::~Task()
 {
-
+    // Nothing to do.
 }
 
 std::string Task::getHeader()
 {
-    std::string output;
-    output += "#";
-    output += AlignString("Label", StringAlign::Center, 15);
-    output += AlignString("Size", StringAlign::Right, 5);
-    output += AlignString("Zone", StringAlign::Right, 5);
-    output += AlignString("Mobile", StringAlign::Right, 5);
-    return output;
+    std::stringstream ss;
+    ss << "# " << std::left << std::setw(12) << "LABEL";
+    ss << " |" << std::right << std::setw(12) << "SIZE";
+    ss << " |" << std::right << std::setw(12) << "ZONE";
+    ss << " |" << std::right << std::setw(12) << "MOBILE";
+    return ss.str();
 }
 
 std::string Task::toString() const
 {
-    std::string output;
-    output += AlignString(label, StringAlign::Center, 15);
-    output += AlignString(ToString(size), StringAlign::Right, 5);
-    output += AlignString(ToString(zone->label), StringAlign::Right, 5);
-    output += AlignString(ToString(mobile), StringAlign::Right, 5);
-    return output;
+    std::stringstream ss;
+    ss << "  " << std::left << std::setw(12) << label;
+    ss << " |" << std::right << std::setw(12) << ToString(size);
+    ss << " |" << std::right << std::setw(12) << ToString(zone->label);
+    ss << " |" << std::right << std::setw(12) << ToString(mobile);
+    return ss.str();
 }
