@@ -59,7 +59,7 @@ std::shared_ptr<Channel> ProblemInstance::addChannel(int _id,
                                                      int _transmissionDelay,
                                                      int _errorRate,
                                                      bool _wireless,
-                                                     int _maxConnection)
+                                                     bool _point_to_point)
 {
     auto channel = std::make_shared<Channel>(_id,
                                              _label,
@@ -70,7 +70,7 @@ std::shared_ptr<Channel> ProblemInstance::addChannel(int _id,
                                              _transmissionDelay,
                                              _errorRate,
                                              _wireless,
-                                             _maxConnection);
+                                             _point_to_point);
     channels[_id] = channel;
 
     if (channelMaxSize < _size)

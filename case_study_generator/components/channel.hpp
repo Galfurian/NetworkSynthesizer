@@ -35,7 +35,7 @@ public:
     int transmissionDelay;
     int errorRate;
     bool wireless;
-    int maxConnection;
+    bool point_to_point;
 
     Channel();
 
@@ -48,7 +48,7 @@ public:
             int _transmissionDelay,
             int _errorRate,
             bool _wireless,
-            int _maxConnection);
+            bool _point_to_point);
 
     ~Channel();
 

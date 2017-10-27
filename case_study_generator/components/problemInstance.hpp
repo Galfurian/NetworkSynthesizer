@@ -68,7 +68,7 @@ public:
                                         int _transmissionDelay,
                                         int _errorRate,
                                         bool _wireless,
-                                        int _maxConnection);
+                                        bool _point_to_point);
 
     std::shared_ptr<Node> addNode(int _id,
                                   std::string _label,

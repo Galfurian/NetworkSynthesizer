@@ -46,13 +46,12 @@ ProblemInstance init_test_case_04()
 
     // ------------------------------------------------------------------------
     // Add the channels.
-    inst.addChannel(1, "Bluetooth-4.0", 9, 24, 1, 1, 12, 10, true, 2);
-    inst.addChannel(2, "Wi-Fi-AC", 34, 7000, 3, 2, 8, 7, true, INT_MAX);
-    inst.addChannel(3, "Wi-Fi-AD", 79, 7400, 7, 4, 3, 4, true, INT_MAX);
-    inst.addChannel(4, "fiber-Type-1", 256, 232000, 24, 3, 2, 4, false, 2);
-    inst.addChannel(5, "fiber-Type-2", 367, 268000, 8, 2, 3, 3, false, 2);
-    inst.addChannel(6, "radio-bridge", 567, 320240, 16, 2, 3, 3, true, 2);
-
+    inst.addChannel(1, "Bluetooth-4.0", 9, 24, 1, 1, 12, 10, true, true);
+    inst.addChannel(2, "Wi-Fi-AC", 34, 7000, 3, 2, 8, 7, true, false);
+    inst.addChannel(3, "Wi-Fi-AD", 79, 7400, 7, 4, 3, 4, true, false);
+    inst.addChannel(4, "fiber-Type-1", 256, 232000, 24, 3, 2, 4, false, true);
+    inst.addChannel(5, "fiber-Type-2", 367, 268000, 8, 2, 3, 3, false, true);
+    inst.addChannel(6, "radio-bridge", 567, 320240, 16, 2, 3, 3, true, true);
     int local_min_index = 1;
     int local_max_index = 3;
     int extra_area_min_index = 4;

@@ -19,7 +19,6 @@
 /// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 /// DEALINGS IN THE SOFTWARE.
 
-#include <climits>
 #include "test_case_02.hpp"
 
 static double Normalize(double value, double LbFrom, double UbFrom,
@@ -46,12 +45,12 @@ ProblemInstance init_test_case_03()
 
     // ------------------------------------------------------------------------
     // Add the channels.
-    inst.addChannel(1, "Bluetooth-4.0", 9, 24, 1, 1, 12, 10, true, 2);
-    inst.addChannel(2, "Wi-Fi-AC", 34, 7000, 3, 2, 8, 7, true, INT_MAX);
-    inst.addChannel(3, "Wi-Fi-AD", 79, 7400, 7, 4, 3, 4, true, INT_MAX);
-    inst.addChannel(4, "fiber-Type-1", 256, 232000, 24, 3, 2, 4, false, 2);
-    inst.addChannel(5, "fiber-Type-2", 367, 268000, 8, 2, 3, 3, false, 2);
-    inst.addChannel(6, "radio-bridge", 567, 320240, 16, 2, 3, 3, true, 2);
+    inst.addChannel(1, "Bluetooth-4.0", 9, 24, 1, 1, 12, 10, true, true);
+    inst.addChannel(2, "Wi-Fi-AC", 34, 7000, 3, 2, 8, 7, true, false);
+    inst.addChannel(3, "Wi-Fi-AD", 79, 7400, 7, 4, 3, 4, true, false);
+    inst.addChannel(4, "fiber-Type-1", 256, 232000, 24, 3, 2, 4, false, true);
+    inst.addChannel(5, "fiber-Type-2", 367, 268000, 8, 2, 3, 3, false, true);
+    inst.addChannel(6, "radio-bridge", 567, 320240, 16, 2, 3, 3, true, true);
 
     int local_min_index = 1;
     int local_max_index = 3;
@@ -211,7 +210,7 @@ ProblemInstance init_test_case_03()
     }
 
     // ------------------------------------------------------------------------
-    std::vector <std::shared_ptr<Task>> routers;
+    std::vector<std::shared_ptr<Task>> routers;
     for (auto z = inst.zones.begin(); z != inst.zones.end(); ++z)
     {
         for (auto it = 0; it < TRandInteger<int>(minNodesPerZone,
@@ -220,8 +219,8 @@ ProblemInstance init_test_case_03()
             auto routerName = "RtZn" + ToString(z->first);
             if (it == 0)
             {
-                int node_index = TRandInteger<int>(router_min_index,
-                                                   router_max_index);
+                auto node_index = TRandInteger<int>(router_min_index,
+                                                    router_max_index);
                 int node_size = inst.nodes[node_index]->size;
 
                 routers.emplace_back(
@@ -236,8 +235,8 @@ ProblemInstance init_test_case_03()
             {
                 auto taskName = "Ts" + ToString(it) +
                                 "Zn" + ToString(z->first);
-                int node_index = TRandInteger<int>(personal_min_index,
-                                                   personal_max_index);
+                auto node_index = TRandInteger<int>(personal_min_index,
+                                                    personal_max_index);
                 int node_size = inst.nodes[node_index]->size;
 
                 inst.addTask(taskName,
@@ -249,7 +248,8 @@ ProblemInstance init_test_case_03()
                 auto dataFlowName = "DfZn" + ToString(z->first) +
                                     "Tk" + ToString(it);
 
-                int index = TRandInteger<int>(local_min_index, local_max_index);
+                auto index = TRandInteger<int>(local_min_index,
+                                               local_max_index);
 
                 int size = inst.channels[index]->size;
                 int delay = inst.channels[index]->transmissionDelay;
@@ -268,16 +268,16 @@ ProblemInstance init_test_case_03()
 
     // ------------------------------------------------------------------------
     {
-        std::shared_ptr <Task> previousRouter = nullptr;
-        for (auto router : routers)
+        std::shared_ptr<Task> previousRouter = nullptr;
+        for (const auto & router : routers)
         {
             if (previousRouter != nullptr)
             {
                 auto dataFlowName = "Df" + previousRouter->label +
                                     "To" + router->label;
 
-                int index = TRandInteger<int>(extra_area_min_index,
-                                              extra_area_max_index);
+                auto index = TRandInteger<int>(extra_area_min_index,
+                                               extra_area_max_index);
 
                 int size = inst.channels[index]->size;
                 int delay = inst.channels[index]->transmissionDelay;
@@ -287,7 +287,7 @@ ProblemInstance init_test_case_03()
                     dataFlowName,
                     previousRouter->label,
                     router->label,
-                    TRandInteger<int>(size / 32, size / 16),
+                    TRandInteger<int>(size / 3, size / 6),
                     TRandInteger<int>(delay, static_cast<int>(delay * 1.5)),
                     TRandInteger<int>(error, static_cast<int>(error * 1.5)));
             }
