@@ -17,6 +17,7 @@ from networklib.TechLibPrinter import *
 from networklib.UmlForScilabPrinter import *
 from networklib.NetworkInstance import *
 
+
 def Separator():
     print("*******************************************************************************")
 
@@ -512,7 +513,8 @@ print("* Constraint C10")
 for channel in instance.channels:
     for channelIndex in Set_UB_on_C[channel]:
         m.addConstr(lhs=quicksum(((dataflow.size * h[dataflow, channel, channelIndex]) /
-                                  instance.contiguities.get((dataflow.source.zone, dataflow.target.zone, channel)).conductance)
+                                  instance.contiguities.get(
+                                      (dataflow.source.zone, dataflow.target.zone, channel)).conductance)
                                  for dataflow in channel.getAllowedDataFlow()),
                     sense=GRB.LESS_EQUAL,
                     rhs=channel.size,
@@ -679,40 +681,6 @@ for channel in instance.channels:
                                  q[channel, dataflow1.target.zone, dataflow2.target.zone]),
                             name="Wireless_with_df_%s_%s" % (dataflow1.label, dataflow2.label))
 
-# ---------------------------------------------------------------------------------------------------------------------
-# print("* Constraint C23")
-# for dataflow in instance.dataflows:
-#     for channel in dataflow.getAllowedChannel():
-#         for channelIndex in Set_UB_on_C[channel]:
-#             for node in dataflow.source.getAllowedNode():
-#                 for nodeIndex in Set_UB_on_N[node, dataflow.source.zone]:
-#                     m.addConstr(lhs=sigma[channel, channelIndex, node, nodeIndex],
-#                                 sense=GRB.LESS_EQUAL,
-#                                 rhs=h[dataflow, channel, channelIndex] * w[dataflow.source, node, nodeIndex],
-#                                 name="channel_%s_%s_connection_with_%s_%s" % (channel, channelIndex, node, nodeIndex))
-#             for node in dataflow.target.getAllowedNode():
-#                 for nodeIndex in Set_UB_on_N[node, dataflow.target.zone]:
-#                     m.addConstr(lhs=sigma[channel, channelIndex, node, nodeIndex],
-#                                 sense=GRB.LESS_EQUAL,
-#                                 rhs=h[dataflow, channel, channelIndex] * w[dataflow.target, node, nodeIndex],
-#                                 name="channel_%s_%s_connection_with_%s_%s" % (channel, channelIndex, node, nodeIndex))
-
-# ---------------------------------------------------------------------------------------------------------------------
-# print("* Constraint C24")
-# for dataflow in instance.dataflows:
-#     for channel in dataflow.getAllowedChannel():
-#         for channelIndex in Set_UB_on_C[channel]:
-#             m.addConstr(lhs=quicksum(sigma[channel, channelIndex, node, nodeIndex]
-#                                      for node in dataflow.source.getAllowedNode()
-#                                      for nodeIndex in Set_UB_on_N[node, dataflow.source.zone]) +
-#                             quicksum(sigma[channel, channelIndex, node, nodeIndex]
-#                                      for node in dataflow.target.getAllowedNode()
-#                                      for nodeIndex in Set_UB_on_N[node, dataflow.target.zone]),
-#                         sense=GRB.LESS_EQUAL,
-#                         rhs=channel.max_conn,
-#                         name="channel_%s_%s_max_connections" % (channel, channelIndex))
-# END - The constraints section - END
-
 m.update()
 
 # Constraints definition end.
@@ -733,13 +701,14 @@ if OPTIMIZATION == 1:
         quicksum(y[channel, channelIndex] * channel.cost
                  for channel in instance.channels
                  for channelIndex in Set_UB_on_C[channel]) +
-        quicksum(j[channel, channelIndex, zone1, zone2] * instance.contiguities.get((zone1, zone2, channel)).deploymentCost
-                 for zone1 in instance.zones
-                 for zone2 in instance.zones
-                 for channel in instance.channels
-                 if not channel.wireless
-                 if channel.isAllowedBetween(zone1, zone2)
-                 for channelIndex in Set_UB_on_C[channel]),
+        quicksum(
+            j[channel, channelIndex, zone1, zone2] * instance.contiguities.get((zone1, zone2, channel)).deploymentCost
+            for zone1 in instance.zones
+            for zone2 in instance.zones
+            for channel in instance.channels
+            if not channel.wireless
+            if channel.isAllowedBetween(zone1, zone2)
+            for channelIndex in Set_UB_on_C[channel]),
         GRB.MINIMIZE
     )
     m.update()
@@ -1027,7 +996,8 @@ if XML_GENERATION == 1:
     techLibPrinter.printTechLib()
 
 if SCNSL_GENERATION == 1:
-    scnslPrinter = ScnslGenerator(instance.nodes, instance.channels, instance.zones, instance.contiguities, instance.tasks, instance.dataflows,
+    scnslPrinter = ScnslGenerator(instance.nodes, instance.channels, instance.zones, instance.contiguities,
+                                  instance.tasks, instance.dataflows,
                                   SolN,
                                   SolC,
                                   SolW, SolH, Set_UB_on_C, Set_UB_on_N)
