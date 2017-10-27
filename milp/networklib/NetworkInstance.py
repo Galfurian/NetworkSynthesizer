@@ -245,34 +245,34 @@ class NetworkInstance:
                         print("[Error] Can't find the source task : %s" % id_source)
                         exit(1)
                     # Search the instance of the target task.
-                    target = SearchTask(self.tasks, id_target)
-                    if target is None:
+                    TargetTask = SearchTask(self.tasks, id_target)
+                    if TargetTask is None:
                         print("[Error] Can't find the target task : %s" % id_target)
                         exit(1)
                     # Check if the source and target task are the same.
-                    if source == target:
+                    if source == TargetTask:
                         print(
                             "[Error] Can't define a dataflow between the same task : %s -> %s" % (
-                                source, target))
+                                source, TargetTask))
                         exit(1)
                     # Create the new Data-Flow
-                    new_dataflow = DataFlow(index_dataflow,
-                                            label,
-                                            source,
-                                            target,
-                                            int(band),
-                                            int(delay),
-                                            int(error))
+                    NewDataFlow = DataFlow(index_dataflow,
+                                           label,
+                                           source,
+                                           TargetTask,
+                                           int(band),
+                                           int(delay),
+                                           int(error))
                     # Append the data-flow to the list of data-flows.
-                    self.add_data_flow(new_dataflow)
+                    self.add_data_flow(NewDataFlow)
                     # Print the data-flow.
-                    print("* %s" % new_dataflow.to_string())
+                    print("* %s" % NewDataFlow.to_string())
                     # Increment the index of data-flows.
                     index_dataflow += 1
                     # Clear the variables.
                     del label, id_source, id_target, band, delay, error
-                    del source, target
-                    del new_dataflow
+                    del source, TargetTask
+                    del NewDataFlow
 
                 # Clear the variables.
                 del input_line
@@ -286,8 +286,7 @@ class NetworkInstance:
         del index_task
         del index_dataflow
 
-    # By default set the unknown contiguities to 0.0, unless the pair
-    #  is composed by the same zone, in that case its 1.0.
+    # By default set the unknown contiguities to 0.0, unless the pair is composed by the same zone, in that case its 1.0.
     def define_missing_contiguities(self):
         for zone1 in self.zones:
             for zone2 in self.zones:
@@ -373,18 +372,18 @@ class NetworkInstance:
                     exit(1)
                 # If they resides in the same zone, there is a chance that the two tasks can be placed inside the same,
                 # node. However, this must be checked.
-                total_size = source_node.size + target_node.size
-                can_be_contained = False
+                SumSizes = source_node.size + target_node.size
+                CanBeContained = False
                 for node in set(source_node.getAllowedNode()).intersection(target_node.getAllowedNode()):
-                    if node.size >= total_size:
-                        can_be_contained = True
+                    if node.size >= SumSizes:
+                        CanBeContained = True
                         break
 
-                if not can_be_contained:
+                if not CanBeContained:
                     print("There are no channels that can contain data-flow %s." % dataflow)
                     print("And also there is no node which can contain both of its tasks.")
 
                 del source_node
                 del target_node
-                del total_size
-                del can_be_contained
+                del SumSizes
+                del CanBeContained
