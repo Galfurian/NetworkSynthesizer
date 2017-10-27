@@ -100,6 +100,24 @@ class NetworkChecker:
                         return False
 
         # -------------------------------------------------------------------------------------------------------------
+        self.outfile.write("*     - Checking if a wired channel contains a dataflow with mobile tasks...\n")
+        for channel in self.ChannelList:
+            if not channel.wireless:
+                for channelIndex in self.indexSetOfClonesOfChannel[channel]:
+                    for dataflow in channel.getAllowedDataFlow():
+                        if self.SolH[dataflow, channel, channelIndex]:
+                            source_node = dataflow.source.getDeployedIn()
+                            if source_node[0].mobile:
+                                self.outfile.write("[Error] Wired channel %s used with mobile dataflow %s [ND:%s].\n"
+                                                   % (channel, dataflow, source_node))
+                                return False
+                            target_node = dataflow.target.getDeployedIn()
+                            if target_node[0].mobile:
+                                self.outfile.write("[Error] Wired channel %s used with mobile dataflow %s [ND:%s].\n"
+                                                   % (channel, dataflow, target_node))
+                                return False
+
+        # -------------------------------------------------------------------------------------------------------------
         self.outfile.write(
             "*     - Checking if wireless channels has been placed between zones with zero contiguity...\n")
         for channel in self.ChannelList:
@@ -137,4 +155,20 @@ class NetworkChecker:
                         self.outfile.write(
                             "[Error] Mobile task %s is hosted inside the non-mobile node %s.\n" % (task, node))
                         return False
+
+        # -------------------------------------------------------------------------------------------------------------
+        # self.outfile.write("*     - Checking compliance with maximum connections of channels...\n")
+        # for channel in self.ChannelList:
+        #     for channelIndex in self.indexSetOfClonesOfChannel[channel]:
+        #         ConnectedNodes = set()
+        #         for dataflow in channel.getAllowedDataFlow():
+        #             if self.SolH[dataflow, channel, channelIndex]:
+        #                 source_node = dataflow.source.getDeployedIn()
+        #                 ConnectedNodes.add("%s_%s_%s" % (source_node[0], source_node[1], source_node[2]))
+        #                 target_node = dataflow.target.getDeployedIn()
+        #                 ConnectedNodes.add("%s_%s_%s" % (target_node[0], target_node[1], target_node[2]))
+        #         if (len(ConnectedNodes) > channel.max_conn):
+        #             self.outfile.write("[Error] Cabled channel %s.%s is connecting to much nodes (MAX:%s).\n"
+        #                                % (channel, channelIndex, channel.max_conn))
+        #             return False
         return True
