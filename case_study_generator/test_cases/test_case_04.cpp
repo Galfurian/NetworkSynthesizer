@@ -56,7 +56,7 @@ ProblemInstance init_test_case_04()
     int local_min_index = 1;
     int local_max_index = 3;
     int extra_area_min_index = 4;
-    int extra_area_max_index = 5;
+    int extra_area_max_index = 6;
 
     // ------------------------------------------------------------------------
     // Add the nodes.
@@ -71,7 +71,7 @@ ProblemInstance init_test_case_04()
     int personal_min_index = 1;
     int personal_max_index = 3;
     int router_min_index = 3;
-    int router_max_index = 4;
+    int router_max_index = 7;
 
     // ------------------------------------------------------------------------
     double minDistance = +INT64_MAX;

@@ -11,6 +11,9 @@ project(MilpTestCaseGenerator CXX)
 SET(PROJECT_NAME MilpTestCaseGenerator)
 SET(PROJECT_SOURCE_DIR .)
 
+add_compile_options(-ggdb)
+add_compile_options(-g3)
+
 #################################################
 # Initialize CXXFLAGS...
 set(CMAKE_CXX_STANDARD 11)
