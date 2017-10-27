@@ -1,5 +1,5 @@
 class Channel:
-    def __init__(self, label, id, cost, size, energy, df_energy, delay, error, wireless, max_conn):
+    def __init__(self, label, id, cost, size, energy, df_energy, delay, error, wireless, point_to_point):
         self.label = label
         self.id = id
         self.cost = cost
@@ -9,7 +9,7 @@ class Channel:
         self.delay = delay
         self.error = error
         self.wireless = wireless
-        self.max_conn = max_conn
+        self.point_to_point = point_to_point
         self.allowed = []
         self.allowedBetween = {}
 
@@ -27,15 +27,15 @@ class Channel:
 
     def show(self):
         print("# Channel : %s" % (self.label))
-        print("#     Id        : %s" % (self.id))
-        print("#     Cost      : %s" % (self.cost))
-        print("#     Size      : %s" % (self.size))
-        print("#     Energy    : %s" % (self.energy))
-        print("#     DF Energy : %s" % (self.df_energy))
-        print("#     Delay     : %s" % (self.delay))
-        print("#     Error     : %s" % (self.error))
-        print("#     Wireless  : %s" % (self.wireless))
-        print("#     Max Conn  : %s" % (self.max_conn))
+        print("#     Id             : %s" % (self.id))
+        print("#     Cost           : %s" % (self.cost))
+        print("#     Size           : %s" % (self.size))
+        print("#     Energy         : %s" % (self.energy))
+        print("#     DF Energy      : %s" % (self.df_energy))
+        print("#     Delay          : %s" % (self.delay))
+        print("#     Error          : %s" % (self.error))
+        print("#     Wireless       : %s" % (self.wireless))
+        print("#     Point To Point : %s" % (self.point_to_point))
 
     @staticmethod
     def get_header():
@@ -48,7 +48,7 @@ class Channel:
                                                                                     "delay",
                                                                                     "error",
                                                                                     "wireless",
-                                                                                    "max_conn")
+                                                                                    "point_to_point")
 
     @staticmethod
     def get_header_caps():
@@ -61,7 +61,7 @@ class Channel:
                                                                                     "DELAY",
                                                                                     "ERROR",
                                                                                     "WIRELESS",
-                                                                                    "MAX_CONN")
+                                                                                    "POINT_TO_POINT")
 
     def to_string(self):
         return "%-15s | %2s | %5s | %10s | %6s | %10s | %6s | %6s | %8s | %8s |" % (self.label,
@@ -73,7 +73,7 @@ class Channel:
                                                                                     self.delay,
                                                                                     self.error,
                                                                                     self.wireless,
-                                                                                    self.max_conn)
+                                                                                    self.point_to_point)
 
     def toScnsl(self):
         ChannelSetupName = ("csb_%s" % (self.id))
