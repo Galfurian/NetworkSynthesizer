@@ -63,6 +63,14 @@ def GetMemoryUsage():
     return mem
 
 
+def RoundInt(x):
+    if x == float("inf"):
+        return +sys.maxint
+    if x == float("-inf"):
+        return -sys.maxint
+    return int(round(x))
+
+
 # ---------------------------------------------------------------------------------------------------------------------
 # Files parsing starting time.
 parse_timer_begin = time.time()
@@ -155,7 +163,7 @@ with open(argv[3], "r") as channelFile:
                                  int(chDelay),
                                  int(chError),
                                  int(chWireless),
-                                 float(ch_max_conn))
+                                 RoundInt(float(ch_max_conn)))
             # Append the channel to the list of channels.
             ChannelList.append(NewChannel)
             # Print the channel.
@@ -631,10 +639,13 @@ print("* \tgiven instance of the given type of channel.")
 print("*")
 
 # ---------------------------------------------------------------------------------------------------------------------
-for zone1 in ZoneList:
-    for zone2 in ZoneList:
-        for channel in ChannelList:
+for channel in ChannelList:
+    for zone1 in ZoneList:
+        for zone2 in ZoneList:
             q[channel, zone1, zone2] = (ContiguityList.get((zone1, zone2, channel)).conductance > 0)
+            if q[channel, zone1, zone2]:
+                channel.setAllowedBetween(zone1, zone2)
+
 # Log the information concerning the variable.
 print("*")
 print("* q [%s]" % len(q))
@@ -643,26 +654,27 @@ print("* \tcan be placed between the given pair of zones.")
 print("*")
 
 # ---------------------------------------------------------------------------------------------------------------------
-for zone1 in ZoneList:
-    for zone2 in ZoneList:
-        for channel in ChannelList:
-            if q[channel, zone1, zone2]:
-                for channelIndex in Set_UB_on_C[channel]:
-                    channel.setAllowedBetween(zone1, zone2)
-                    j[channel, channelIndex, zone1, zone2] = m.addVar(lb=0.0,
-                                                                      ub=1.0,
-                                                                      obj=0.0,
-                                                                      vtype=GRB.BINARY,
-                                                                      name='j_%s_%s_%s_%s' % (
-                                                                          channel, channelIndex, zone1, zone2))
-            else:
-                for channelIndex in Set_UB_on_C[channel]:
-                    j[channel, channelIndex, zone1, zone2] = False
+for channel in ChannelList:
+    for channelIndex in Set_UB_on_C[channel]:
+        for zone1 in ZoneList:
+            for zone2 in ZoneList:
+                if zone1 <= zone2:
+                    if q[channel, zone1, zone2]:
+                        j[channel, channelIndex, zone1, zone2] = m.addVar(lb=0.0,
+                                                                          ub=1.0,
+                                                                          obj=0.0,
+                                                                          vtype=GRB.BINARY,
+                                                                          name='j_%s_%s_%s_%s' % (
+                                                                              channel, channelIndex, zone1, zone2))
+                        j[channel, channelIndex, zone2, zone1] = j[channel, channelIndex, zone1, zone2]
+                    else:
+                        j[channel, channelIndex, zone1, zone2] = False
+                        j[channel, channelIndex, zone2, zone1] = False
 # Log the information concerning the variable.
 print("*")
 print("* j [%s]" % len(j))
-print("* \tVariable j identifies if the given instnace of the given channel has a ")
-print("* \tvalid conductance between the given pari of zones.")
+print("* \tVariable j identifies if the given instance of the given channel has ben ")
+print("* \tactually placed between the given pair of zones.")
 print("*")
 
 # for dataflow in DataFlowList:
@@ -1277,10 +1289,14 @@ if m.status == GRB.status.OPTIMAL:
 elif m.status == GRB.Status.INF_OR_UNBD:
     outfile.write('Model is infeasible or unbounded\n')
     outcome_txt = "FAILED"
+    m.computeIIS()
+    m.write("model.ilp")
 
 elif m.status == GRB.Status.INFEASIBLE:
     outfile.write('Model is infeasible\n')
     outcome_txt = "FAILED"
+    m.computeIIS()
+    m.write("model.ilp")
 
 elif m.status == GRB.Status.UNBOUNDED:
     outfile.write('Model is unbounded\n')
