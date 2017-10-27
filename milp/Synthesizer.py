@@ -746,7 +746,6 @@ elif OPTIMIZATION == 3:
                  instance.contiguities.get((dataflow.source.zone, dataflow.target.zone, channel)).conductance
                  for dataflow in instance.dataflows
                  for channel in dataflow.getAllowedChannel()
-                 for channelIndex in Set_UB_on_C[channel]),
         GRB.MINIMIZE
     )
     m.update()
@@ -813,10 +812,73 @@ m.setParam("Presolve", 2)
 # Concurrent optimizers run multiple solvers on multiple threads simultaneously, and choose the one that
 # finishes first. Deterministic concurrent (Method=4) gives the exact same result each time,
 # while Method=3 is often faster but can produce different optimal bases when run multiple times.
-m.setParam("Method", 3)
+# m.setParam("Method", 3)
+
+# MIPGap
+#
+# Relative MIP optimality gap
+# Type:	double
+# Default value:	1e-4
+# Minimum value:	0
+# Maximum value:	Infinity
+# The MIP solver will terminate (with an optimal result) when the relative gap between the lower and upper objective bound is less than MIPGap times the upper bound.
+m.setParam("MIPGap", 1e-4)
+
+# MIPGapAbs
+#
+# Absolute MIP optimality gap
+# Type:	double
+# Default value:	1e-10
+# Minimum value:	0
+# Maximum value:	Infinity
+# The MIP solver will terminate (with an optimal result) when the absolute gap between the lower and upper objective bound is less than MIPGapAbs.
+m.setParam("MIPGapAbs", 1e-10)
+
+# OptimalityTol
+#
+# Dual feasibility tolerance
+# Type:	double
+# Default value:	1e-6
+# Minimum value:	1e-9
+# Maximum value:	1e-2
+# Reduced costs must all be smaller than OptimalityTol in the improving direction in order for a model to be declared optimal.
+m.setParam("OptimalityTol", 1e-4)
+
+# FeasibilityTol
+#
+# Primal feasibility tolerance
+# Type:	double
+# Default value:	1e-6
+# Minimum value:	1e-9
+# Maximum value:	1e-2
+# All constraints must be satisfied to a tolerance of FeasibilityTol. Tightening this tolerance can produce smaller constraint violations, but for numerically challenging models it can sometimes lead to much larger iteration counts.
+m.setParam("FeasibilityTol", 1e-4)
+
+# NumericFocus
+#
+# Numerical focus
+# Type:	int
+# Default value:	0
+# Minimum value:	0
+# Maximum value:	3
+# The NumericFocus parameter controls the degree to which the code attempts to detect and manage numerical issues. The default setting (0) makes an automatic choice, with a slight preference for speed. Settings 1-3 increasingly shift the focus towards being more careful in numerical computations. With higher values, the code will spend more time checking the numerical accuracy of intermediate results, and it will employ more expensive techniques in order to avoid potential numerical issues.
+m.setParam("NumericFocus", 2)
 
 # Optimization start.
 optimization_timer_begin = time.time()
+
+# r = m.relax()
+# r.write("gurobi.relax-nopre.rew")
+# p = m.presolve()
+# r = p.relax()
+# r.write("gurobi.relax-pre.rew")
+# m.reset()
+# m.Params.Aggregate = 0
+# p = m.presolve()
+# r = p.relax()
+# r.write("gurobi.relax-agg0.rew")
+
+m.printStats()
 
 # Compute optimal solution
 m.optimize()
@@ -824,33 +886,35 @@ m.optimize()
 # Optimization end.
 optimization_timer_end = time.time()
 
+m.printQuality()
+
 used_memory = GetMemoryUsage()
-used_cpu = psutil.cpu_percent(interval=1)
 
 outcome = open("result.txt", 'a+')
 outcome_txt = "SUCCESS"
 outfile = open(str(argv[1]).replace("/", "_"), 'a+')
+
+# Economic Cost
+TotalCostCable = 0
+TotalCostWirls = 0
+TotalCostNodes = 0
+# Energy Consumption
+TotalEnergyNodes = 0
+TotalEnergyNodesUsage = 0
+TotalEnergyChannel = 0
+TotalEnergyChannelUsage = 0
+# Communication Delay
+TotalDelayCable = 0
+TotalDelayWirls = 0
+# Error Rate
+TotalErrorRateCable = 0
+TotalErrorRateWirls = 0
 
 # print(solution
 if m.status == GRB.status.OPTIMAL:
     outfile.write("Optimal objective: %g\n" % m.objVal)
     outfile.write("*******************************************************************************\n")
     outfile.write('# Optimal Solution\n')
-    # Economic Cost
-    TotalCostCable = 0
-    TotalCostWirls = 0
-    TotalCostNodes = 0
-    # Energy Consumption
-    TotalEnergyNodes = 0
-    TotalEnergyNodesUsage = 0
-    TotalEnergyChannel = 0
-    TotalEnergyChannelUsage = 0
-    # Communication Delay
-    TotalDelayCable = 0
-    TotalDelayWirls = 0
-    # Error Rate
-    TotalErrorRateCable = 0
-    TotalErrorRateWirls = 0
     outfile.write('# List of activated nodes:\n')
     SolN = m.getAttr('x', N)
     for zone in instance.zones:
@@ -1021,9 +1085,15 @@ outfile.write("*    Optimization           : %s s\n" % elapsed_optim)
 outfile.write("*    Total : %s s\n" % elapsed_total)
 outfile.write("*##########################################\n")
 
-outcome.write("[%-36s] OBJ-%d %-12s |   %8.6s s | %8.6s s | %8.6s s | %8.6s s | %8.6s s | %16.14s Mb | %8.4s |\n" %
-              (argv[1], OPTIMIZATION, outcome_txt, elapsed_parse, elapsed_struc, elapsed_const, elapsed_optim,
-               elapsed_total, used_memory, used_cpu))
+outcome.write(
+    "[%-42s] OBJ-%d %-7s | %8.6s s| %8.6s s| %8.6s s| %8.6s s| %8.6s s| %8.6s Mb| %8.6s | %8.6s | %8.6s | %8.6s |\n" %
+    (argv[1], OPTIMIZATION, outcome_txt,
+     elapsed_parse, elapsed_struc, elapsed_const, elapsed_optim, elapsed_total,
+     used_memory,
+     TotalCostNodes + TotalCostWirls + TotalCostCable,
+     TotalEnergyNodes + TotalEnergyNodesUsage + TotalEnergyChannel + TotalEnergyChannelUsage,
+     TotalDelayWirls + TotalDelayCable,
+     TotalErrorRateWirls + TotalErrorRateCable))
 outcome.flush()
 outcome.close()
 
