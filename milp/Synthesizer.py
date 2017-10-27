@@ -5,27 +5,17 @@
 # Content : A MILP model for the mobile network design problem proposed by Davide Quaglia et al.
 # We refer to the LaTex/pdf document for a description of the model.
 
-import os
 import time
 from sys import argv, exit
-import array
 import psutil
-from pprint import pprint
 
 from gurobipy import *
 
-from networklib.Channel import *
-from networklib.Contiguity import *
-from networklib.DataFlow import *
-from networklib.Node import *
-from networklib.Task import *
-from networklib.Zone import *
 from networklib.NetworkChecker import *
 from networklib.ScnslGenerator import *
 from networklib.TechLibPrinter import *
 from networklib.UmlForScilabPrinter import *
 from networklib.NetworkInstance import *
-
 
 def Separator():
     print("*******************************************************************************")
@@ -104,365 +94,74 @@ if argc >= 7:
 # Start with the general information.
 About()
 
-# The catalogs and input lists
-NodeList = []
-ChannelList = []
-ZoneList = []
-ContiguityList = {}
-TaskList = []
-DataFlowList = []
+instance = NetworkInstance()
 
 # ---------------------------------------------------------------------------------------------------------------------
 Separator()
 print("* READING NODEs CATALOG FILE")
 Separator()
-print("* %s" % Node.get_header_caps())
-with open(argv[2], "r") as nodeFile:
-    for line in nodeFile:
-        if (line[0] != ';') and (line[0] != '#'):
-            nodeLine = line.strip()
-            # Retrieve the values from the file.
-            try:
-                ndLabel, ndId, ndCost, ndSize, ndEnergy, ndTaskEnergy, ndMobile = nodeLine.split()
-            except ValueError:
-                print("Error: Wrong line format '%s'" % nodeLine)
-                exit(1)
-            # Create a new node.
-            NewNode = Node(ndLabel, int(ndId), int(ndCost), int(ndSize), int(ndEnergy), int(ndTaskEnergy),
-                           int(ndMobile))
-            # Append the node to the list of nodes.
-            NodeList.append(NewNode)
-            # Print the node.
-            print("* %s" % NewNode.to_string())
-            # Delete the auxiliary variables.
-            del nodeLine, NewNode, ndLabel, ndId, ndCost, ndSize, ndMobile, ndEnergy, ndTaskEnergy
+instance.load_node_catalog(argv[2])
+Separator()
 
 # ---------------------------------------------------------------------------------------------------------------------
 Separator()
 print("* READING CHANNELSs CATALOG FILE")
 Separator()
-print("* %s" % Channel.get_header_caps())
-
-with open(argv[3], "r") as channelFile:
-    for line in channelFile:
-        if (line[0] != ';') and (line[0] != '#'):
-            channelLine = line.strip()
-            # Retrieve the values from the file.
-            try:
-                chLabel, chId, chCost, chSize, chEnergy, chDfEnergy, chDelay, chError, chWireless, ch_max_conn = channelLine.split()
-            except ValueError:
-                print("Error: Wrong line format '%s'" % channelLine)
-                exit(1)
-            # Create a new Channel.
-            NewChannel = Channel(chLabel,
-                                 int(chId),
-                                 int(chCost),
-                                 int(chSize),
-                                 int(chEnergy),
-                                 int(chDfEnergy),
-                                 int(chDelay),
-                                 int(chError),
-                                 int(chWireless),
-                                 RoundInt(float(ch_max_conn)))
-            # Append the channel to the list of channels.
-            ChannelList.append(NewChannel)
-            # Print the channel.
-            print("* %s" % NewChannel.to_string())
-            # Delete the auxiliary variables.
-            del channelLine, NewChannel, chLabel, chId, chCost, chSize, chEnergy, chDfEnergy, chDelay, chError, chWireless
+instance.load_channel_catalog(argv[3])
+Separator()
 
 # ---------------------------------------------------------------------------------------------------------------------
 Separator()
 print("* READING INPUT INSTANCE FILE")
 Separator()
-ParsingZone = False
-ParsingContiguity = False
-ParsingTask = False
-ParsingDataflow = False
-TaskIndex = 1
-DataFlowIndex = 1
-
-with open(argv[1], "r") as inputFile:
-    for line in inputFile:
-        inputLine = line.strip()
-        # Skip empty lines.
-        if not inputLine:
-            continue
-        # Skip comments.
-        if (inputLine[0] == ';') or (inputLine[0] == '#'):
-            continue
-        # Parse the line.
-        if inputLine == "<ZONE>":
-            ParsingZone = True
-            print("* LOADING ZONES")
-        elif inputLine == "</ZONE>":
-            ParsingZone = False
-            print("* LOADING ZONES - Done")
-        elif ParsingZone:
-            # Retrieve the values from the file.
-            try:
-                zn_label, zn_x, zn_y, zn_z = inputLine.split()
-            except ValueError:
-                print("Error: Wrong line format '%s'" % inputLine)
-                exit(1)
-            # Create a new zone.
-            NewZone = Zone(int(zn_label),
-                           int(zn_x),
-                           int(zn_y),
-                           int(zn_z))
-            # Append the zone to the list of zones.
-            ZoneList.append(NewZone)
-            # Print the zone.
-            print("* %s" % NewZone.to_string())
-            # Delete the auxiliary variables.
-            del NewZone, zn_label, zn_x, zn_y, zn_z
-
-        elif inputLine == "<CONTIGUITY>":
-            ParsingContiguity = True
-            print("* LOADING CONTIGUITIES")
-        elif inputLine == "</CONTIGUITY>":
-            ParsingContiguity = False
-            print("* LOADING CONTIGUITIES - Done")
-        elif ParsingContiguity:
-            # Retrieve the values from the file.
-            try:
-                cnt_zone1, cnt_zone2, cnt_channel, cnt_conductance, cnt_deployment_cost = inputLine.split()
-            except ValueError:
-                print("Error: Wrong line format '%s'" % inputLine)
-                exit(1)
-            # Search the instance of the first zone.
-            SearchedZone1 = SearchZone(ZoneList, int(cnt_zone1))
-            if SearchedZone1 is None:
-                print("[Error] Can't find zone : %s" % cnt_zone1)
-                exit(1)
-            # Search the instance of the first zone.
-            SearchedZone2 = SearchZone(ZoneList, int(cnt_zone2))
-            if SearchedZone2 is None:
-                print("[Error] Can't find zone : %s" % cnt_zone2)
-                exit(1)
-            # Search the instance of the channel.
-            SearchedChannel = SearchChannel(ChannelList, int(cnt_channel))
-            if SearchedChannel is None:
-                print("[Error] Can't find channel : %s" % cnt_channel)
-                exit(1)
-            # Create the new contiguity.
-            NewContiguity = Contiguity(SearchedZone1,
-                                       SearchedZone2,
-                                       SearchedChannel,
-                                       float(cnt_conductance),
-                                       float(cnt_deployment_cost))
-            # Add the contiguity to the list of contiguities.
-            ContiguityList[SearchedZone1, SearchedZone2, SearchedChannel] = NewContiguity
-            # Set the same values for the vice-versa of the zones.
-            ContiguityList[SearchedZone2, SearchedZone1, SearchedChannel] = NewContiguity
-            # Print the contiguity.
-            print("* %s" % NewContiguity.to_string())
-            # Delete the auxiliary variables.
-            del inputLine, NewContiguity, SearchedZone1, SearchedZone2, SearchedChannel
-            del cnt_zone1, cnt_zone2, cnt_channel, cnt_conductance, cnt_deployment_cost
-
-        elif inputLine == "<TASK>":
-            ParsingTask = True
-            print("* LOADING TASKS")
-        elif inputLine == "</TASK>":
-            ParsingTask = False
-            print("* LOADING TASKS - Done")
-        elif ParsingTask:
-            # Retrieve the values from the file.
-            try:
-                tsk_label, tsk_size, tsk_zone, tsk_mobile = inputLine.split()
-            except ValueError:
-                print("Error: Wrong line format '%s'" % inputLine)
-                exit(1)
-            # Search the instance of the zone.
-            SearchedZone = SearchZone(ZoneList, int(tsk_zone))
-            if SearchedZone is None:
-                print("[Error] Can't find zone : %s" % tsk_zone)
-                exit(1)
-            # Create the new task.
-            NewTask = Task(TaskIndex, tsk_label, int(tsk_size), SearchedZone, int(tsk_mobile))
-            # Append the task to the list of tasks.
-            TaskList.append(NewTask)
-            # Increment the task index
-            TaskIndex += 1
-            # Print the task.
-            print("* %s" % NewTask.to_string())
-            # Clear the variables.
-            del inputLine, tsk_label, tsk_size, tsk_zone, tsk_mobile, NewTask
-
-        elif inputLine == "<DATAFLOW>":
-            ParsingDataflow = True
-            print("* LOADING DATA-FLOWS")
-        elif inputLine == "</DATAFLOW>":
-            ParsingDataflow = False
-            print("* LOADING DATA-FLOWS - Done")
-        elif ParsingDataflow:
-            # Retrieve the values from the file.
-            try:
-                df_label, df_source, df_target, df_band, df_delay, df_error = inputLine.split()
-            except ValueError:
-                print("Error: Wrong line format '%s'" % inputLine)
-                exit(1)
-            # Search the instance of the source task.
-            SourceTask = SearchTask(TaskList, df_source)
-            if SourceTask is None:
-                print("[Error] Can't find the source task : %s" % df_source)
-                exit(1)
-            # Search the instance of the target task.
-            TargetTask = SearchTask(TaskList, df_target)
-            if TargetTask is None:
-                print("[Error] Can't find the target task : %s" % df_target)
-                exit(1)
-            # Check if the source and target task are the same.
-            if SourceTask == TargetTask:
-                print("[Error] Can't define a dataflow between the same task : %s -> %s" % (SourceTask, TargetTask))
-                exit(1)
-            # Create the new Data-Flow
-            NewDataFlow = DataFlow(DataFlowIndex,
-                                   df_label,
-                                   SourceTask,
-                                   TargetTask,
-                                   int(df_band),
-                                   int(df_delay),
-                                   int(df_error))
-            # Append the data-flow to the list of data-flows.
-            DataFlowList.append(NewDataFlow)
-            # Print the data-flow.
-            print("* %s" % NewDataFlow.to_string())
-            # Increment the index of data-flows.
-            DataFlowIndex += 1
-            # Clear the variables.
-            del df_label, df_source, df_target, df_band, df_delay, df_error
-            del SourceTask, TargetTask, NewDataFlow
-
-# Clean auxiliary variables.
-del ParsingZone
-del ParsingContiguity
-del ParsingTask
-del ParsingDataflow
-del TaskIndex
-del DataFlowIndex
+instance.load_input_instance(argv[1])
 Separator()
 
 # ---------------------------------------------------------------------------------------------------------------------
-# ---------------------------------------------------------------------------------------------------------------------
-# By default set the unknown contiguities to 0.0, unless the pair is composed by the same zone, in that case its 1.0.
+Separator()
 print("* DEFINING MISSING CONTIGUITIES")
-for zone1 in ZoneList:
-    for zone2 in ZoneList:
-        for channel in ChannelList:
-            if ContiguityList.get((zone1, zone2, channel)) is None:
-                if zone1 == zone2:
-                    ContiguityList[zone1, zone2, channel] = Contiguity(zone1, zone2, channel, 1.0, 0)
-                    print("* %s" % ContiguityList[zone1, zone2, channel].to_string())
-                else:
-                    ContiguityList[zone1, zone2, channel] = Contiguity(zone1, zone2, channel, 0.0, sys.maxint)
-            del channel
-        del zone2
-    del zone1
-
-# Files parsing ending time.
-parse_timer_end = time.time()
-
+Separator()
+instance.define_missing_contiguities()
 Separator()
 
 # ---------------------------------------------------------------------------------------------------------------------
+Separator()
+print("* PERFORMING PRE-PROCESS PHASE")
+Separator()
+instance.perform_preprocess()
+instance.perform_precheck()
+Separator()
+
 # ---------------------------------------------------------------------------------------------------------------------
-Separator()
-print("* PRE-PROCESSING")
-Separator()
-
-# Make the timer start.
-structure_timer_begin = time.time()
-
-# Datastructures starting time.
-print("* Checking in which nodes the tasks can be placed into...")
-for task in TaskList:
-    for node in NodeList:
-        # Check if the task and the node are compatible.
-        if task.mobile != node.mobile:
-            continue
-        # Check if the task can be contained inside the node.
-        if task.size > node.size:
-            continue
-        # Link node and task.
-        task.setAllowedNode(node)
-        node.setAllowedTask(task)
-
-print("* Checking in which channels the data-flows can be placed into...")
-for dataflow in DataFlowList:
-    for channel in ChannelList:
-        contiguity = ContiguityList.get((dataflow.source.zone, dataflow.target.zone, channel))
-        # Check the conductance of the contiguity.
-        if contiguity.conductance <= 0:
-            continue
-        # Check if the channel can hold the data-flow give the conductance value.
-        if channel.size < (dataflow.size / contiguity.conductance):
-            continue
-        # Check if the channel has the required error_rate demanded by the data-flow give the conductance value.
-        if channel.error > (dataflow.max_error * contiguity.conductance):
-            continue
-        # Check if the channel has the required delay demanded by the data-flow give the conductance value.
-        if channel.delay > (dataflow.max_delay * contiguity.conductance):
-            continue
-        # If a node is mobile, then it can be connected only to wireless channels.
-        if ((dataflow.source.mobile or dataflow.target.mobile) and not channel.wireless):
-            continue
-        # Link dataflow and channel.
-        dataflow.setAllowedChannel(channel)
-        channel.setAllowedDataFlow(dataflow)
-        # Delete the contiguity.
-        del contiguity
-
-print("* Checking if there is at least one suitable node for each task...")
-for task in TaskList:
-    if len(task.getAllowedNode()) == 0:
-        print("There are no nodes that can contain task %s." % task)
-        exit(1)
-
-print("* Checking if there are suitable channels for data-flows which cross zones...")
-for dataflow in DataFlowList:
-    if (len(dataflow.getAllowedChannel()) == 0) and (dataflow.source.zone != dataflow.target.zone):
-        print("There are no channels that can contain data-flow %s." % dataflow)
-        for channel in ChannelList:
-            reason = "no reason"
-            contiguity = ContiguityList.get((dataflow.source.zone, dataflow.target.zone, channel))
-            if contiguity.conductance <= 0:
-                reason = "low conductance %s" % contiguity.conductance
-            elif channel.size < (dataflow.size / contiguity.conductance):
-                reason = "low size"
-            elif channel.error > (dataflow.max_error * contiguity.conductance):
-                reason = "higher error rate"
-            elif channel.delay > (dataflow.max_delay * contiguity.conductance):
-                reason = "higher delay"
-            elif ((dataflow.source.mobile or dataflow.target.mobile) and not channel.wireless):
-                reason = "unacceptable mobile/wireless"
-            print("\tChannel %s for %s." % (channel, reason))
-        exit(1)
-
 if VERBOSE:
     Separator()
     print("* The tasks can be placed into:")
-    for task in TaskList:
+    for task in instance.tasks:
         print("*     Task '%15s' Nodes : %s" % (task, task.getAllowedNode()))
     print("*")
     print("* The data-flows can be placed into:")
-    for dataflow in DataFlowList:
+    for dataflow in instance.dataflows:
         print("*     DataFlow '%15s' Channels : %s" % (dataflow, dataflow.getAllowedChannel()))
 
     print("*")
     print("* The nodes can host:")
-    for node in NodeList:
+    for node in instance.nodes:
         print("*     Node '%15s' Tasks : %s" % (node, node.getAllowedTask()))
 
     print("*")
     print("* The channels can host:")
-    for channel in ChannelList:
+    for channel in instance.channels:
         print("*     Channel '%15s' Data-Flows : %s" % (channel, channel.getAllowedDataFlow()))
+    Separator()
 
-Separator()
+# Files parsing ending time.
+parse_timer_end = time.time()
 
 # ---------------------------------------------------------------------------------------------------------------------
+# ---------------------------------------------------------------------------------------------------------------------
+# Make the timer start.
+structure_timer_begin = time.time()
+
 # ---------------------------------------------------------------------------------------------------------------------
 Separator()
 print("* GENERATING OPTIMIZATION MODEL")
@@ -497,8 +196,8 @@ q = {}
 # sigma = {}
 
 # ---------------------------------------------------------------------------------------------------------------------
-for zone in ZoneList:
-    for node in NodeList:
+for zone in instance.zones:
+    for node in instance.nodes:
         UB_on_N[node, zone] = len([task for task in node.getAllowedTask() if task.zone == zone])
         Set_UB_on_N[node, zone] = range(1, UB_on_N[node, zone] + 1)
 # Log the information concerning the variable.
@@ -509,7 +208,7 @@ print("* \ttype inside a given zone. This value can be pre-computed.")
 print("*")
 
 # ---------------------------------------------------------------------------------------------------------------------
-for channel in ChannelList:
+for channel in instance.channels:
     UB_on_C[channel] = len(channel.getAllowedDataFlow())
     Set_UB_on_C[channel] = range(1, UB_on_C[channel] + 1)
 # Log the information concerning the variable.
@@ -520,8 +219,8 @@ print("* \ttype. This upper-bound can be pre-computed")
 print("*")
 
 # ---------------------------------------------------------------------------------------------------------------------
-for node in NodeList:
-    for zone in ZoneList:
+for node in instance.nodes:
+    for zone in instance.zones:
         N[node, zone] = m.addVar(lb=0.0, ub=UB_on_N[node, zone], obj=0.0, vtype=GRB.CONTINUOUS,
                                  name='N_%s_%s' % (node, zone))
 # Log the information concerning the variable.
@@ -532,7 +231,7 @@ print("* \ta given zone. The upper-bound on this variable is equal to UB_on_N.")
 print("*")
 
 # ---------------------------------------------------------------------------------------------------------------------
-for channel in ChannelList:
+for channel in instance.channels:
     C[channel] = m.addVar(lb=0.0, ub=UB_on_C[channel], obj=0.0, vtype=GRB.CONTINUOUS,
                           name='C_%s' % channel)
 # Log the information concerning the variable.
@@ -543,8 +242,8 @@ print("* \tThe upper-bound on this variable is equal to UB_on_C.")
 print("*")
 
 # ---------------------------------------------------------------------------------------------------------------------
-for node in NodeList:
-    for zone in ZoneList:
+for node in instance.nodes:
+    for zone in instance.zones:
         for nodeIndex in Set_UB_on_N[node, zone]:
             x[node, nodeIndex, zone] = m.addVar(lb=0.0, ub=1.0, obj=0.0, vtype=GRB.BINARY,
                                                 name='x_%s_%s_%s' % (node, nodeIndex, zone))
@@ -557,7 +256,7 @@ print("* \tthere are n1q nodes of type n1 inside zone z1.")
 print("*")
 
 # ---------------------------------------------------------------------------------------------------------------------
-for channel in ChannelList:
+for channel in instance.channels:
     for channelIndex in Set_UB_on_C[channel]:
         y[channel, channelIndex] = m.addVar(lb=0.0, ub=1.0, obj=0.0, vtype=GRB.BINARY,
                                             name='y_%s_%s' % (channel, channelIndex))
@@ -570,7 +269,7 @@ print("* \tthere are c1q channels of type c1 deployed inside the network.")
 print("*")
 
 # ---------------------------------------------------------------------------------------------------------------------
-for dataflow in DataFlowList:
+for dataflow in instance.dataflows:
     md[dataflow] = (dataflow.source.mobile or dataflow.target.mobile)
 
 # Log the information concerning the variable.
@@ -583,8 +282,8 @@ print("* \tto be set to 1.")
 print("*")
 
 # ---------------------------------------------------------------------------------------------------------------------
-for dataflow in DataFlowList:
-    for task in TaskList:
+for dataflow in instance.dataflows:
+    for task in instance.tasks:
         gamma[dataflow, task] = not (dataflow.hasTask(task))
 # Log the information concerning the variable.
 print("*")
@@ -594,8 +293,8 @@ print("* \ttask of the given data-flow.")
 print("*")
 
 # ---------------------------------------------------------------------------------------------------------------------
-for task1 in TaskList:
-    for task2 in TaskList:
+for task1 in instance.tasks:
+    for task2 in instance.tasks:
         if task1 == task2:
             rho[task1, task2] = False
             rho[task2, task1] = False
@@ -613,7 +312,7 @@ print("* \tnodes.")
 print("*")
 
 # ---------------------------------------------------------------------------------------------------------------------
-for task in TaskList:
+for task in instance.tasks:
     for node in task.getAllowedNode():
         for nodeIndex in Set_UB_on_N[node, task.zone]:
             w[task, node, nodeIndex] = m.addVar(lb=0.0, ub=1.0, obj=0.0, vtype=GRB.BINARY,
@@ -626,7 +325,7 @@ print("* \tgiven instance of the given type of node.")
 print("*")
 
 # ---------------------------------------------------------------------------------------------------------------------
-for dataflow in DataFlowList:
+for dataflow in instance.dataflows:
     for channel in dataflow.getAllowedChannel():
         for channelIndex in Set_UB_on_C[channel]:
             h[dataflow, channel, channelIndex] = m.addVar(lb=0.0, ub=1.0, obj=0.0, vtype=GRB.BINARY,
@@ -639,10 +338,10 @@ print("* \tgiven instance of the given type of channel.")
 print("*")
 
 # ---------------------------------------------------------------------------------------------------------------------
-for channel in ChannelList:
-    for zone1 in ZoneList:
-        for zone2 in ZoneList:
-            q[channel, zone1, zone2] = (ContiguityList.get((zone1, zone2, channel)).conductance > 0)
+for channel in instance.channels:
+    for zone1 in instance.zones:
+        for zone2 in instance.zones:
+            q[channel, zone1, zone2] = (instance.contiguities.get((zone1, zone2, channel)).conductance > 0)
             if q[channel, zone1, zone2]:
                 channel.setAllowedBetween(zone1, zone2)
 
@@ -654,10 +353,10 @@ print("* \tcan be placed between the given pair of zones.")
 print("*")
 
 # ---------------------------------------------------------------------------------------------------------------------
-for channel in ChannelList:
+for channel in instance.channels:
     for channelIndex in Set_UB_on_C[channel]:
-        for zone1 in ZoneList:
-            for zone2 in ZoneList:
+        for zone1 in instance.zones:
+            for zone2 in instance.zones:
                 if zone1 <= zone2:
                     if q[channel, zone1, zone2]:
                         j[channel, channelIndex, zone1, zone2] = m.addVar(lb=0.0,
@@ -677,7 +376,7 @@ print("* \tVariable j identifies if the given instance of the given channel has 
 print("* \tactually placed between the given pair of zones.")
 print("*")
 
-# for dataflow in DataFlowList:
+# for dataflow in instance.dataflows:
 #     for channel in dataflow.getAllowedChannel():
 #         for channelIndex in Set_UB_on_C[channel]:
 #             for node in dataflow.source.getAllowedNode():
@@ -720,8 +419,8 @@ print("* Defining constraints...")
 
 # ---------------------------------------------------------------------------------------------------------------------
 print("* Constraint C1")
-for node in NodeList:
-    for zone in ZoneList:
+for node in instance.nodes:
+    for zone in instance.zones:
         m.addConstr(lhs=N[node, zone],
                     sense=GRB.EQUAL,
                     rhs=quicksum(x[node, nodeIndex, zone] for nodeIndex in Set_UB_on_N[node, zone]),
@@ -729,8 +428,8 @@ for node in NodeList:
 
 # ---------------------------------------------------------------------------------------------------------------------
 print("* Constraint C2")
-for node in NodeList:
-    for zone in ZoneList:
+for node in instance.nodes:
+    for zone in instance.zones:
         for nodeIndex in Set_UB_on_N[node, zone]:
             m.addConstr(lhs=N[node, zone],
                         sense=GRB.GREATER_EQUAL,
@@ -739,7 +438,7 @@ for node in NodeList:
 
 # ---------------------------------------------------------------------------------------------------------------------
 print("* Constraint C3")
-for channel in ChannelList:
+for channel in instance.channels:
     m.addConstr(lhs=C[channel],
                 sense=GRB.EQUAL,
                 rhs=quicksum(y[channel, channelIndex] for channelIndex in Set_UB_on_C[channel]),
@@ -747,7 +446,7 @@ for channel in ChannelList:
 
 # ---------------------------------------------------------------------------------------------------------------------
 print("* Constraint C4")
-for channel in ChannelList:
+for channel in instance.channels:
     for channelIndex in Set_UB_on_C[channel]:
         m.addConstr(lhs=C[channel],
                     sense=GRB.GREATER_EQUAL,
@@ -756,7 +455,7 @@ for channel in ChannelList:
 
 # ---------------------------------------------------------------------------------------------------------------------
 print("* Constraint C5")
-for task in TaskList:
+for task in instance.tasks:
     for node in task.getAllowedNode():
         for nodeIndex in Set_UB_on_N[node, task.zone]:
             m.addConstr(lhs=w[task, node, nodeIndex],
@@ -766,7 +465,7 @@ for task in TaskList:
 
 # ---------------------------------------------------------------------------------------------------------------------
 print("* Constraint C6")
-for dataflow in DataFlowList:
+for dataflow in instance.dataflows:
     for channel in dataflow.getAllowedChannel():
         for channelIndex in Set_UB_on_C[channel]:
             m.addConstr(lhs=h[dataflow, channel, channelIndex],
@@ -776,8 +475,8 @@ for dataflow in DataFlowList:
 
 # ---------------------------------------------------------------------------------------------------------------------
 print("* Constraint C7")
-for node in NodeList:
-    for zone in ZoneList:
+for node in instance.nodes:
+    for zone in instance.zones:
         for nodeIndex in Set_UB_on_N[node, zone]:
             m.addConstr(lhs=x[node, nodeIndex, zone],
                         sense=GRB.LESS_EQUAL,
@@ -788,7 +487,7 @@ for node in NodeList:
 
 # ---------------------------------------------------------------------------------------------------------------------
 print("* Constraint C8")
-for channel in ChannelList:
+for channel in instance.channels:
     for channelIndex in Set_UB_on_C[channel]:
         m.addConstr(lhs=y[channel, channelIndex],
                     sense=GRB.LESS_EQUAL,
@@ -798,8 +497,8 @@ for channel in ChannelList:
 
 # ---------------------------------------------------------------------------------------------------------------------
 print("* Constraint C9")
-for node in NodeList:
-    for zone in ZoneList:
+for node in instance.nodes:
+    for zone in instance.zones:
         for nodeIndex in Set_UB_on_N[node, zone]:
             m.addConstr(lhs=quicksum((task.size * w[task, node, nodeIndex])
                                      for task in node.getAllowedTask()
@@ -810,10 +509,10 @@ for node in NodeList:
 
 # ---------------------------------------------------------------------------------------------------------------------
 print("* Constraint C10")
-for channel in ChannelList:
+for channel in instance.channels:
     for channelIndex in Set_UB_on_C[channel]:
         m.addConstr(lhs=quicksum(((dataflow.size * h[dataflow, channel, channelIndex]) /
-                                  ContiguityList.get((dataflow.source.zone, dataflow.target.zone, channel)).conductance)
+                                  instance.contiguities.get((dataflow.source.zone, dataflow.target.zone, channel)).conductance)
                                  for dataflow in channel.getAllowedDataFlow()),
                     sense=GRB.LESS_EQUAL,
                     rhs=channel.size,
@@ -821,7 +520,7 @@ for channel in ChannelList:
 
 # ---------------------------------------------------------------------------------------------------------------------
 print("* Constraint C11")
-for task in TaskList:
+for task in instance.tasks:
     m.addConstr(lhs=quicksum(w[task, node, nodeIndex]
                              for node in task.getAllowedNode()
                              for nodeIndex in Set_UB_on_N[node, task.zone]),
@@ -831,7 +530,7 @@ for task in TaskList:
 
 # ---------------------------------------------------------------------------------------------------------------------
 print("* Constraint C12")
-for dataflow in DataFlowList:
+for dataflow in instance.dataflows:
     if dataflow.source.zone != dataflow.target.zone:
         m.addConstr(lhs=quicksum(h[dataflow, channel, channelIndex]
                                  for channel in dataflow.getAllowedChannel()
@@ -841,7 +540,7 @@ for dataflow in DataFlowList:
                     name="unique_mapping_of_dataflow_%s" % dataflow)
 
 print("* Constraint C13")
-for dataflow in DataFlowList:
+for dataflow in instance.dataflows:
     if dataflow.source.zone == dataflow.target.zone:
         m.addConstr(lhs=quicksum(h[dataflow, channel, channelIndex]
                                  for channel in dataflow.getAllowedChannel()
@@ -852,7 +551,7 @@ for dataflow in DataFlowList:
 
 # ---------------------------------------------------------------------------------------------------------------------
 # print("* Constraint C14")
-# for dataflow in DataFlowList:
+# for dataflow in instance.dataflows:
 #     if dataflow.source.mobile:
 #         m.addConstr(lhs=quicksum(w[dataflow.source, node, nodeIndex]
 #                                  for node in dataflow.source.getAllowedNode()
@@ -863,7 +562,7 @@ for dataflow in DataFlowList:
 #                     name="Define_md_for_dataflow_%s" % dataflow)
 #
 # print("* Constraint C15")
-# for dataflow in DataFlowList:
+# for dataflow in instance.dataflows:
 #     if dataflow.target.mobile:
 #         m.addConstr(lhs=quicksum(w[dataflow.target, node, nodeIndex]
 #                                  for node in dataflow.target.getAllowedNode()
@@ -875,7 +574,7 @@ for dataflow in DataFlowList:
 
 # ---------------------------------------------------------------------------------------------------------------------
 # print("* Constraint C16")
-# for dataflow in DataFlowList:
+# for dataflow in instance.dataflows:
 #     if dataflow.source.zone != dataflow.target.zone:
 #         m.addConstr(lhs=md[dataflow],
 #                     sense=GRB.GREATER_EQUAL,
@@ -886,7 +585,7 @@ for dataflow in DataFlowList:
 #                     name="Unique_mapping_of_dataflow_%s_wrt_wireless_channels" % dataflow)
 #
 # print("* Constraint C17")
-# for dataflow in DataFlowList:
+# for dataflow in instance.dataflows:
 #     if dataflow.source.zone == dataflow.target.zone:
 #         m.addConstr(lhs=rho[dataflow.source, dataflow.target] - 1,
 #                     sense=GRB.GREATER_EQUAL,
@@ -898,8 +597,8 @@ for dataflow in DataFlowList:
 
 # ---------------------------------------------------------------------------------------------------------------------
 print("* Constraint C18")
-for task1 in TaskList:
-    for task2 in TaskList:
+for task1 in instance.tasks:
+    for task2 in instance.tasks:
         if (task1 == task2) or (task1.zone != task2.zone):
             continue
         for node1 in task1.getAllowedNode():
@@ -915,7 +614,7 @@ for task1 in TaskList:
 
 # ---------------------------------------------------------------------------------------------------------------------
 print("* Constraint C19")
-for channel in ChannelList:
+for channel in instance.channels:
     if channel.wireless:
         continue
     for channelIndex in Set_UB_on_C[channel]:
@@ -933,8 +632,8 @@ for channel in ChannelList:
 
 # ---------------------------------------------------------------------------------------------------------------------
 print("* Constraint C20")
-for dataflow in DataFlowList:
-    for task in TaskList:
+for dataflow in instance.dataflows:
+    for task in instance.tasks:
         if not gamma[dataflow, task]:
             continue
         m.addConstr(lhs=rho[task, dataflow.source] +
@@ -946,9 +645,9 @@ for dataflow in DataFlowList:
 
 # ---------------------------------------------------------------------------------------------------------------------
 print("* Constraint C21")
-for zone1 in ZoneList:
-    for zone2 in ZoneList:
-        for channel in ChannelList:
+for zone1 in instance.zones:
+    for zone2 in instance.zones:
+        for channel in instance.channels:
             if channel.wireless:
                 continue
             for channelIndex in Set_UB_on_C[channel]:
@@ -963,7 +662,7 @@ for zone1 in ZoneList:
 
 # ---------------------------------------------------------------------------------------------------------------------
 print("* Constraint C22")
-for channel in ChannelList:
+for channel in instance.channels:
     if not channel.wireless:
         continue
     for channelIndex in Set_UB_on_C[channel]:
@@ -982,7 +681,7 @@ for channel in ChannelList:
 
 # ---------------------------------------------------------------------------------------------------------------------
 # print("* Constraint C23")
-# for dataflow in DataFlowList:
+# for dataflow in instance.dataflows:
 #     for channel in dataflow.getAllowedChannel():
 #         for channelIndex in Set_UB_on_C[channel]:
 #             for node in dataflow.source.getAllowedNode():
@@ -1000,7 +699,7 @@ for channel in ChannelList:
 
 # ---------------------------------------------------------------------------------------------------------------------
 # print("* Constraint C24")
-# for dataflow in DataFlowList:
+# for dataflow in instance.dataflows:
 #     for channel in dataflow.getAllowedChannel():
 #         for channelIndex in Set_UB_on_C[channel]:
 #             m.addConstr(lhs=quicksum(sigma[channel, channelIndex, node, nodeIndex]
@@ -1028,16 +727,16 @@ if OPTIMIZATION == 1:
     #   Its objective is to minimize the global economic cost of the network.
     m.setObjective(
         quicksum(x[node, nodeIndex, zone] * node.cost
-                 for node in NodeList
-                 for zone in ZoneList
+                 for node in instance.nodes
+                 for zone in instance.zones
                  for nodeIndex in Set_UB_on_N[node, zone]) +
         quicksum(y[channel, channelIndex] * channel.cost
-                 for channel in ChannelList
+                 for channel in instance.channels
                  for channelIndex in Set_UB_on_C[channel]) +
-        quicksum(j[channel, channelIndex, zone1, zone2] * ContiguityList.get((zone1, zone2, channel)).deploymentCost
-                 for zone1 in ZoneList
-                 for zone2 in ZoneList
-                 for channel in ChannelList
+        quicksum(j[channel, channelIndex, zone1, zone2] * instance.contiguities.get((zone1, zone2, channel)).deploymentCost
+                 for zone1 in instance.zones
+                 for zone2 in instance.zones
+                 for channel in instance.channels
                  if not channel.wireless
                  if channel.isAllowedBetween(zone1, zone2)
                  for channelIndex in Set_UB_on_C[channel]),
@@ -1050,19 +749,19 @@ elif OPTIMIZATION == 2:
     #   The second optimization objective is to minimize the global energy consumption of the network.
     m.setObjective(
         quicksum(x[node, nodeIndex, zone] * node.energy
-                 for node in NodeList
-                 for zone in ZoneList
+                 for node in instance.nodes
+                 for zone in instance.zones
                  for nodeIndex in Set_UB_on_N[node, zone]) +
         quicksum(w[task, node, nodeIndex] * node.task_energy * task.size
-                 for task in TaskList
+                 for task in instance.tasks
                  for node in task.getAllowedNode()
                  for nodeIndex in Set_UB_on_N[node, task.zone]) +
         quicksum(y[channel, channelIndex] * channel.energy
-                 for channel in ChannelList
+                 for channel in instance.channels
                  for channelIndex in Set_UB_on_C[channel]) +
         quicksum(h[dataflow, channel, channelIndex] * channel.df_energy * dataflow.size /
-                 ContiguityList.get((dataflow.source.zone, dataflow.target.zone, channel)).conductance
-                 for dataflow in DataFlowList
+                 instance.contiguities.get((dataflow.source.zone, dataflow.target.zone, channel)).conductance
+                 for dataflow in instance.dataflows
                  for channel in dataflow.getAllowedChannel()
                  for channelIndex in Set_UB_on_C[channel]),
         GRB.MINIMIZE
@@ -1075,8 +774,8 @@ elif OPTIMIZATION == 3:
     #   Its purpose is to minimize the global transmission delay of the network.
     m.setObjective(
         quicksum(channel.delay * h[dataflow, channel, channelIndex] /
-                 ContiguityList.get((dataflow.source.zone, dataflow.target.zone, channel)).conductance
-                 for dataflow in DataFlowList
+                 instance.contiguities.get((dataflow.source.zone, dataflow.target.zone, channel)).conductance
+                 for dataflow in instance.dataflows
                  for channel in dataflow.getAllowedChannel()
                  for channelIndex in Set_UB_on_C[channel]),
         GRB.MINIMIZE
@@ -1088,8 +787,8 @@ elif OPTIMIZATION == 4:
     #   The optimization objective is to minimize the global error rate of the network.
     m.setObjective(
         quicksum(channel.error * h[dataflow, channel, channelIndex] /
-                 ContiguityList.get((dataflow.source.zone, dataflow.target.zone, channel)).conductance
-                 for dataflow in DataFlowList
+                 instance.contiguities.get((dataflow.source.zone, dataflow.target.zone, channel)).conductance
+                 for dataflow in instance.dataflows
                  for channel in dataflow.getAllowedChannel()
                  for channelIndex in Set_UB_on_C[channel]),
         GRB.MINIMIZE
@@ -1103,10 +802,10 @@ elif OPTIMIZATION == 5:
         quicksum(
             (
                 (channel.delay * h[dataflow, channel, channelIndex]) / (
-                    ContiguityList.get((dataflow.source.zone, dataflow.target.zone, channel)).conductance) +
+                    instance.contiguities.get((dataflow.source.zone, dataflow.target.zone, channel)).conductance) +
                 (channel.error * h[dataflow, channel, channelIndex]) / (
-                    ContiguityList.get((dataflow.source.zone, dataflow.target.zone, channel)).conductance)
-            ) for dataflow in DataFlowList for channel in dataflow.getAllowedChannel() for channelIndex in
+                    instance.contiguities.get((dataflow.source.zone, dataflow.target.zone, channel)).conductance)
+            ) for dataflow in instance.dataflows for channel in dataflow.getAllowedChannel() for channelIndex in
             Set_UB_on_C[channel]
         ),
         GRB.MINIMIZE
@@ -1185,8 +884,8 @@ if m.status == GRB.status.OPTIMAL:
     TotalErrorRateWirls = 0
     outfile.write('# List of activated nodes:\n')
     SolN = m.getAttr('x', N)
-    for zone in ZoneList:
-        for node in NodeList:
+    for zone in instance.zones:
+        for node in instance.nodes:
             if SolN[node, zone] > 0:
                 TotalCostNodes += node.cost * SolN[node, zone]
                 TotalEnergyNodes += node.energy * SolN[node, zone]
@@ -1194,7 +893,7 @@ if m.status == GRB.status.OPTIMAL:
 
     outfile.write('# List of activated channels:\n')
     SolC = m.getAttr('x', C)
-    for channel in ChannelList:
+    for channel in instance.channels:
         if SolC[channel] > 0:
             if channel.wireless:
                 TotalCostWirls += channel.cost * SolC[channel]
@@ -1205,8 +904,8 @@ if m.status == GRB.status.OPTIMAL:
 
     outfile.write('# Tasks allocation:\n')
     SolW = m.getAttr('x', w)
-    for zone in ZoneList:
-        for task in TaskList:
+    for zone in instance.zones:
+        for task in instance.tasks:
             if task.zone == zone:
                 for node in task.getAllowedNode():
                     for nodeIndex in Set_UB_on_N[node, zone]:
@@ -1218,9 +917,9 @@ if m.status == GRB.status.OPTIMAL:
 
     outfile.write('# Data-Flows allocation:\n')
     SolH = m.getAttr('x', h)
-    for dataflow in DataFlowList:
+    for dataflow in instance.dataflows:
         for channel in dataflow.getAllowedChannel():
-            contiguity = ContiguityList.get((dataflow.source.zone, dataflow.target.zone, channel))
+            contiguity = instance.contiguities.get((dataflow.source.zone, dataflow.target.zone, channel))
             for channelIndex in Set_UB_on_C[channel]:
                 if SolH[dataflow, channel, channelIndex]:
                     dataflow.setDeployedIn(channel, channelIndex)
@@ -1241,7 +940,7 @@ if m.status == GRB.status.OPTIMAL:
                 if SolY[channel, channelIndex]:
                     deploymentCost = sys.maxint
                     for dataflow in channel.getAllowedDataFlow():
-                        contiguity = ContiguityList.get((dataflow.source.zone, dataflow.target.zone, channel))
+                        contiguity = instance.contiguities.get((dataflow.source.zone, dataflow.target.zone, channel))
                         if SolH[dataflow, channel, channelIndex]:
                             deploymentCost = contiguity.deploymentCost
                         del contiguity
@@ -1270,12 +969,12 @@ if m.status == GRB.status.OPTIMAL:
     outfile.write("*         Wireless Channels    : %s\n" % TotalErrorRateWirls)
     outfile.write("*         Cable    Channels    : %s\n" % TotalErrorRateCable)
 
-    checker = NetworkChecker(NodeList,
-                             ChannelList,
-                             ZoneList,
-                             ContiguityList,
-                             TaskList,
-                             DataFlowList,
+    checker = NetworkChecker(instance.nodes,
+                             instance.channels,
+                             instance.zones,
+                             instance.contiguities,
+                             instance.tasks,
+                             instance.dataflows,
                              SolN,
                              SolC,
                              SolW,
@@ -1309,12 +1008,12 @@ else:
 if XML_GENERATION == 1:
     print("*##########################################")
     print("* Generating UML for Scilab...")
-    umlPrinter = UmlForScilabPrinter(NodeList,
-                                     ChannelList,
-                                     ZoneList,
-                                     ContiguityList,
-                                     TaskList,
-                                     DataFlowList,
+    umlPrinter = UmlForScilabPrinter(instance.nodes,
+                                     instance.channels,
+                                     instance.zones,
+                                     instance.contiguities,
+                                     instance.tasks,
+                                     instance.dataflows,
                                      SolN,
                                      SolC,
                                      SolW,
@@ -1324,11 +1023,12 @@ if XML_GENERATION == 1:
     umlPrinter.printNetwork()
     print("*##########################################")
     print("* Generating Technological Library...")
-    techLibPrinter = TechLibPrinter(NodeList, ChannelList)
+    techLibPrinter = TechLibPrinter(instance.nodes, instance.channels)
     techLibPrinter.printTechLib()
 
 if SCNSL_GENERATION == 1:
-    scnslPrinter = ScnslGenerator(NodeList, ChannelList, ZoneList, ContiguityList, TaskList, DataFlowList, SolN,
+    scnslPrinter = ScnslGenerator(instance.nodes, instance.channels, instance.zones, instance.contiguities, instance.tasks, instance.dataflows,
+                                  SolN,
                                   SolC,
                                   SolW, SolH, Set_UB_on_C, Set_UB_on_N)
     scnslPrinter.printScnslNetwork("main.cc")
