@@ -15,22 +15,13 @@
 #     1. the format does not allow for empty lines
 #     2. spaces and tabs are treated the same
 #
-# BEGIN the tipologies section: description of the N node tipologies
-# the tipologies section comprises N uncommented lines, one for each node tipology
-# the format is the following:
-#          (int)(int)(int)(int)(int)(bln)
-;    label   id   K    S    P    TP   M
-       pic   1     5   21    5    1   0
-     board   2    22   29    8    2   1
- net_board   3    98   70   12    5   1
-    laptop   4   127  132   15    6   1
-   desktop   5   273  217   25    8   0
-# where:
-#     label : is just a name assigned to a node tipology
-#     id    : a unique id from 1 to N associated to each node tipology
-#     K     : is the cost of buying a device of type node_label
-#     S     : the processing capacity of the device
-#     P     : is the intrinsic power consumption of the node.
-#     TP    : is the power consumed by a task placed inside the node.
-#     M     : a boolean attribute. Is the device mobile?
-# END the tipologies section
+# BEGIN the Typologies Section
+# LABEL           | ID |  COST |       SIZE | ENERGY |  TASK ENERGY | MOBILE |
+  db_lc              1       5           24        5              1        0
+  db_iot_lc          2      22           64        8              2        1
+  db_iot             3      98          128       12              5        1
+  db_iot_he          4     127          178       15              6        1
+  db_hc              5     273          264       25              8        0
+  db_srv_lc          6     345          334       41              4        0
+  db_srv             7     421          421       65              5        0
+# END   the Typologies Section

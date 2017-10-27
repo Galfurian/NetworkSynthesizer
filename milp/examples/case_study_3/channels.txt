@@ -1,0 +1,8 @@
+# LABEL          | ID  |   COST |        SIZE |  ENERGY | DATAFLOW ENERGY |       DELAY |       ERROR |    WIRELESS |   MAX CONNECTIONS
+  Bluetooth-4.0    1          9            24         1                 1            12            10             1                   2
+  Wi-Fi-AC         2         34          7000         3                 2             8             7             1                 Inf
+  Wi-Fi-AD         3         79          7400         7                 4             3             4             1                 Inf
+  fiber-Type-1     4        256        232000        24                 3             2             4             0                   2
+  fiber-Type-2     5        367        268000         8                 2             3             3             0                   2
+  radio-bridge     6        567        320240        16                 2             3             3             1                   2
+
