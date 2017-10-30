@@ -745,7 +745,7 @@ elif OPTIMIZATION == 3:
         quicksum(channel.delay * h[dataflow, channel, channelIndex] /
                  instance.contiguities.get((dataflow.source.zone, dataflow.target.zone, channel)).conductance
                  for dataflow in instance.dataflows
-                 for channel in dataflow.getAllowedChannel()
+                 for channel in dataflow.getAllowedChannel()),
         GRB.MINIMIZE
     )
     m.update()
