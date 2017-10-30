@@ -219,10 +219,9 @@ print("* \ttype. This upper-bound can be pre-computed")
 print("*")
 
 # ---------------------------------------------------------------------------------------------------------------------
-for node in instance.nodes:
-    for zone in instance.zones:
-        N[node, zone] = m.addVar(lb=0.0, ub=UB_on_N[node, zone], obj=0.0, vtype=GRB.CONTINUOUS,
-                                 name='N_%s_%s' % (node, zone))
+for node, zone in itertools.product(instance.nodes, instance.zones):
+    N[node, zone] = m.addVar(lb=0.0, ub=UB_on_N[node, zone], obj=0.0, vtype=GRB.CONTINUOUS,
+                             name='N_%s_%s' % (node, zone))
 # Log the information concerning the variable.
 print("*")
 print("* N [%s]" % len(N))
@@ -242,11 +241,10 @@ print("* \tThe upper-bound on this variable is equal to UB_on_C.")
 print("*")
 
 # ---------------------------------------------------------------------------------------------------------------------
-for node in instance.nodes:
-    for zone in instance.zones:
-        for nodeIndex in Set_UB_on_N[node, zone]:
-            x[node, nodeIndex, zone] = m.addVar(lb=0.0, ub=1.0, obj=0.0, vtype=GRB.BINARY,
-                                                name='x_%s_%s_%s' % (node, nodeIndex, zone))
+for node, zone in itertools.product(instance.nodes, instance.zones):
+    for nodeIndex in Set_UB_on_N[node, zone]:
+        x[node, nodeIndex, zone] = m.addVar(lb=0.0, ub=1.0, obj=0.0, vtype=GRB.BINARY,
+                                            name='x_%s_%s_%s' % (node, nodeIndex, zone))
 # Log the information concerning the variable.
 print("*")
 print("* x [%s]" % len(x))
@@ -282,9 +280,8 @@ print("* \tto be set to 1.")
 print("*")
 
 # ---------------------------------------------------------------------------------------------------------------------
-for dataflow in instance.dataflows:
-    for task in instance.tasks:
-        gamma[dataflow, task] = not (dataflow.hasTask(task))
+for dataflow, task in itertools.product(instance.dataflows, instance.tasks):
+    gamma[dataflow, task] = not (dataflow.hasTask(task))
 # Log the information concerning the variable.
 print("*")
 print("* gamma [%s]" % len(gamma))
@@ -339,11 +336,11 @@ print("*")
 
 # ---------------------------------------------------------------------------------------------------------------------
 for channel in instance.channels:
-    for zone1 in instance.zones:
-        for zone2 in instance.zones:
-            q[channel, zone1, zone2] = (instance.contiguities.get((zone1, zone2, channel)).conductance > 0)
-            if q[channel, zone1, zone2]:
-                channel.setAllowedBetween(zone1, zone2)
+    for zone1, zone2 in itertools.combinations_with_replacement(instance.zones, 2):
+        q[channel, zone1, zone2] = (instance.contiguities.get((zone1, zone2, channel)).conductance > 0)
+        q[channel, zone2, zone1] = q[channel, zone1, zone2]
+        if q[channel, zone1, zone2]:
+            channel.setAllowedBetween(zone1, zone2)
 
 # Log the information concerning the variable.
 print("*")
@@ -355,20 +352,18 @@ print("*")
 # ---------------------------------------------------------------------------------------------------------------------
 for channel in instance.channels:
     for channelIndex in Set_UB_on_C[channel]:
-        for zone1 in instance.zones:
-            for zone2 in instance.zones:
-                if zone1 <= zone2:
-                    if q[channel, zone1, zone2]:
-                        j[channel, channelIndex, zone1, zone2] = m.addVar(lb=0.0,
-                                                                          ub=1.0,
-                                                                          obj=0.0,
-                                                                          vtype=GRB.BINARY,
-                                                                          name='j_%s_%s_%s_%s' % (
-                                                                              channel, channelIndex, zone1, zone2))
-                        j[channel, channelIndex, zone2, zone1] = j[channel, channelIndex, zone1, zone2]
-                    else:
-                        j[channel, channelIndex, zone1, zone2] = False
-                        j[channel, channelIndex, zone2, zone1] = False
+        for zone1, zone2 in itertools.combinations_with_replacement(instance.zones, 2):
+            if q[channel, zone1, zone2]:
+                j[channel, channelIndex, zone1, zone2] = m.addVar(lb=0.0,
+                                                                  ub=1.0,
+                                                                  obj=0.0,
+                                                                  vtype=GRB.BINARY,
+                                                                  name='j_%s_%s_%s_%s' % (
+                                                                      channel, channelIndex, zone1, zone2))
+                j[channel, channelIndex, zone2, zone1] = j[channel, channelIndex, zone1, zone2]
+            else:
+                j[channel, channelIndex, zone1, zone2] = False
+                j[channel, channelIndex, zone2, zone1] = False
 # Log the information concerning the variable.
 print("*")
 print("* j [%s]" % len(j))
