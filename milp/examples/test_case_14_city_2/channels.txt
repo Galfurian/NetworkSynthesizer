@@ -1,38 +1,7 @@
-# BEGIN of a channel tipologies database file in FORMAT_0.
-# In this format, all lines beginning with an hash (#) or semicolumn (;)
-#  character are comments thus, all these lines can be ignored.
-# The format is meant to be:
-#     1. a suitable interface to the core solver and possible extensions;
-#     2. convenienlty human readable and light.
-# Hint:
-#     1. In order to display only the true (non-comment) lines:
-#         $ grep "^[^#;]" input.txt
-#     2. in order to display only the true data lines plus the tags:
-#         $ grep "^[^#]" input.txt
-#     3. in order to display only the comment lines:
-#         $ grep "^[#;]" input.txt
-# Remarks:
-#     1. the format does not allow for empty lines
-#     2. spaces and tabs are treated the same
-#
-# BEGIN the tipologies section: description of the C channel tipologies
-# the tipologies section comprises C uncommented lines, one for each channel tipology
-# the format is the following:
-# LABEL           | ID |  COST |       SIZE | ENERGY | DF_ENERGY |  DELAY |  ERROR | WIRELESS | POINT TO POINT |
-  Bluetooth-4.0      1       9           24        1           1       12       10          1               1
-  Wi-Fi-AC           2      34         7000        3           2        8        7          1               0
-  Wi-Fi-AD           3      79         7400        7           4        3        4          1               0
-  fiber-Type-1       4     256       232000       24           3        2        4          0               1
-  fiber-Type-2       5     367       268000        8           2        3        3          0               1
-  radio-bridge       6     567       320240       16           2        3        3          1               1
-# where:
-#     LabEL : is just a name assigned to a channel tipology
-#     id    : a unique id from 1 to C associated to each channel tipology
-#     K     : is the cost of setting up a communication channel of type channel_label
-#     S     : the total throughput capacity of the channel
-#     E     : energy consumption of the channel.
-#     DE    : energy consumption due to the contained data-flows.
-#     DL    : transmission delay of the channel.
-#     ER    : transmission error rate of the channel.
-#     W     : a boolean attribute. Is the channel a wireless channel?
-# END the tipologies section
+# LABEL          | ID  |   COST |        SIZE |  ENERGY | DATAFLOW ENERGY |       DELAY |       ERROR |    WIRELESS |     POIN TO POINT
+  Bluetooth-4.0    1          9            24         1                 1            12            10             1                   1
+  Wi-Fi-AC         2         34          7000         3                 2             8             7             1                   0
+  Wi-Fi-AD         3         79          7400         7                 4             3             4             1                   0
+  fiber-Type-1     4        256        232000        24                 3             2             4             0                   1
+  fiber-Type-2     5        367        268000         8                 2             3             3             0                   1
+
