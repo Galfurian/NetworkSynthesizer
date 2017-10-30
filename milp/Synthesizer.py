@@ -197,10 +197,9 @@ q = {}
 # sigma = {}
 
 # ---------------------------------------------------------------------------------------------------------------------
-for zone in instance.zones:
-    for node in instance.nodes:
-        UB_on_N[node, zone] = len([task for task in node.getAllowedTask() if task.zone == zone])
-        Set_UB_on_N[node, zone] = range(1, UB_on_N[node, zone] + 1)
+for node, zone in itertools.product(instance.nodes, instance.zones):
+    UB_on_N[node, zone] = len([task for task in node.getAllowedTask() if task.zone == zone])
+    Set_UB_on_N[node, zone] = range(1, UB_on_N[node, zone] + 1)
 # Log the information concerning the variable.
 print("*")
 print("* UB_on_N [%s]" % len(UB_on_N))
