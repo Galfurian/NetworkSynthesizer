@@ -49,60 +49,70 @@ class NetworkInstance:
         print("* %s" % Node.get_header_caps())
         with open(node_catalog_filename, "r") as node_file:
             for line in node_file:
-                if (line[0] != ';') and (line[0] != '#'):
-                    node_line = line.strip()
-                    # Retrieve the values from the file.
-                    try:
-                        label, id, cost, size, energy, task_energy, mobile = node_line.split()
-                    except ValueError:
-                        print("Error: Wrong line format '%s'" % node_line)
-                        exit(1)
-                    # Create a new node.
-                    new_node = Node(label,
-                                    int(id),
-                                    int(cost),
-                                    int(size),
-                                    int(energy),
-                                    int(task_energy),
-                                    int(mobile))
-                    # Append the node to the list of nodes.
-                    self.add_node(new_node)
-                    # Print the node.
-                    print("* %s" % new_node.to_string())
-                    # Delete the auxiliary variables.
-                    del node_line, new_node
-                    del label, id, cost, size, energy, task_energy, mobile
+                node_line = line.strip()
+                # Skip empty lines.
+                if not node_line:
+                    continue
+                # Skip comments.
+                if (node_line[0] == ';') or (node_line[0] == '#'):
+                    continue
+                # Retrieve the values from the file.
+                try:
+                    label, id, cost, size, energy, task_energy, mobile = node_line.split()
+                except ValueError:
+                    print("Error: Wrong line format '%s'" % node_line)
+                    exit(1)
+                # Create a new node.
+                new_node = Node(label,
+                                int(id),
+                                int(cost),
+                                int(size),
+                                int(energy),
+                                int(task_energy),
+                                int(mobile))
+                # Append the node to the list of nodes.
+                self.add_node(new_node)
+                # Print the node.
+                print("* %s" % new_node.to_string())
+                # Delete the auxiliary variables.
+                del node_line, new_node
+                del label, id, cost, size, energy, task_energy, mobile
 
     def load_channel_catalog(self, channel_catalog_filename):
         print("* %s" % Channel.get_header_caps())
         with open(channel_catalog_filename, "r") as channel_file:
             for line in channel_file:
-                if (line[0] != ';') and (line[0] != '#'):
-                    channel_line = line.strip()
-                    # Retrieve the values from the file.
-                    try:
-                        label, id, cost, size, energy, df_energy, delay, error, wireless, point_to_point = channel_line.split()
-                    except ValueError:
-                        print("Error: Wrong line format '%s'" % channel_line)
-                        exit(1)
-                    # Create a new Channel.
-                    new_channel = Channel(label,
-                                          int(id),
-                                          int(cost),
-                                          int(size),
-                                          int(energy),
-                                          int(df_energy),
-                                          int(delay),
-                                          int(error),
-                                          bool(wireless),
-                                          bool(point_to_point))
-                    # Append the channel to the list of channels.
-                    self.add_channel(new_channel)
-                    # Print the channel.
-                    print("* %s" % new_channel.to_string())
-                    # Delete the auxiliary variables.
-                    del channel_line, new_channel
-                    del label, id, cost, size, energy, df_energy, delay, error, wireless, point_to_point
+                channel_line = line.strip()
+                # Skip empty lines.
+                if not channel_line:
+                    continue
+                # Skip comments.
+                if (channel_line[0] == ';') or (channel_line[0] == '#'):
+                    continue
+                # Retrieve the values from the file.
+                try:
+                    label, id, cost, size, energy, df_energy, delay, error, wireless, point_to_point = channel_line.split()
+                except ValueError:
+                    print("Error: Wrong line format '%s'" % channel_line)
+                    exit(1)
+                # Create a new Channel.
+                new_channel = Channel(label,
+                                      int(id),
+                                      int(cost),
+                                      int(size),
+                                      int(energy),
+                                      int(df_energy),
+                                      int(delay),
+                                      int(error),
+                                      int(wireless),
+                                      int(point_to_point))
+                # Append the channel to the list of channels.
+                self.add_channel(new_channel)
+                # Print the channel.
+                print("* %s" % new_channel.to_string())
+                # Delete the auxiliary variables.
+                del channel_line, new_channel
+                del label, id, cost, size, energy, df_energy, delay, error, wireless, point_to_point
 
     def load_input_instance(self, input_instance_filename):
         is_parsing_zone = False
@@ -382,6 +392,7 @@ class NetworkInstance:
                 if not CanBeContained:
                     print("There are no channels that can contain data-flow %s." % dataflow)
                     print("And also there is no node which can contain both of its tasks.")
+                    exit(1)
 
                 del source_node
                 del target_node
