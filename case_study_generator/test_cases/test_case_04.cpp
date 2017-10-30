@@ -19,7 +19,6 @@
 /// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 /// DEALINGS IN THE SOFTWARE.
 
-#include <climits>
 #include "test_case_02.hpp"
 
 static double Normalize(double value, double LbFrom, double UbFrom,
@@ -40,37 +39,32 @@ ProblemInstance init_test_case_04()
     ProblemInstance inst("test_case_04");
 
     // ------------------------------------------------------------------------
-    auto numArea = 30;
+    auto numArea = 40;
     auto minNodesPerZone = 2;
-    auto maxNodesPerZone = 6;
+    auto maxNodesPerZone = 8;
 
     // ------------------------------------------------------------------------
     // Add the channels.
-    inst.addChannel(1, "Bluetooth-4.0", 9, 24, 1, 1, 12, 10, true, true);
-    inst.addChannel(2, "Wi-Fi-AC", 34, 7000, 3, 2, 8, 7, true, false);
-    inst.addChannel(3, "Wi-Fi-AD", 79, 7400, 7, 4, 3, 4, true, false);
+    inst.addChannel(1, "Bluetooth-4.0",  9,     24, 1,  1, 12, 10, true, true);
+    inst.addChannel(2, "Wi-Fi-AC",      34,   7000, 3,  2, 8, 7, true, false);
+    inst.addChannel(3, "Wi-Fi-AD",      79,   7400, 7,  4, 3, 4, true, false);
     inst.addChannel(4, "fiber-Type-1", 256, 232000, 24, 3, 2, 4, false, true);
-    inst.addChannel(5, "fiber-Type-2", 367, 268000, 8, 2, 3, 3, false, true);
-    inst.addChannel(6, "radio-bridge", 567, 320240, 16, 2, 3, 3, true, true);
+    inst.addChannel(5, "fiber-Type-2", 367, 268000, 8,  2, 3, 3, false, true);
     int local_min_index = 1;
     int local_max_index = 3;
     int extra_area_min_index = 4;
-    int extra_area_max_index = 6;
+    int extra_area_max_index = 5;
 
     // ------------------------------------------------------------------------
     // Add the nodes.
-    inst.addNode(1, "db_lc", 5, 24, 5, 1, false);
-    inst.addNode(2, "db_iot_lc", 22, 64, 8, 2, true);
-    inst.addNode(3, "db_iot", 98, 128, 12, 5, true);
-    inst.addNode(4, "db_iot_he", 127, 178, 15, 6, true);
-    inst.addNode(5, "db_hc", 273, 264, 25, 8, false);
-    inst.addNode(6, "db_srv_lc", 345, 334, 41, 4, false);
-    inst.addNode(7, "db_srv", 421, 421, 65, 5, false);
-
+    inst.addNode(1, "db_lc",       5,  21, 5, 1, false);
+    inst.addNode(2, "db_iot_lc",  22,  29, 8, 2, true);
+    inst.addNode(3, "db_iot",     98,  70, 12, 5, true);
+    inst.addNode(4, "db_iot_he", 128, 256, 15, 6, false);
     int personal_min_index = 1;
-    int personal_max_index = 3;
+    int personal_max_index = 2;
     int router_min_index = 3;
-    int router_max_index = 7;
+    int router_max_index = 4;
 
     // ------------------------------------------------------------------------
     double minDistance = +INT64_MAX;
@@ -210,7 +204,7 @@ ProblemInstance init_test_case_04()
     }
 
     // ------------------------------------------------------------------------
-    std::vector <std::shared_ptr<Task>> routers;
+    std::vector<std::shared_ptr<Task>> routers;
     for (auto z = inst.zones.begin(); z != inst.zones.end(); ++z)
     {
         for (auto it = 0; it < TRandInteger<int>(minNodesPerZone,
@@ -267,7 +261,7 @@ ProblemInstance init_test_case_04()
 
     // ------------------------------------------------------------------------
     {
-        std::shared_ptr <Task> previousRouter = nullptr;
+        std::shared_ptr<Task> previousRouter = nullptr;
         for (auto router : routers)
         {
             if (previousRouter != nullptr)
