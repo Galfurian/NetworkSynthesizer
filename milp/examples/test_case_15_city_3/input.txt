@@ -4032,27 +4032,27 @@
 # LABEL        |        SIZE |        ZONE |      MOBILE
 <TASK>
   RtZn0                  155             0             0
-  Ts1Zn0                  11             0             1
-  Ts2Zn0                  16             0             1
-  Ts3Zn0                  10             0             1
+  Ts1Zn0                  31             0             1
+  Ts2Zn0                  26             0             1
+  Ts3Zn0                  50             0             1
   RtZn1                   39             1             0
-  Ts1Zn1                  12             1             1
-  Ts2Zn1                  16             1             1
-  Ts3Zn1                  11             1             1
+  Ts1Zn1                  32             1             1
+  Ts2Zn1                  46             1             1
+  Ts3Zn1                  21             1             1
   Ts4Zn1                  20             1             1
   Ts5Zn1                  13             1             1
   RtZn2                   53             2             0
   Ts1Zn2                  11             2             1
-  Ts2Zn2                  11             2             1
-  Ts3Zn2                  20             2             1
-  Ts4Zn2                  19             2             1
-  Ts5Zn2                  12             2             1
+  Ts2Zn2                  61             2             1
+  Ts3Zn2                  40             2             1
+  Ts4Zn2                  39             2             1
+  Ts5Zn2                  52             2             1
   Ts6Zn2                  20             2             1
   RtZn3                   35             3             0
-  Ts1Zn3                  14             3             1
+  Ts1Zn3                  64             3             1
   RtZn4                  166             4             0
-  Ts1Zn4                  17             4             1
-  Ts2Zn4                  10             4             1
+  Ts1Zn4                  27             4             1
+  Ts2Zn4                  30             4             1
   RtZn5                   36             5             0
   Ts1Zn5                  20             5             1
   Ts2Zn5                  14             5             1
@@ -4189,56 +4189,56 @@
   DfZn1Tk2                   Ts2Zn1             RtZn1                          5298                  9                  7
   DfZn1Tk3                   Ts3Zn1             RtZn1                          6289                  3                  4
   DfZn1Tk4                   Ts4Zn1             RtZn1                          4736                  3                  5
-  DfZn1Tk5                   Ts5Zn1             RtZn1                            17                 14                 10
-  DfZn2Tk1                   Ts1Zn2             RtZn2                            18                 12                 11
-  DfZn2Tk2                   Ts2Zn2             RtZn2                            19                 14                 10
-  DfZn2Tk3                   Ts3Zn2             RtZn2                            15                 12                 11
+  DfZn1Tk5                   Ts5Zn1             RtZn1                          1617                 14                 10
+  DfZn2Tk1                   Ts1Zn2             RtZn2                          2918                 12                 11
+  DfZn2Tk2                   Ts2Zn2             RtZn2                          1519                 14                 10
+  DfZn2Tk3                   Ts3Zn2             RtZn2                          2315                 12                 11
   DfZn2Tk4                   Ts4Zn2             RtZn2                          5423                  3                  4
   DfZn2Tk5                   Ts5Zn2             RtZn2                          3792                  3                  5
   DfZn2Tk6                   Ts6Zn2             RtZn2                          3695                 10                  8
-  DfZn3Tk1                   Ts1Zn3             RtZn3                            16                 13                 11
-  DfZn4Tk1                   Ts1Zn4             RtZn4                          4256                  3                  5
+  DfZn3Tk1                   Ts1Zn3             RtZn3                          4116                 13                 11
+  DfZn4Tk1                   Ts1Zn4             RtZn4                          7256                  3                  5
   DfZn4Tk2                   Ts2Zn4             RtZn4                          4131                  8                  7
   DfZn5Tk1                   Ts1Zn5             RtZn5                          5377                  9                  8
-  DfZn5Tk2                   Ts2Zn5             RtZn5                          4960                  9                  7
+  DfZn5Tk2                   Ts2Zn5             RtZn5                          6960                  9                  7
   DfZn5Tk3                   Ts3Zn5             RtZn5                          5319                  3                  5
   DfZn5Tk4                   Ts4Zn5             RtZn5                          4922                  3                  4
-  DfZn5Tk5                   Ts5Zn5             RtZn5                            14                 13                 12
+  DfZn5Tk5                   Ts5Zn5             RtZn5                          2514                 13                 12
   DfZn5Tk6                   Ts6Zn5             RtZn5                          6278                  3                  5
   DfZn6Tk1                   Ts1Zn6             RtZn6                          4174                  3                  5
-  DfZn6Tk2                   Ts2Zn6             RtZn6                            19                 14                 11
+  DfZn6Tk2                   Ts2Zn6             RtZn6                          6519                 14                 11
   DfZn6Tk3                   Ts3Zn6             RtZn6                          4012                  3                  4
-  DfZn7Tk1                   Ts1Zn7             RtZn7                            17                 13                 12
-  DfZn7Tk2                   Ts2Zn7             RtZn7                            16                 14                 12
-  DfZn7Tk3                   Ts3Zn7             RtZn7                            18                 14                 10
-  DfZn7Tk4                   Ts4Zn7             RtZn7                            15                 12                 10
+  DfZn7Tk1                   Ts1Zn7             RtZn7                          3417                 13                 12
+  DfZn7Tk2                   Ts2Zn7             RtZn7                          3316                 14                 12
+  DfZn7Tk3                   Ts3Zn7             RtZn7                          1518                 14                 10
+  DfZn7Tk4                   Ts4Zn7             RtZn7                          4315                 12                 10
   DfZn8Tk1                   Ts1Zn8             RtZn8                          5006                 10                  7
-  DfZn9Tk1                   Ts1Zn9             RtZn9                          6072                  3                  4
-  DfZn9Tk2                   Ts2Zn9             RtZn9                            13                 15                 12
+  DfZn9Tk1                   Ts1Zn9             RtZn9                          5072                  3                  4
+  DfZn9Tk2                   Ts2Zn9             RtZn9                          6113                 15                 12
   DfZn9Tk3                   Ts3Zn9             RtZn9                          5513                  8                  7
-  DfZn10Tk1                  Ts1Zn10            RtZn10                           16                 13                 11
-  DfZn10Tk2                  Ts2Zn10            RtZn10                           17                 13                 11
-  DfZn11Tk1                  Ts1Zn11            RtZn11                           17                 12                 11
+  DfZn10Tk1                  Ts1Zn10            RtZn10                         4116                 13                 11
+  DfZn10Tk2                  Ts2Zn10            RtZn10                         5117                 13                 11
+  DfZn11Tk1                  Ts1Zn11            RtZn11                         3717                 12                 11
   DfZn11Tk2                  Ts2Zn11            RtZn11                         4737                  3                  5
   DfZn11Tk3                  Ts3Zn11            RtZn11                         5797                  3                  4
   DfZn11Tk4                  Ts4Zn11            RtZn11                         4875                 10                  8
   DfZn12Tk1                  Ts1Zn12            RtZn12                         4510                  3                  5
-  DfZn12Tk2                  Ts2Zn12            RtZn12                           16                 12                 10
+  DfZn12Tk2                  Ts2Zn12            RtZn12                         7216                 12                 10
   DfZn12Tk3                  Ts3Zn12            RtZn12                         6065                  3                  5
   DfZn13Tk1                  Ts1Zn13            RtZn13                         3783                  8                  8
   DfZn13Tk2                  Ts2Zn13            RtZn13                         6109                  8                  8
   DfZn13Tk3                  Ts3Zn13            RtZn13                         3633                  9                  7
   DfZn13Tk4                  Ts4Zn13            RtZn13                         5664                  8                  7
   DfZn14Tk1                  Ts1Zn14            RtZn14                         5753                  3                  4
-  DfZn15Tk1                  Ts1Zn15            RtZn15                           19                 14                 12
-  DfZn15Tk2                  Ts2Zn15            RtZn15                           16                 15                 10
-  DfZn15Tk3                  Ts3Zn15            RtZn15                           17                 13                 10
+  DfZn15Tk1                  Ts1Zn15            RtZn15                         5639                 14                 12
+  DfZn15Tk2                  Ts2Zn15            RtZn15                         4336                 15                 10
+  DfZn15Tk3                  Ts3Zn15            RtZn15                         6624                 13                 10
   DfZn16Tk1                  Ts1Zn16            RtZn16                         4980                  3                  4
-  DfZn16Tk2                  Ts2Zn16            RtZn16                           16                 14                 10
+  DfZn16Tk2                  Ts2Zn16            RtZn16                         2416                 14                 10
   DfZn16Tk3                  Ts3Zn16            RtZn16                         4237                 10                  7
-  DfZn16Tk4                  Ts4Zn16            RtZn16                           19                 15                 11
-  DfZn16Tk5                  Ts5Zn16            RtZn16                           17                 15                 11
-  DfZn16Tk6                  Ts6Zn16            RtZn16                           18                 13                 12
+  DfZn16Tk4                  Ts4Zn16            RtZn16                         7119                 15                 11
+  DfZn16Tk5                  Ts5Zn16            RtZn16                         1517                 15                 11
+  DfZn16Tk6                  Ts6Zn16            RtZn16                         7318                 13                 12
   DfZn16Tk7                  Ts7Zn16            RtZn16                         4851                  3                  5
   DfZn17Tk1                  Ts1Zn17            RtZn17                         5640                  3                  5
   DfZn17Tk2                  Ts2Zn17            RtZn17                         4654                 10                  8
@@ -4246,46 +4246,46 @@
   DfZn18Tk2                  Ts2Zn18            RtZn18                         3590                  8                  7
   DfZn19Tk1                  Ts1Zn19            RtZn19                         4655                  9                  8
   DfZn19Tk2                  Ts2Zn19            RtZn19                         3837                  8                  7
-  DfZn19Tk3                  Ts3Zn19            RtZn19                           19                 14                 12
-  DfZn19Tk4                  Ts4Zn19            RtZn19                           20                 14                 11
-  DfZn19Tk5                  Ts5Zn19            RtZn19                           13                 14                 12
-  DfZn20Tk1                  Ts1Zn20            RtZn20                           20                 12                 10
+  DfZn19Tk3                  Ts3Zn19            RtZn19                         3419                 14                 12
+  DfZn19Tk4                  Ts4Zn19            RtZn19                         7220                 14                 11
+  DfZn19Tk5                  Ts5Zn19            RtZn19                         1213                 14                 12
+  DfZn20Tk1                  Ts1Zn20            RtZn20                         3220                 12                 10
   DfZn20Tk2                  Ts2Zn20            RtZn20                         4202                  3                  4
   DfZn21Tk1                  Ts1Zn21            RtZn21                         3866                  9                  7
-  DfZn22Tk1                  Ts1Zn22            RtZn22                           20                 12                 10
-  DfZn22Tk2                  Ts2Zn22            RtZn22                           16                 12                 12
+  DfZn22Tk1                  Ts1Zn22            RtZn22                         3620                 12                 10
+  DfZn22Tk2                  Ts2Zn22            RtZn22                         5516                 12                 12
   DfZn22Tk3                  Ts3Zn22            RtZn22                         6458                  3                  4
   DfZn23Tk1                  Ts1Zn23            RtZn23                         5724                  3                  4
-  DfZn24Tk1                  Ts1Zn24            RtZn24                           15                 14                 11
+  DfZn24Tk1                  Ts1Zn24            RtZn24                         7215                 14                 11
   DfZn25Tk1                  Ts1Zn25            RtZn25                         4983                  8                  7
-  DfZn25Tk2                  Ts2Zn25            RtZn25                           21                 15                 12
-  DfZn26Tk1                  Ts1Zn26            RtZn26                         5047                  3                  5
+  DfZn25Tk2                  Ts2Zn25            RtZn25                         2521                 15                 12
+  DfZn26Tk1                  Ts1Zn26            RtZn26                         7047                  3                  5
   DfZn26Tk2                  Ts2Zn26            RtZn26                         4483                  3                  4
-  DfZn26Tk3                  Ts3Zn26            RtZn26                           20                 15                 11
+  DfZn26Tk3                  Ts3Zn26            RtZn26                         1620                 15                 11
   DfZn26Tk4                  Ts4Zn26            RtZn26                         6109                  3                  4
   DfZn27Tk1                  Ts1Zn27            RtZn27                         4402                  3                  5
-  DfZn28Tk1                  Ts1Zn28            RtZn28                           16                 15                 12
+  DfZn28Tk1                  Ts1Zn28            RtZn28                         2716                 15                 12
   DfZn28Tk2                  Ts2Zn28            RtZn28                         5891                  8                  8
   DfZn29Tk1                  Ts1Zn29            RtZn29                         5954                  9                  7
   DfZn29Tk2                  Ts2Zn29            RtZn29                         4278                  8                  7
   DfZn29Tk3                  Ts3Zn29            RtZn29                         4151                 10                  7
   DfZn30Tk1                  Ts1Zn30            RtZn30                         3585                 10                  8
   DfZn30Tk2                  Ts2Zn30            RtZn30                         4975                 10                  7
-  DfZn31Tk1                  Ts1Zn31            RtZn31                           20                 13                 11
+  DfZn31Tk1                  Ts1Zn31            RtZn31                         3520                 13                 11
   DfZn32Tk1                  Ts1Zn32            RtZn32                         4654                  3                  4
   DfZn32Tk2                  Ts2Zn32            RtZn32                         4029                  8                  8
-  DfZn32Tk3                  Ts3Zn32            RtZn32                           12                 14                 12
+  DfZn32Tk3                  Ts3Zn32            RtZn32                         5612                 14                 12
   DfZn33Tk1                  Ts1Zn33            RtZn33                         3708                 10                  8
-  DfZn33Tk2                  Ts2Zn33            RtZn33                         6428                  3                  4
-  DfZn34Tk1                  Ts1Zn34            RtZn34                           21                 15                 10
+  DfZn33Tk2                  Ts2Zn33            RtZn33                         3428                  3                  4
+  DfZn34Tk1                  Ts1Zn34            RtZn34                         4721                 15                 10
   DfZn34Tk2                  Ts2Zn34            RtZn34                         4580                  3                  5
   DfZn34Tk3                  Ts3Zn34            RtZn34                         5350                  3                  4
   DfZn35Tk1                  Ts1Zn35            RtZn35                         4996                  9                  7
-  DfZn36Tk1                  Ts1Zn36            RtZn36                           20                 14                 10
-  DfZn36Tk2                  Ts2Zn36            RtZn36                           13                 14                 11
-  DfZn37Tk1                  Ts1Zn37            RtZn37                           18                 13                 10
+  DfZn36Tk1                  Ts1Zn36            RtZn36                         5220                 14                 10
+  DfZn36Tk2                  Ts2Zn36            RtZn36                         3113                 14                 11
+  DfZn37Tk1                  Ts1Zn37            RtZn37                         6118                 13                 10
   DfZn38Tk1                  Ts1Zn38            RtZn38                         6020                  3                  5
-  DfZn38Tk2                  Ts2Zn38            RtZn38                           14                 14                 10
+  DfZn38Tk2                  Ts2Zn38            RtZn38                         5114                 14                 10
   DfZn38Tk3                  Ts3Zn38            RtZn38                         5361                  3                  4
   DfZn39Tk1                  Ts1Zn39            RtZn39                         5619                  3                  5
   DfRtZn0ToRtZn1             RtZn0              RtZn1                        211766                  4                  4
@@ -4317,7 +4317,7 @@
   DfRtZn26ToRtZn27           RtZn26             RtZn27                       112129                  2                  4
   DfRtZn27ToRtZn28           RtZn27             RtZn28                       108847                  3                  6
   DfRtZn28ToRtZn29           RtZn28             RtZn29                       108423                  3                  4
-  DfRtZn29ToRtZn30           RtZn29             RtZn30                       216236                  4                  3
+  DfRtZn29ToRtZn30           RtZn29             RtZn30                       216236                  3                  3
   DfRtZn30ToRtZn31           RtZn30             RtZn31                       214360                  3                  4
   DfRtZn31ToRtZn32           RtZn31             RtZn32                       258809                  3                  4
   DfRtZn32ToRtZn33           RtZn32             RtZn33                       237782                  3                  6
@@ -4325,8 +4325,8 @@
   DfRtZn34ToRtZn35           RtZn34             RtZn35                       186110                  4                  4
   DfRtZn35ToRtZn36           RtZn35             RtZn36                       225306                  4                  3
   DfRtZn36ToRtZn37           RtZn36             RtZn37                       168563                  3                  3
-  DfRtZn37ToRtZn38           RtZn37             RtZn38                       214115                  4                  3
-  DfRtZn38ToRtZn39           RtZn38             RtZn39                       211946                  4                  3
+  DfRtZn37ToRtZn38           RtZn37             RtZn38                       214115                  3                  3
+  DfRtZn38ToRtZn39           RtZn38             RtZn39                       211946                  3                  3
 </DATAFLOW>
 
 

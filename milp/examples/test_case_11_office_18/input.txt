@@ -195,7 +195,7 @@
 ;   Label  Source Target Band Delay Error
 <DATAFLOW>
 #############################
-    SR1SR2 Srv1   Srv2    120232  1     1
+    SR1SR2 Srv1   Srv2    120232  3     3
 #############################
     DO1T1  O1T1   TRout1    1325   10    31
     DO1T2  O1T2   TRout1    1823   17    75
@@ -221,19 +221,19 @@
     DO7T3  O7T3   TRout2    3165   16    28
     DO8T1  O8T1   TRout2    2354   19    34
     DO8T2  O8T2   TRout2    2732   12    36
-    DO8T3  O8T3   TRout2    3754   14    24
+    DO8T3  O8T3   TRout2    3754   18    24
 #############################
     DO9T1  O9T1   TRout3    2134   29    21
     DO9T2  O9T2   TRout3    2527   21    24
     DO9T3  O9T3   TRout3    1245   24    18
     DO10T1 O10T1  TRout3    2187   29    21
-    DO10T2 O10T2  TRout3    3523   31    24
-    DO10T3 O10T3  TRout3    3245   45    18
+    DO10T2 O10T2  TRout3    2523   31    30
+    DO10T3 O10T3  TRout3    2245   45    18
     DO11T1 O11T1  TRout3    2123   29    21
     DO11T2 O11T2  TRout3    3053   21    24
     DO11T3 O11T3  TRout3    4226   35    18
 #############################
-    DO16T1 O16T1  TRout4    4155   29    61
+    DO16T1 O16T1  TRout4    3155   29    61
     DO16T2 O16T2  TRout4    3545   33    34
     DO16T3 O16T3  TRout4    3233   25    48
     DO17T1 O17T1  TRout4    2134   29    21

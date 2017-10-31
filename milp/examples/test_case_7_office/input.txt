@@ -99,7 +99,6 @@
     20 21 3  0.00 1
     20 21 4  1.00 1
     20 21 5  1.00 1
-    20 21 6  0.00 1
 </CONTIGUITY>
 # Tasks
 ;   str    int  int    int

@@ -140,9 +140,9 @@
     TRout1      134   20    0
     TRout2      156   21    0
     TRout3      182   22    0
-    TRout4      254   23    0
-     Srv1       278   30    0
-     Srv2       345   31    0
+    TRout4      154   23    0
+     Srv1       218   30    0
+     Srv2       245   31    0
 </TASK>
 # Data Flows
 #    Label    Source    Target Bandwidth  MaxDelay  MaxError
