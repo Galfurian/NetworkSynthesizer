@@ -17,11 +17,76 @@ from networklib.TechLibPrinter import *
 from networklib.UmlForScilabPrinter import *
 from networklib.NetworkInstance import *
 
+# ---------------------------------------------------------------------------------------------------------------------
+# Synthesizer arguments
+OPTIMIZATION = 1
+XML_GENERATION = 0
+SCNSL_GENERATION = 0
+VERBOSE = 1
 
+# Outcome file
+outcome = open("result.txt", 'a+')
+outcome_txt = "SUCCESS"
+
+# Elapsed time variables
+parse_timer_begin = parse_timer_end = 0
+structure_timer_begin = structure_timer_end = 0
+constraints_timer_begin = constraints_timer_end = 0
+optimization_timer_begin = optimization_timer_end = 0
+elapsed_parse = parse_timer_end - parse_timer_begin
+elapsed_struc = structure_timer_end - structure_timer_begin
+elapsed_const = constraints_timer_end - constraints_timer_begin
+elapsed_optim = optimization_timer_end - optimization_timer_begin
+elapsed_total = elapsed_parse + elapsed_struc + elapsed_const + elapsed_optim
+
+# Used memory
+used_memory = 0
+
+# Optimization Results
+# Economic Cost
+TotalCostCable = 0
+TotalCostWirls = 0
+TotalCostNodes = 0
+# Energy Consumption
+TotalEnergyNodes = 0
+TotalEnergyNodesUsage = 0
+TotalEnergyChannel = 0
+TotalEnergyChannelUsage = 0
+# Communication Delay
+TotalDelayCable = 0
+TotalDelayWirls = 0
+# Error Rate
+TotalErrorRateCable = 0
+TotalErrorRateWirls = 0
+
+
+# ---------------------------------------------------------------------------------------------------------------------
+def QuitSynthesizer(_outcome_txt=outcome_txt):
+    if _outcome_txt:
+        outcome_txt = _outcome_txt
+
+    outcome.write(
+        "[%-42s] OBJ-%d %-7s | %8.6s s| %8.6s s| %8.6s s| %8.6s s| %8.6s s| %8.6s Mb| %8.6s | %8.6s | %8.6s | %8.6s |\n" %
+        (argv[1] if argc > 1 else "None",
+         OPTIMIZATION,
+         outcome_txt,
+         elapsed_parse, elapsed_struc, elapsed_const, elapsed_optim, elapsed_total,
+         used_memory,
+         TotalCostNodes + TotalCostWirls + TotalCostCable,
+         TotalEnergyNodes + TotalEnergyNodesUsage + TotalEnergyChannel + TotalEnergyChannelUsage,
+         TotalDelayWirls + TotalDelayCable,
+         TotalErrorRateWirls + TotalErrorRateCable))
+    outcome.flush()
+    outcome.close()
+    exit(0)
+
+
+# ---------------------------------------------------------------------------------------------------------------------
 def Separator():
     print("*******************************************************************************")
 
 
+# ---------------------------------------------------------------------------------------------------------------------
 def Usage():
     About()
     Separator()
@@ -36,7 +101,7 @@ def Usage():
     print("*     [5] : Generate XML:           {0:No   (Def), 1:Yes}")
     print("*     [6] : Generate SCNSL:         {0:No   (Def), 1:Yes}")
     Separator()
-    exit(1)
+    QuitSynthesizer("FAILED")
 
 
 def About():
@@ -65,11 +130,6 @@ def RoundInt(x):
 # ---------------------------------------------------------------------------------------------------------------------
 # Files parsing starting time.
 parse_timer_begin = time.time()
-
-OPTIMIZATION = 1
-XML_GENERATION = 0
-SCNSL_GENERATION = 0
-VERBOSE = 1
 
 # ---------------------------------------------------------------------------------------------------------------------
 argc = len(argv)
@@ -101,21 +161,24 @@ instance = NetworkInstance()
 Separator()
 print("* READING NODEs CATALOG FILE")
 Separator()
-instance.load_node_catalog(argv[2])
+if not instance.load_node_catalog(argv[2]):
+    QuitSynthesizer("FAILED")
 Separator()
 
 # ---------------------------------------------------------------------------------------------------------------------
 Separator()
 print("* READING CHANNELSs CATALOG FILE")
 Separator()
-instance.load_channel_catalog(argv[3])
+if not instance.load_channel_catalog(argv[3]):
+    QuitSynthesizer("FAILED")
 Separator()
 
 # ---------------------------------------------------------------------------------------------------------------------
 Separator()
 print("* READING INPUT INSTANCE FILE")
 Separator()
-instance.load_input_instance(argv[1])
+if not instance.load_input_instance(argv[1]):
+    QuitSynthesizer("FAILED")
 Separator()
 
 # ---------------------------------------------------------------------------------------------------------------------
@@ -130,7 +193,8 @@ Separator()
 print("* PERFORMING PRE-PROCESS PHASE")
 Separator()
 instance.perform_preprocess()
-instance.perform_precheck()
+if not instance.perform_precheck():
+    QuitSynthesizer("FAILED")
 Separator()
 
 # ---------------------------------------------------------------------------------------------------------------------
@@ -371,32 +435,6 @@ print("* \tVariable j identifies if the given instance of the given channel has 
 print("* \tactually placed between the given pair of zones.")
 print("*")
 
-# for dataflow in instance.dataflows:
-#     for channel in dataflow.getAllowedChannel():
-#         for channelIndex in Set_UB_on_C[channel]:
-#             for node in dataflow.source.getAllowedNode():
-#                 for nodeIndex in Set_UB_on_N[node, dataflow.source.zone]:
-#                     sigma[channel, channelIndex, node, nodeIndex] = m.addVar(lb=0.0,
-#                                                                              ub=1.0,
-#                                                                              obj=0.0,
-#                                                                              vtype=GRB.BINARY,
-#                                                                              name='sigma_%s_%s_%s_%s' % (
-#                                                                                  channel, channelIndex,
-#                                                                                  node, nodeIndex))
-#             for node in dataflow.target.getAllowedNode():
-#                 for nodeIndex in Set_UB_on_N[node, dataflow.target.zone]:
-#                     sigma[channel, channelIndex, node, nodeIndex] = m.addVar(lb=0.0,
-#                                                                              ub=1.0,
-#                                                                              obj=0.0,
-#                                                                              vtype=GRB.BINARY,
-#                                                                              name='sigma_%s_%s_%s_%s' % (
-#                                                                                  channel, channelIndex,
-#                                                                                  node, nodeIndex))
-# print("*")
-# print("* sigma [%s]" % len(sigma))
-# print("* \tVariable sigma identifies if the given instance of a channel is ")
-# print("* \tconnected with the instance of the given node.")
-# print("*")
 # ---------------------------------------------------------------------------------------------------------------------
 # Datastructures ending time.
 structure_timer_end = time.time()
@@ -414,22 +452,20 @@ print("* Defining constraints...")
 
 # ---------------------------------------------------------------------------------------------------------------------
 print("* Constraint C1")
-for node in instance.nodes:
-    for zone in instance.zones:
-        m.addConstr(lhs=N[node, zone],
-                    sense=GRB.EQUAL,
-                    rhs=quicksum(x[node, nodeIndex, zone] for nodeIndex in Set_UB_on_N[node, zone]),
-                    name="define_N_%s_%s" % (node, zone))
+for node, zone in itertools.product(instance.nodes, instance.zones):
+    m.addConstr(lhs=N[node, zone],
+                sense=GRB.EQUAL,
+                rhs=quicksum(x[node, nodeIndex, zone] for nodeIndex in Set_UB_on_N[node, zone]),
+                name="define_N_%s_%s" % (node, zone))
 
 # ---------------------------------------------------------------------------------------------------------------------
 print("* Constraint C2")
-for node in instance.nodes:
-    for zone in instance.zones:
-        for nodeIndex in Set_UB_on_N[node, zone]:
-            m.addConstr(lhs=N[node, zone],
-                        sense=GRB.GREATER_EQUAL,
-                        rhs=nodeIndex * x[node, nodeIndex, zone],
-                        name="mono_clones_of_N_%s_%s_%s" % (node, zone, nodeIndex))
+for node, zone in itertools.product(instance.nodes, instance.zones):
+    for nodeIndex in Set_UB_on_N[node, zone]:
+        m.addConstr(lhs=N[node, zone],
+                    sense=GRB.GREATER_EQUAL,
+                    rhs=nodeIndex * x[node, nodeIndex, zone],
+                    name="mono_clones_of_N_%s_%s_%s" % (node, zone, nodeIndex))
 
 # ---------------------------------------------------------------------------------------------------------------------
 print("* Constraint C3")
@@ -470,15 +506,14 @@ for dataflow in instance.dataflows:
 
 # ---------------------------------------------------------------------------------------------------------------------
 print("* Constraint C7")
-for node in instance.nodes:
-    for zone in instance.zones:
-        for nodeIndex in Set_UB_on_N[node, zone]:
-            m.addConstr(lhs=x[node, nodeIndex, zone],
-                        sense=GRB.LESS_EQUAL,
-                        rhs=quicksum(w[task, node, nodeIndex]
-                                     for task in node.getAllowedTask()
-                                     if task.zone == zone),
-                        name="deactivate_unecessary_clones_of_x_%s_%s_%s" % (node, zone, nodeIndex))
+for node, zone in itertools.product(instance.nodes, instance.zones):
+    for nodeIndex in Set_UB_on_N[node, zone]:
+        m.addConstr(lhs=x[node, nodeIndex, zone],
+                    sense=GRB.LESS_EQUAL,
+                    rhs=quicksum(w[task, node, nodeIndex]
+                                 for task in node.getAllowedTask()
+                                 if task.zone == zone),
+                    name="deactivate_unecessary_clones_of_x_%s_%s_%s" % (node, zone, nodeIndex))
 
 # ---------------------------------------------------------------------------------------------------------------------
 print("* Constraint C8")
@@ -492,15 +527,14 @@ for channel in instance.channels:
 
 # ---------------------------------------------------------------------------------------------------------------------
 print("* Constraint C9")
-for node in instance.nodes:
-    for zone in instance.zones:
-        for nodeIndex in Set_UB_on_N[node, zone]:
-            m.addConstr(lhs=quicksum((task.size * w[task, node, nodeIndex])
-                                     for task in node.getAllowedTask()
-                                     if task.zone == zone),
-                        sense=GRB.LESS_EQUAL,
-                        rhs=node.size,
-                        name="node_size_%s_%s" % (node, nodeIndex))
+for node, zone in itertools.product(instance.nodes, instance.zones):
+    for nodeIndex in Set_UB_on_N[node, zone]:
+        m.addConstr(lhs=quicksum((task.size * w[task, node, nodeIndex])
+                                 for task in node.getAllowedTask()
+                                 if task.zone == zone),
+                    sense=GRB.LESS_EQUAL,
+                    rhs=node.size,
+                    name="node_size_%s_%s" % (node, nodeIndex))
 
 # ---------------------------------------------------------------------------------------------------------------------
 print("* Constraint C10")
@@ -546,67 +580,18 @@ for dataflow in instance.dataflows:
                     name="unique_mapping_of_dataflow_%s" % dataflow)
 
 # ---------------------------------------------------------------------------------------------------------------------
-# print("* Constraint C14")
-# for dataflow in instance.dataflows:
-#     if dataflow.source.mobile:
-#         m.addConstr(lhs=quicksum(w[dataflow.source, node, nodeIndex]
-#                                  for node in dataflow.source.getAllowedNode()
-#                                  if node.mobile
-#                                  for nodeIndex in Set_UB_on_N[node, dataflow.source.zone]),
-#                     sense=GRB.LESS_EQUAL,
-#                     rhs=md[dataflow],
-#                     name="Define_md_for_dataflow_%s" % dataflow)
-#
-# print("* Constraint C15")
-# for dataflow in instance.dataflows:
-#     if dataflow.target.mobile:
-#         m.addConstr(lhs=quicksum(w[dataflow.target, node, nodeIndex]
-#                                  for node in dataflow.target.getAllowedNode()
-#                                  if node.mobile
-#                                  for nodeIndex in Set_UB_on_N[node, dataflow.target.zone]),
-#                     sense=GRB.LESS_EQUAL,
-#                     rhs=md[dataflow],
-#                     name="Define_md_for_dataflow_%s" % dataflow)
-
-# ---------------------------------------------------------------------------------------------------------------------
-# print("* Constraint C16")
-# for dataflow in instance.dataflows:
-#     if dataflow.source.zone != dataflow.target.zone:
-#         m.addConstr(lhs=md[dataflow],
-#                     sense=GRB.GREATER_EQUAL,
-#                     rhs=quicksum(h[dataflow, channel, channelIndex]
-#                                  for channel in dataflow.getAllowedChannel()
-#                                  if channel.wireless
-#                                  for channelIndex in Set_UB_on_C[channel]),
-#                     name="Unique_mapping_of_dataflow_%s_wrt_wireless_channels" % dataflow)
-#
-# print("* Constraint C17")
-# for dataflow in instance.dataflows:
-#     if dataflow.source.zone == dataflow.target.zone:
-#         m.addConstr(lhs=rho[dataflow.source, dataflow.target] - 1,
-#                     sense=GRB.GREATER_EQUAL,
-#                     rhs=quicksum(h[dataflow, channel, channelIndex]
-#                                  for channel in dataflow.getAllowedChannel()
-#                                  if channel.wireless
-#                                  for channelIndex in Set_UB_on_C[channel]),
-#                     name="Unique_mapping_of_dataflow_%s_wrt_wireless_channels" % dataflow)
-
-# ---------------------------------------------------------------------------------------------------------------------
 print("* Constraint C18")
-for task1 in instance.tasks:
-    for task2 in instance.tasks:
-        if (task1 == task2) or (task1.zone != task2.zone):
-            continue
-        for node1 in task1.getAllowedNode():
-            for node2 in task2.getAllowedNode():
-                for node1Index in Set_UB_on_N[node1, task1.zone]:
-                    for node2Index in Set_UB_on_N[node2, task2.zone]:
-                        if [node1, node1Index] == [node2, node2Index]:
-                            continue
-                        m.addConstr(lhs=rho[task1, task2],
-                                    sense=GRB.GREATER_EQUAL,
-                                    rhs=w[task1, node1, node1Index] + w[task2, node2, node2Index] - 1,
-                                    name="Task_mapping_in_different_nodes_of_%s_%s" % (task1, task2))
+for task1, task2 in itertools.combinations(instance.tasks, 2):
+    if task1.zone != task2.zone:
+        continue
+    for node1, node2 in itertools.product(task1.getAllowedNode(), task2.getAllowedNode()):
+        for node1Index, node2Index in itertools.product(Set_UB_on_N[node1, task1.zone], Set_UB_on_N[node2, task2.zone]):
+            if [node1, node1Index] == [node2, node2Index]:
+                continue
+            m.addConstr(lhs=rho[task1, task2],
+                        sense=GRB.GREATER_EQUAL,
+                        rhs=w[task1, node1, node1Index] + w[task2, node2, node2Index] - 1,
+                        name="Task_mapping_in_different_nodes_of_%s_%s" % (task1, task2))
 
 # ---------------------------------------------------------------------------------------------------------------------
 print("* Constraint C19")
@@ -614,58 +599,49 @@ for channel in instance.channels:
     if channel.wireless:
         continue
     for channelIndex in Set_UB_on_C[channel]:
-        for dataflow1 in channel.getAllowedDataFlow():
-            for dataflow2 in channel.getAllowedDataFlow():
-                if dataflow1 >= dataflow2:
-                    continue
-                if not (gamma[dataflow1, dataflow2.source] or gamma[dataflow1, dataflow2.target]):
-                    continue
-                m.addConstr(lhs=h[dataflow1, channel, channelIndex] + h[dataflow2, channel, channelIndex],
-                            sense=GRB.LESS_EQUAL,
-                            rhs=1,
-                            name="Cabled_channel_%s_%s_serves_only_two_nodes_%s_%s" % (
-                                channel, channelIndex, dataflow1, dataflow2))
+        for dataflow1, dataflow2 in itertools.combinations(channel.getAllowedDataFlow(), 2):
+            if not (gamma[dataflow1, dataflow2.source] or gamma[dataflow1, dataflow2.target]):
+                continue
+            m.addConstr(lhs=h[dataflow1, channel, channelIndex] + h[dataflow2, channel, channelIndex],
+                        sense=GRB.LESS_EQUAL,
+                        rhs=1,
+                        name="Cabled_channel_%s_%s_serves_only_two_nodes_%s_%s" % (
+                            channel, channelIndex, dataflow1, dataflow2))
 
 # ---------------------------------------------------------------------------------------------------------------------
 print("* Constraint C20")
-for dataflow in instance.dataflows:
-    for task in instance.tasks:
-        if not gamma[dataflow, task]:
-            continue
-        m.addConstr(lhs=rho[task, dataflow.source] +
-                        rho[task, dataflow.target] +
-                        rho[dataflow.source, dataflow.target] - 2,
-                    sense=GRB.LESS_EQUAL,
-                    rhs=1,
-                    name="Define_gamma_variable_for_%s_%s_%s" % (task, dataflow.source, dataflow.target))
+for dataflow, task in itertools.product(instance.dataflows, instance.tasks):
+    if gamma[dataflow, task]:
+        m.addConstr(
+            lhs=rho[task, dataflow.source] + rho[task, dataflow.target] + rho[dataflow.source, dataflow.target] - 2,
+            sense=GRB.LESS_EQUAL,
+            rhs=1,
+            name="Define_gamma_variable_for_%s_%s_%s" % (task, dataflow.source, dataflow.target))
 
 # ---------------------------------------------------------------------------------------------------------------------
 print("* Constraint C21")
-for zone1 in instance.zones:
-    for zone2 in instance.zones:
-        for channel in instance.channels:
-            if channel.wireless:
-                continue
-            for channelIndex in Set_UB_on_C[channel]:
-                for dataflow in channel.getAllowedDataFlow():
-                    if not dataflow.concernsZones(zone1, zone2):
-                        continue
-                    m.addConstr(lhs=j[channel, channelIndex, zone1, zone2],
-                                sense=GRB.GREATER_EQUAL,
-                                rhs=h[dataflow, channel, channelIndex] * q[channel, zone1, zone2],
-                                name="Cabled_channel_%s_%s_between_zones_%s_%s" % (
-                                    channel, channelIndex, zone1, zone2))
+for zone1, zone2 in itertools.combinations(instance.zones, 2):
+    for channel in instance.channels:
+        if channel.wireless:
+            continue
+        if not channel.isAllowedBetween(zone1, zone2):
+            continue
+        for channelIndex in Set_UB_on_C[channel]:
+            for dataflow in channel.getAllowedDataFlow():
+                if not dataflow.concernsZones(zone1, zone2):
+                    continue
+                m.addConstr(lhs=j[channel, channelIndex, zone1, zone2],
+                            sense=GRB.GREATER_EQUAL,
+                            rhs=h[dataflow, channel, channelIndex] * q[channel, zone1, zone2],
+                            name="Cabled_channel_%s_%s_between_zones_%s_%s" % (
+                                channel, channelIndex, zone1, zone2))
 
 # ---------------------------------------------------------------------------------------------------------------------
 print("* Constraint C22")
 for channel in instance.channels:
-    if not channel.wireless:
-        continue
-    for channelIndex in Set_UB_on_C[channel]:
-        for dataflow1 in channel.getAllowedDataFlow():
-            for dataflow2 in channel.getAllowedDataFlow():
-                if dataflow1 >= dataflow2:
-                    continue
+    if channel.wireless:
+        for channelIndex in Set_UB_on_C[channel]:
+            for dataflow1, dataflow2 in itertools.combinations(channel.getAllowedDataFlow(), 2):
                 m.addConstr(lhs=h[dataflow1, channel, channelIndex] + h[dataflow2, channel, channelIndex],
                             sense=GRB.LESS_EQUAL,
                             rhs=(1 +
@@ -697,11 +673,8 @@ if OPTIMIZATION == 1:
                  for channelIndex in Set_UB_on_C[channel]) +
         quicksum(
             j[channel, channelIndex, zone1, zone2] * instance.contiguities.get((zone1, zone2, channel)).deploymentCost
-            for zone1 in instance.zones
-            for zone2 in instance.zones
-            for channel in instance.channels
-            if not channel.wireless
-            if channel.isAllowedBetween(zone1, zone2)
+            for zone1, zone2 in itertools.combinations(instance.zones, 2)
+            for channel in instance.channels if channel.isAllowedBetween(zone1, zone2) if not channel.wireless
             for channelIndex in Set_UB_on_C[channel]),
         GRB.MINIMIZE
     )
@@ -712,8 +685,7 @@ elif OPTIMIZATION == 2:
     #   The second optimization objective is to minimize the global energy consumption of the network.
     m.setObjective(
         quicksum(x[node, nodeIndex, zone] * node.energy
-                 for node in instance.nodes
-                 for zone in instance.zones
+                 for node, zone in itertools.product(instance.nodes, instance.zones)
                  for nodeIndex in Set_UB_on_N[node, zone]) +
         quicksum(w[task, node, nodeIndex] * node.task_energy * task.size
                  for task in instance.tasks
@@ -739,7 +711,8 @@ elif OPTIMIZATION == 3:
         quicksum(channel.delay * h[dataflow, channel, channelIndex] /
                  instance.contiguities.get((dataflow.source.zone, dataflow.target.zone, channel)).conductance
                  for dataflow in instance.dataflows
-                 for channel in dataflow.getAllowedChannel()),
+                 for channel in dataflow.getAllowedChannel()
+                 for channelIndex in Set_UB_on_C[channel]),
         GRB.MINIMIZE
     )
     m.update()
@@ -788,7 +761,7 @@ print("* Starting optimization...")
 # A value of -1 corresponds to an automatic setting.
 # Other options are off (0), conservative (1), or aggressive (2). More aggressive application of presolve
 # takes more time, but can sometimes lead to a significantly tighter model.
-m.setParam("Presolve", 2)
+# m.setParam("Presolve", 2)
 
 # ---------------------------------------------------------------------------------------------------------------------
 # Algorithm used to solve continuous models or the root node of a MIP model.
@@ -816,7 +789,7 @@ m.setParam("Presolve", 2)
 # Minimum value:	0
 # Maximum value:	Infinity
 # The MIP solver will terminate (with an optimal result) when the relative gap between the lower and upper objective bound is less than MIPGap times the upper bound.
-m.setParam("MIPGap", 1e-4)
+# m.setParam("MIPGap", 1e-4)
 
 # MIPGapAbs
 #
@@ -826,7 +799,7 @@ m.setParam("MIPGap", 1e-4)
 # Minimum value:	0
 # Maximum value:	Infinity
 # The MIP solver will terminate (with an optimal result) when the absolute gap between the lower and upper objective bound is less than MIPGapAbs.
-m.setParam("MIPGapAbs", 1e-10)
+# m.setParam("MIPGapAbs", 1e-10)
 
 # OptimalityTol
 #
@@ -836,7 +809,7 @@ m.setParam("MIPGapAbs", 1e-10)
 # Minimum value:	1e-9
 # Maximum value:	1e-2
 # Reduced costs must all be smaller than OptimalityTol in the improving direction in order for a model to be declared optimal.
-m.setParam("OptimalityTol", 1e-4)
+# m.setParam("OptimalityTol", 1e-5)
 
 # FeasibilityTol
 #
@@ -846,7 +819,7 @@ m.setParam("OptimalityTol", 1e-4)
 # Minimum value:	1e-9
 # Maximum value:	1e-2
 # All constraints must be satisfied to a tolerance of FeasibilityTol. Tightening this tolerance can produce smaller constraint violations, but for numerically challenging models it can sometimes lead to much larger iteration counts.
-m.setParam("FeasibilityTol", 1e-4)
+# m.setParam("FeasibilityTol", 1e-5)
 
 # NumericFocus
 #
@@ -856,7 +829,7 @@ m.setParam("FeasibilityTol", 1e-4)
 # Minimum value:	0
 # Maximum value:	3
 # The NumericFocus parameter controls the degree to which the code attempts to detect and manage numerical issues. The default setting (0) makes an automatic choice, with a slight preference for speed. Settings 1-3 increasingly shift the focus towards being more careful in numerical computations. With higher values, the code will spend more time checking the numerical accuracy of intermediate results, and it will employ more expensive techniques in order to avoid potential numerical issues.
-m.setParam("NumericFocus", 2)
+# m.setParam("NumericFocus", 2)
 
 # Optimization start.
 optimization_timer_begin = time.time()
@@ -871,8 +844,9 @@ optimization_timer_begin = time.time()
 # p = m.presolve()
 # r = p.relax()
 # r.write("gurobi.relax-agg0.rew")
+# m.feasRelaxS(0, True, False, True)
 
-m.printStats()
+# m.printStats()
 
 # Compute optimal solution
 m.optimize()
@@ -884,25 +858,7 @@ m.printQuality()
 
 used_memory = GetMemoryUsage()
 
-outcome = open("result.txt", 'a+')
-outcome_txt = "SUCCESS"
 outfile = open(str(argv[1]).replace("/", "_"), 'a+')
-
-# Economic Cost
-TotalCostCable = 0
-TotalCostWirls = 0
-TotalCostNodes = 0
-# Energy Consumption
-TotalEnergyNodes = 0
-TotalEnergyNodesUsage = 0
-TotalEnergyChannel = 0
-TotalEnergyChannelUsage = 0
-# Communication Delay
-TotalDelayCable = 0
-TotalDelayWirls = 0
-# Error Rate
-TotalErrorRateCable = 0
-TotalErrorRateWirls = 0
 
 # print(solution
 if m.status == GRB.status.OPTIMAL:
@@ -1017,6 +973,7 @@ elif m.status == GRB.Status.INF_OR_UNBD:
     outcome_txt = "FAILED"
     m.computeIIS()
     m.write("model.ilp")
+    QuitSynthesizer("FAILED")
 
 elif m.status == GRB.Status.INFEASIBLE:
     outfile.write('Model is infeasible\n')
@@ -1061,12 +1018,6 @@ if SCNSL_GENERATION == 1:
                                   SolW, SolH, Set_UB_on_C, Set_UB_on_N)
     scnslPrinter.printScnslNetwork("main.cc")
 
-elapsed_parse = parse_timer_end - parse_timer_begin
-elapsed_struc = structure_timer_end - structure_timer_begin
-elapsed_const = constraints_timer_end - constraints_timer_begin
-elapsed_optim = optimization_timer_end - optimization_timer_begin
-elapsed_total = elapsed_parse + elapsed_struc + elapsed_const + elapsed_optim
-
 # Print elapsed times.
 outfile.write("*\n")
 outfile.write("*##########################################\n")
@@ -1079,20 +1030,10 @@ outfile.write("*    Optimization           : %s s\n" % elapsed_optim)
 outfile.write("*    Total : %s s\n" % elapsed_total)
 outfile.write("*##########################################\n")
 
-outcome.write(
-    "[%-42s] OBJ-%d %-7s | %8.6s s| %8.6s s| %8.6s s| %8.6s s| %8.6s s| %8.6s Mb| %8.6s | %8.6s | %8.6s | %8.6s |\n" %
-    (argv[1], OPTIMIZATION, outcome_txt,
-     elapsed_parse, elapsed_struc, elapsed_const, elapsed_optim, elapsed_total,
-     used_memory,
-     TotalCostNodes + TotalCostWirls + TotalCostCable,
-     TotalEnergyNodes + TotalEnergyNodesUsage + TotalEnergyChannel + TotalEnergyChannelUsage,
-     TotalDelayWirls + TotalDelayCable,
-     TotalErrorRateWirls + TotalErrorRateCable))
-outcome.flush()
-outcome.close()
-
 outfile.flush()
 outfile.close()
+
+QuitSynthesizer()
 
 exit(0)
 
