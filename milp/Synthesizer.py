@@ -33,11 +33,11 @@ parse_timer_begin = parse_timer_end = 0
 structure_timer_begin = structure_timer_end = 0
 constraints_timer_begin = constraints_timer_end = 0
 optimization_timer_begin = optimization_timer_end = 0
-elapsed_parse = parse_timer_end - parse_timer_begin
-elapsed_struc = structure_timer_end - structure_timer_begin
-elapsed_const = constraints_timer_end - constraints_timer_begin
-elapsed_optim = optimization_timer_end - optimization_timer_begin
-elapsed_total = elapsed_parse + elapsed_struc + elapsed_const + elapsed_optim
+elapsed_parse = 0
+elapsed_struc = 0
+elapsed_const = 0
+elapsed_optim = 0
+elapsed_total = 0
 
 # Used memory
 used_memory = 0
@@ -64,6 +64,12 @@ TotalErrorRateWirls = 0
 def QuitSynthesizer(_outcome_txt=outcome_txt):
     if _outcome_txt:
         outcome_txt = _outcome_txt
+
+    elapsed_parse = parse_timer_end - parse_timer_begin
+    elapsed_struc = structure_timer_end - structure_timer_begin
+    elapsed_const = constraints_timer_end - constraints_timer_begin
+    elapsed_optim = optimization_timer_end - optimization_timer_begin
+    elapsed_total = elapsed_parse + elapsed_struc + elapsed_const + elapsed_optim
 
     outcome.write(
         "[%-42s] OBJ-%d %-7s | %8.6s s| %8.6s s| %8.6s s| %8.6s s| %8.6s s| %8.6s Mb| %8.6s | %8.6s | %8.6s | %8.6s |\n" %
