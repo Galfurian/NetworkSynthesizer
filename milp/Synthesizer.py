@@ -44,20 +44,20 @@ used_memory = 0
 
 # Optimization Results
 # Economic Cost
-TotalCostCable = 0
-TotalCostWirls = 0
-TotalCostNodes = 0
+total_cost_cable = 0
+total_cost_wirls = 0
+total_cost_nodes = 0
 # Energy Consumption
-TotalEnergyNodes = 0
-TotalEnergyNodesUsage = 0
-TotalEnergyChannel = 0
-TotalEnergyChannelUsage = 0
+total_energy_nodes = 0
+total_energy_nodes_usage = 0
+total_energy_channels = 0
+total_energy_channels_usage = 0
 # Communication Delay
-TotalDelayCable = 0
-TotalDelayWirls = 0
+total_delay_cable = 0
+total_delay_wireless = 0
 # Error Rate
-TotalErrorRateCable = 0
-TotalErrorRateWirls = 0
+total_error_cable = 0
+total_error_wireless = 0
 
 
 # ---------------------------------------------------------------------------------------------------------------------
@@ -78,10 +78,10 @@ def QuitSynthesizer(_outcome_txt=outcome_txt):
          outcome_txt,
          elapsed_parse, elapsed_struc, elapsed_const, elapsed_optim, elapsed_total,
          used_memory,
-         TotalCostNodes + TotalCostWirls + TotalCostCable,
-         TotalEnergyNodes + TotalEnergyNodesUsage + TotalEnergyChannel + TotalEnergyChannelUsage,
-         TotalDelayWirls + TotalDelayCable,
-         TotalErrorRateWirls + TotalErrorRateCable))
+         total_cost_nodes + total_cost_wirls + total_cost_cable,
+         total_energy_nodes + total_energy_nodes_usage + total_energy_channels + total_energy_channels_usage,
+         total_delay_wireless + total_delay_cable,
+         total_error_wireless + total_error_cable))
     outcome.flush()
     outcome.close()
     exit(0)
@@ -670,17 +670,29 @@ if OPTIMIZATION == 1:
     # Economic Cost Minimization:
     #   Its objective is to minimize the global economic cost of the network.
     m.setObjective(
-        quicksum(x[node, nodeIndex, zone] * node.cost
-                 for node in instance.nodes
-                 for zone in instance.zones
-                 for nodeIndex in Set_UB_on_N[node, zone]) +
-        quicksum(y[channel, channelIndex] * channel.cost
-                 for channel in instance.channels
-                 for channelIndex in Set_UB_on_C[channel]) +
+        quicksum(
+            x[node, nodeIndex, zone] * (node.cost + node.energy * node.energy_cost)
+            for node, zone in itertools.product(instance.nodes, instance.zones)
+            for nodeIndex in Set_UB_on_N[node, zone]) +
+        quicksum(
+            w[task, node, nodeIndex] * node.task_energy * task.size * node.energy_cost
+            for task in instance.tasks
+            for node in task.getAllowedNode()
+            for nodeIndex in Set_UB_on_N[node, task.zone]) +
+        quicksum(
+            y[channel, channelIndex] * (channel.cost + channel.energy * channel.energy_cost)
+            for channel in instance.channels
+            for channelIndex in Set_UB_on_C[channel]) +
         quicksum(
             j[channel, channelIndex, zone1, zone2] * instance.contiguities.get((zone1, zone2, channel)).deploymentCost
             for zone1, zone2 in itertools.combinations(instance.zones, 2)
             for channel in instance.channels if channel.isAllowedBetween(zone1, zone2) if not channel.wireless
+            for channelIndex in Set_UB_on_C[channel]) +
+        quicksum(
+            h[dataflow, channel, channelIndex] * channel.df_energy * dataflow.size * channel.energy_cost /
+            instance.contiguities.get((dataflow.source.zone, dataflow.target.zone, channel)).conductance
+            for dataflow in instance.dataflows
+            for channel in dataflow.getAllowedChannel()
             for channelIndex in Set_UB_on_C[channel]),
         GRB.MINIMIZE
     )
@@ -868,95 +880,123 @@ outfile = open(str(argv[1]).replace("/", "_"), 'a+')
 
 # print(solution
 if m.status == GRB.status.OPTIMAL:
-    outfile.write("Optimal objective: %g\n" % m.objVal)
-    outfile.write("*******************************************************************************\n")
-    outfile.write('# Optimal Solution\n')
-    outfile.write('# List of activated nodes:\n')
-    SolN = m.getAttr('x', N)
+
+    instance.sol_N = m.getAttr('x', N)
+    instance.sol_C = m.getAttr('x', C)
+
+    instance.sol_x = m.getAttr('x', x)
+    instance.sol_y = m.getAttr('x', y)
+
+    instance.sol_w = m.getAttr('x', w)
+    instance.sol_h = m.getAttr('x', h)
+
+    # -----------------------------------------------------------------------------------------------------------------
     for zone in instance.zones:
         for node in instance.nodes:
-            if SolN[node, zone] > 0:
-                TotalCostNodes += node.cost * SolN[node, zone]
-                TotalEnergyNodes += node.energy * SolN[node, zone]
-                outfile.write('    In zone %s, use %g nodes of type %s\n' % (zone, SolN[node, zone], node))
+            # Update COST
+            total_cost_nodes += instance.sol_N[node, zone] * (node.cost + node.energy * node.energy_cost)
+            # Update ENERGY
+            total_energy_nodes += instance.sol_N[node, zone] * node.energy
+            # Considers also the tasks.
+            for task in node.getAllowedTask():
+                if task.zone == zone:
+                    for nodeIndex in Set_UB_on_N[node, zone]:
+                        if instance.sol_w[task, node, nodeIndex]:
+                            # Update COST * NODE
+                            total_cost_nodes += (node.task_energy * task.size * node.energy_cost)
+                            # Update ENERGY * NODE
+                            total_energy_nodes_usage += (node.task_energy * task.size)
 
-    outfile.write('# List of activated channels:\n')
-    SolC = m.getAttr('x', C)
     for channel in instance.channels:
-        if SolC[channel] > 0:
-            if channel.wireless:
-                TotalCostWirls += channel.cost * SolC[channel]
-            else:
-                TotalCostCable += channel.cost * SolC[channel]
-            TotalEnergyChannel += channel.energy * SolC[channel]
-            outfile.write('    Use %g channels of type %s\n' % (SolC[channel], channel))
+        # Update COST
+        if channel.wireless:
+            total_cost_wirls += instance.sol_C[channel] * (channel.cost + channel.energy * channel.energy_cost)
+        else:
+            total_cost_cable += instance.sol_C[channel] * (channel.cost + channel.energy * channel.energy_cost)
+        # Update ENERGY
+        total_energy_channels += instance.sol_C[channel] * channel.energy
+        # Considers also the dataflows.
+        for dataflow in channel.getAllowedDataFlow():
+            conductance = instance.contiguities.get((dataflow.source.zone, dataflow.target.zone, channel)).conductance
+            for channelIndex in Set_UB_on_C[channel]:
+                # Update the general case
+                if instance.sol_h[dataflow, channel, channelIndex]:
+                    # Update COST * DATAFLOW, DELAY * DATAFLOW, ERROR * DATAFLOW
+                    if channel.wireless:
+                        total_cost_wirls += (channel.df_energy * dataflow.size * channel.energy_cost) / conductance
+                        total_delay_wireless += (channel.delay / conductance)
+                        total_error_wireless += (channel.error / conductance)
+                    else:
+                        total_cost_cable += (channel.df_energy * dataflow.size * channel.energy_cost) / conductance
+                        total_delay_cable += (channel.delay / conductance)
+                        total_error_cable += (channel.error / conductance)
+                    # Update ENERGY * DATAFLOW
+                    total_energy_channels_usage += (channel.df_energy * dataflow.size)
+                # Update also the DEPLOYMENT COST
+                if not channel.wireless and instance.sol_y[channel, channelIndex]:
+                    deploymentCost = sys.maxint
+                    for dataflow in channel.getAllowedDataFlow():
+                        contiguity = instance.contiguities.get((dataflow.source.zone, dataflow.target.zone, channel))
+                        if instance.sol_h[dataflow, channel, channelIndex]:
+                            deploymentCost = contiguity.deploymentCost
+                    # Update COST * DEPLOYMENT
+                    total_cost_cable += deploymentCost
 
-    outfile.write('# Tasks allocation:\n')
-    SolW = m.getAttr('x', w)
+    # -----------------------------------------------------------------------------------------------------------------
+    outfile.write("Optimal objective: %g\n" % m.objVal)
+    outfile.write("*******************************************************************************\n")
+    outfile.write("# Optimal Solution\n")
+    outfile.write("# List of activated nodes:\n")
+    for zone in instance.zones:
+        for node in instance.nodes:
+            if instance.sol_N[node, zone]:
+                outfile.write("\tZone %4s, use %4g nodes of type %s\n" % (zone, instance.sol_N[node, zone], node))
+
+    outfile.write("# List of activated channels:\n")
+    for channel in instance.channels:
+        if instance.sol_C[channel]:
+            outfile.write("\tUse %4g channels of type %s\n" % (instance.sol_C[channel], channel))
+
+    outfile.write("# Tasks allocation:\n")
     for zone in instance.zones:
         for task in instance.tasks:
             if task.zone == zone:
                 for node in task.getAllowedNode():
                     for nodeIndex in Set_UB_on_N[node, zone]:
-                        if SolW[task, node, nodeIndex]:
-                            TotalEnergyNodesUsage += (node.task_energy * task.size)
+                        if instance.sol_w[task, node, nodeIndex]:
                             task.setDeployedIn(node, nodeIndex, zone)
-                            outfile.write('    Task %-24s inside node Zone%s.%s.%s\n'
-                                          % (task, zone, node, nodeIndex))
+                            outfile.write("\tTask %-24s inside node Zone%s.%s.%s\n" % (task, zone, node, nodeIndex))
 
-    outfile.write('# Data-Flows allocation:\n')
-    SolH = m.getAttr('x', h)
+    outfile.write("# Data-Flows allocation:\n")
     for dataflow in instance.dataflows:
         for channel in dataflow.getAllowedChannel():
             contiguity = instance.contiguities.get((dataflow.source.zone, dataflow.target.zone, channel))
             for channelIndex in Set_UB_on_C[channel]:
-                if SolH[dataflow, channel, channelIndex]:
+                if instance.sol_h[dataflow, channel, channelIndex]:
                     dataflow.setDeployedIn(channel, channelIndex)
-                    TotalEnergyChannelUsage += (channel.df_energy * dataflow.size)
-                    if channel.wireless:
-                        TotalDelayWirls += (channel.delay / contiguity.conductance)
-                        TotalErrorRateWirls += (channel.error / contiguity.conductance)
-                    else:
-                        TotalDelayCable += (channel.delay / contiguity.conductance)
-                        TotalErrorRateCable += (channel.error / contiguity.conductance)
-                    outfile.write('    Dataflow %-24s inside channel %s.%s\n' % (dataflow, channel, channelIndex))
-            del contiguity
+                    outfile.write("\tDataflow %-24s inside channel %s.%s\n" % (dataflow, channel, channelIndex))
 
-    SolY = m.getAttr('x', y)
-    for channel in dataflow.getAllowedChannel():
-        if not channel.wireless:
-            for channelIndex in Set_UB_on_C[channel]:
-                if SolY[channel, channelIndex]:
-                    deploymentCost = sys.maxint
-                    for dataflow in channel.getAllowedDataFlow():
-                        contiguity = instance.contiguities.get((dataflow.source.zone, dataflow.target.zone, channel))
-                        if SolH[dataflow, channel, channelIndex]:
-                            deploymentCost = contiguity.deploymentCost
-                        del contiguity
-                    if channel.wireless:
-                        TotalCostWirls += deploymentCost
-                    else:
-                        TotalCostCable += deploymentCost
-                    del deploymentCost
-
+    # -----------------------------------------------------------------------------------------------------------------
     outfile.write("*                                  \n")
     outfile.write("* Final Statistics:                \n")
-    outfile.write("*     Economic Cost      : %s      \n" % (TotalCostNodes + TotalCostWirls + TotalCostCable))
-    outfile.write("*         Nodes Deployment     : %s\n" % TotalCostNodes)
-    outfile.write("*         Wireless Channels    : %s\n" % TotalCostWirls)
-    outfile.write("*         Cable    Channels    : %s\n" % TotalCostCable)
-    outfile.write("*     Energy Consumption : %s      \n" % (
-        TotalEnergyNodes + TotalEnergyNodesUsage + TotalEnergyChannel + TotalEnergyChannelUsage))
-    outfile.write("*         Nodes Power          : %s\n" % TotalEnergyNodes)
-    outfile.write("*         Nodes Power Usage    : %s\n" % TotalEnergyNodesUsage)
-    outfile.write("*         Channels Power       : %s\n" % TotalEnergyChannel)
-    outfile.write("*         Channels Power Usage : %s\n" % TotalEnergyChannelUsage)
-    outfile.write("*     Total Delay        : %s      \n" % (TotalDelayWirls + TotalDelayCable))
-    outfile.write("*         Wireless Channels    : %s\n" % TotalDelayWirls)
-    outfile.write("*         Cable    Channels    : %s\n" % TotalDelayCable)
-    outfile.write("*     Total Error        : %s      \n" % (TotalErrorRateWirls + TotalErrorRateCable))
-    outfile.write("*         Wireless Channels    : %s\n" % TotalErrorRateWirls)
-    outfile.write("*         Cable    Channels    : %s\n" % TotalErrorRateCable)
+    outfile.write("* \tEconomic Cost      : %s      \n" % (total_cost_nodes + total_cost_wirls + total_cost_cable))
+    outfile.write("* \t\tNodes Deployment     : %s\n" % total_cost_nodes)
+    outfile.write("* \t\tWireless Channels    : %s\n" % total_cost_wirls)
+    outfile.write("* \t\tCable    Channels    : %s\n" % total_cost_cable)
+    outfile.write("* \tEnergy Consumption : %s      \n" % (total_energy_nodes +
+                                                           total_energy_nodes_usage +
+                                                           total_energy_channels +
+                                                           total_energy_channels_usage))
+    outfile.write("* \t\tNodes Power          : %s\n" % total_energy_nodes)
+    outfile.write("* \t\tNodes Power Usage    : %s\n" % total_energy_nodes_usage)
+    outfile.write("* \t\tChannels Power       : %s\n" % total_energy_channels)
+    outfile.write("* \t\tChannels Power Usage : %s\n" % total_energy_channels_usage)
+    outfile.write("* \tTotal Delay        : %s      \n" % (total_delay_wireless + total_delay_cable))
+    outfile.write("* \t\tWireless Channels    : %s\n" % total_delay_wireless)
+    outfile.write("* \t\tCable    Channels    : %s\n" % total_delay_cable)
+    outfile.write("* \tTotal Error        : %s      \n" % (total_error_wireless + total_error_cable))
+    outfile.write("* \t\tWireless Channels    : %s\n" % total_error_wireless)
+    outfile.write("* \t\tCable    Channels    : %s\n" % total_error_cable)
 
     checker = NetworkChecker(instance.nodes,
                              instance.channels,
@@ -964,10 +1004,10 @@ if m.status == GRB.status.OPTIMAL:
                              instance.contiguities,
                              instance.tasks,
                              instance.dataflows,
-                             SolN,
-                             SolC,
-                             SolW,
-                             SolH,
+                             instance.sol_N,
+                             instance.sol_C,
+                             instance.sol_w,
+                             instance.sol_h,
                              Set_UB_on_C,
                              Set_UB_on_N,
                              outfile)
@@ -975,24 +1015,24 @@ if m.status == GRB.status.OPTIMAL:
         outcome_txt = "FAILED"
 
 elif m.status == GRB.Status.INF_OR_UNBD:
-    outfile.write('Model is infeasible or unbounded\n')
+    outfile.write("Model is infeasible or unbounded\n")
     outcome_txt = "FAILED"
     m.computeIIS()
     m.write("model.ilp")
     QuitSynthesizer("FAILED")
 
 elif m.status == GRB.Status.INFEASIBLE:
-    outfile.write('Model is infeasible\n')
+    outfile.write("Model is infeasible\n")
     outcome_txt = "FAILED"
     m.computeIIS()
     m.write("model.ilp")
 
 elif m.status == GRB.Status.UNBOUNDED:
-    outfile.write('Model is unbounded\n')
+    outfile.write("Model is unbounded\n")
     outcome_txt = "FAILED"
 
 else:
-    outfile.write('Optimization ended with status %d\n' % m.status)
+    outfile.write("Optimization ended with status %d\n" % m.status)
     outcome_txt = "FAILED"
 
 if XML_GENERATION == 1:
@@ -1004,10 +1044,10 @@ if XML_GENERATION == 1:
                                      instance.contiguities,
                                      instance.tasks,
                                      instance.dataflows,
-                                     SolN,
-                                     SolC,
-                                     SolW,
-                                     SolH,
+                                     instance.sol_N,
+                                     instance.sol_C,
+                                     instance.sol_w,
+                                     instance.sol_h,
                                      Set_UB_on_C,
                                      Set_UB_on_N)
     umlPrinter.printNetwork()
@@ -1019,9 +1059,9 @@ if XML_GENERATION == 1:
 if SCNSL_GENERATION == 1:
     scnslPrinter = ScnslGenerator(instance.nodes, instance.channels, instance.zones, instance.contiguities,
                                   instance.tasks, instance.dataflows,
-                                  SolN,
-                                  SolC,
-                                  SolW, SolH, Set_UB_on_C, Set_UB_on_N)
+                                  instance.sol_N,
+                                  instance.sol_C,
+                                  instance.sol_w, instance.sol_h, Set_UB_on_C, Set_UB_on_N)
     scnslPrinter.printScnslNetwork("main.cc")
 
 # Print elapsed times.

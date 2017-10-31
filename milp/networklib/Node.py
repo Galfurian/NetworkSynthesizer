@@ -1,11 +1,12 @@
 class Node:
-    def __init__(self, label, id, cost, size, energy, task_energy, mobile):
+    def __init__(self, label, id, cost, size, energy, task_energy, energy_cost, mobile):
         self.label = label
         self.id = id
         self.cost = cost
         self.size = size
         self.energy = energy
         self.task_energy = task_energy
+        self.energy_cost = energy_cost
         self.mobile = mobile
         self.allowed = []
 
@@ -26,32 +27,35 @@ class Node:
 
     @staticmethod
     def get_header():
-        return "%-15s | %2s | %5s | %10s | %6s | %12s | %6s |" % ("label",
-                                                                "id",
-                                                                "cost",
-                                                                "size",
-                                                                "energy",
-                                                                "task_energy",
-                                                                "mobile")
+        return "%-15s | %2s | %5s | %10s | %6s | %12s | %12s | %6s |" % ("label",
+                                                                         "id",
+                                                                         "cost",
+                                                                         "size",
+                                                                         "energy",
+                                                                         "task_energy",
+                                                                         "energy_cost",
+                                                                         "mobile")
 
     @staticmethod
     def get_header_caps():
-        return "%-15s | %2s | %5s | %10s | %6s | %12s | %6s |" % ("LABEL",
-                                                                "ID",
-                                                                "COST",
-                                                                "SIZE",
-                                                                "ENERGY",
-                                                                "TASK ENERGY",
-                                                                "MOBILE")
+        return "%-15s | %2s | %5s | %10s | %6s | %12s | %12s | %6s |" % ("LABEL",
+                                                                         "ID",
+                                                                         "COST",
+                                                                         "SIZE",
+                                                                         "ENERGY",
+                                                                         "TASK ENERGY",
+                                                                         "ENERGY COST",
+                                                                         "MOBILE")
 
     def to_string(self):
-        return "%-15s | %2s | %5s | %10s | %6s | %12s | %6s |" % (self.label,
-                                                                self.id,
-                                                                self.cost,
-                                                                self.size,
-                                                                self.energy,
-                                                                self.task_energy,
-                                                                self.mobile)
+        return "%-15s | %2s | %5s | %10s | %6s | %12s | %12s | %6s |" % (self.label,
+                                                                         self.id,
+                                                                         self.cost,
+                                                                         self.size,
+                                                                         self.energy,
+                                                                         self.task_energy,
+                                                                         self.energy_cost,
+                                                                         self.mobile)
 
     def __repr__(self):
         return "%s" % (self.label)

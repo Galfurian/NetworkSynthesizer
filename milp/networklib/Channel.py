@@ -1,11 +1,12 @@
 class Channel:
-    def __init__(self, label, id, cost, size, energy, df_energy, delay, error, wireless, point_to_point):
+    def __init__(self, label, id, cost, size, energy, df_energy, energy_cost, delay, error, wireless, point_to_point):
         self.label = label
         self.id = id
         self.cost = cost
         self.size = size
         self.energy = energy
         self.df_energy = df_energy
+        self.energy_cost = energy_cost
         self.delay = delay
         self.error = error
         self.wireless = wireless
@@ -32,6 +33,7 @@ class Channel:
         print("#     Size           : %s" % (self.size))
         print("#     Energy         : %s" % (self.energy))
         print("#     DF Energy      : %s" % (self.df_energy))
+        print("#     Energy Cost    : %s" % (self.energy_cost))
         print("#     Delay          : %s" % (self.delay))
         print("#     Error          : %s" % (self.error))
         print("#     Wireless       : %s" % (self.wireless))
@@ -39,41 +41,44 @@ class Channel:
 
     @staticmethod
     def get_header():
-        return "%-15s | %2s | %5s | %10s | %6s | %10s | %6s | %6s | %8s | %8s |" % ("label",
-                                                                                    "id",
-                                                                                    "cost",
-                                                                                    "size",
-                                                                                    "energy",
-                                                                                    "df_energy",
-                                                                                    "delay",
-                                                                                    "error",
-                                                                                    "wireless",
-                                                                                    "point_to_point")
+        return "%-15s | %2s | %5s | %10s | %6s | %10s | %12s | %6s | %6s | %8s | %8s |" % ("label",
+                                                                                           "id",
+                                                                                           "cost",
+                                                                                           "size",
+                                                                                           "energy",
+                                                                                           "df_energy",
+                                                                                           "energy_cost",
+                                                                                           "delay",
+                                                                                           "error",
+                                                                                           "wireless",
+                                                                                           "point_to_point")
 
     @staticmethod
     def get_header_caps():
-        return "%-15s | %2s | %5s | %10s | %6s | %10s | %6s | %6s | %8s | %8s |" % ("LABEL",
-                                                                                    "ID",
-                                                                                    "COST",
-                                                                                    "SIZE",
-                                                                                    "ENERGY",
-                                                                                    "DF_ENERGY",
-                                                                                    "DELAY",
-                                                                                    "ERROR",
-                                                                                    "WIRELESS",
-                                                                                    "POINT_TO_POINT")
+        return "%-15s | %2s | %5s | %10s | %6s | %10s | %12s | %6s | %6s | %8s | %8s |" % ("LABEL",
+                                                                                           "ID",
+                                                                                           "COST",
+                                                                                           "SIZE",
+                                                                                           "ENERGY",
+                                                                                           "DF ENERGY",
+                                                                                           "ENERGY COST",
+                                                                                           "DELAY",
+                                                                                           "ERROR",
+                                                                                           "WIRELESS",
+                                                                                           "POINT TO POINT")
 
     def to_string(self):
-        return "%-15s | %2s | %5s | %10s | %6s | %10s | %6s | %6s | %8s | %8s |" % (self.label,
-                                                                                    self.id,
-                                                                                    self.cost,
-                                                                                    self.size,
-                                                                                    self.energy,
-                                                                                    self.df_energy,
-                                                                                    self.delay,
-                                                                                    self.error,
-                                                                                    self.wireless,
-                                                                                    self.point_to_point)
+        return "%-15s | %2s | %5s | %10s | %6s | %10s | %12s | %6s | %6s | %8s | %8s |" % (self.label,
+                                                                                           self.id,
+                                                                                           self.cost,
+                                                                                           self.size,
+                                                                                           self.energy,
+                                                                                           self.df_energy,
+                                                                                           self.energy_cost,
+                                                                                           self.delay,
+                                                                                           self.error,
+                                                                                           self.wireless,
+                                                                                           self.point_to_point)
 
     def toScnsl(self):
         ChannelSetupName = ("csb_%s" % (self.id))

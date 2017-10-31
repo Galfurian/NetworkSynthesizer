@@ -26,6 +26,12 @@ class NetworkInstance:
         self.contiguities = {}
         self.tasks = []
         self.dataflows = []
+        self.sol_N = 0
+        self.sol_C = 0
+        self.sol_x = 0
+        self.sol_y = 0
+        self.sol_w = 0
+        self.sol_h = 0
 
     def add_channel(self, channel):
         self.channels.append(channel)
@@ -58,7 +64,7 @@ class NetworkInstance:
                     continue
                 # Retrieve the values from the file.
                 try:
-                    label, id, cost, size, energy, task_energy, mobile = node_line.split()
+                    label, id, cost, size, energy, task_energy, energy_cost, mobile = node_line.split()
                 except ValueError:
                     print("Error: Wrong line format '%s'" % node_line)
                     return False
@@ -69,6 +75,7 @@ class NetworkInstance:
                                 int(size),
                                 int(energy),
                                 int(task_energy),
+                                float(energy_cost),
                                 int(mobile))
                 # Append the node to the list of nodes.
                 self.add_node(new_node)
@@ -92,7 +99,7 @@ class NetworkInstance:
                     continue
                 # Retrieve the values from the file.
                 try:
-                    label, id, cost, size, energy, df_energy, delay, error, wireless, point_to_point = channel_line.split()
+                    label, id, cost, size, energy, df_energy, energy_cost, delay, error, wireless, point_to_point = channel_line.split()
                 except ValueError:
                     print("Error: Wrong line format '%s'" % channel_line)
                     return False
@@ -103,6 +110,7 @@ class NetworkInstance:
                                       int(size),
                                       int(energy),
                                       int(df_energy),
+                                      float(energy_cost),
                                       int(delay),
                                       int(error),
                                       int(wireless),
