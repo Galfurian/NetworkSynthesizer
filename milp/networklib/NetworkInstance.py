@@ -61,7 +61,7 @@ class NetworkInstance:
                     label, id, cost, size, energy, task_energy, mobile = node_line.split()
                 except ValueError:
                     print("Error: Wrong line format '%s'" % node_line)
-                    exit(1)
+                    return False
                 # Create a new node.
                 new_node = Node(label,
                                 int(id),
@@ -77,6 +77,7 @@ class NetworkInstance:
                 # Delete the auxiliary variables.
                 del node_line, new_node
                 del label, id, cost, size, energy, task_energy, mobile
+        return True
 
     def load_channel_catalog(self, channel_catalog_filename):
         print("* %s" % Channel.get_header_caps())
@@ -94,7 +95,7 @@ class NetworkInstance:
                     label, id, cost, size, energy, df_energy, delay, error, wireless, point_to_point = channel_line.split()
                 except ValueError:
                     print("Error: Wrong line format '%s'" % channel_line)
-                    exit(1)
+                    return False
                 # Create a new Channel.
                 new_channel = Channel(label,
                                       int(id),
@@ -113,6 +114,7 @@ class NetworkInstance:
                 # Delete the auxiliary variables.
                 del channel_line, new_channel
                 del label, id, cost, size, energy, df_energy, delay, error, wireless, point_to_point
+        return True
 
     def load_input_instance(self, input_instance_filename):
         is_parsing_zone = False
@@ -146,7 +148,7 @@ class NetworkInstance:
                         label, x, y, z = input_line.split()
                     except ValueError:
                         print("Error: Wrong line format '%s'" % input_line)
-                        exit(1)
+                        return False
                     # Create a new zone.
                     new_zone = Zone(int(label), int(x), int(y), int(z))
                     # Append the zone to the list of zones.
@@ -170,22 +172,22 @@ class NetworkInstance:
                         id_zone1, id_zone2, id_channel, conductance, deployment_cost = input_line.split()
                     except ValueError:
                         print("Error: Wrong line format '%s'" % input_line)
-                        exit(1)
+                        return False
                     # Search the instance of the first zone.
                     zone1 = SearchZone(self.zones, int(id_zone1))
                     if zone1 is None:
                         print("[Error] Can't find zone : %s" % id_zone1)
-                        exit(1)
+                        return False
                     # Search the instance of the first zone.
                     zone2 = SearchZone(self.zones, int(id_zone2))
                     if zone2 is None:
                         print("[Error] Can't find zone : %s" % id_zone2)
-                        exit(1)
+                        return False
                     # Search the instance of the channel.
                     channel = SearchChannel(self.channels, int(id_channel))
                     if channel is None:
                         print("[Error] Can't find channel : %s" % id_channel)
-                        exit(1)
+                        return False
                     # Create the new contiguity.
                     new_contiguity = Contiguity(zone1,
                                                 zone2,
@@ -216,12 +218,12 @@ class NetworkInstance:
                         label, size, id_zone, mobile = input_line.split()
                     except ValueError:
                         print("Error: Wrong line format '%s'" % input_line)
-                        exit(1)
+                        return False
                     # Search the instance of the zone.
                     zone = SearchZone(self.zones, int(id_zone))
                     if zone is None:
                         print("[Error] Can't find zone : %s" % id_zone)
-                        exit(1)
+                        return False
                     # Create the new task.
                     new_task = Task(index_task, label, int(size), zone, int(mobile))
                     # Append the task to the list of tasks.
@@ -248,23 +250,22 @@ class NetworkInstance:
                         label, id_source, id_target, band, delay, error = input_line.split()
                     except ValueError:
                         print("Error: Wrong line format '%s'" % input_line)
-                        exit(1)
+                        return False
                     # Search the instance of the source task.
                     source = SearchTask(self.tasks, id_source)
                     if source is None:
                         print("[Error] Can't find the source task : %s" % id_source)
-                        exit(1)
+                        return False
                     # Search the instance of the target task.
                     TargetTask = SearchTask(self.tasks, id_target)
                     if TargetTask is None:
                         print("[Error] Can't find the target task : %s" % id_target)
-                        exit(1)
+                        return False
                     # Check if the source and target task are the same.
                     if source == TargetTask:
-                        print(
-                            "[Error] Can't define a dataflow between the same task : %s -> %s" % (
-                                source, TargetTask))
-                        exit(1)
+                        print("[Error] Can't define a dataflow between the same task : %s -> %s"
+                              % (source, TargetTask))
+                        return False
                     # Create the new Data-Flow
                     NewDataFlow = DataFlow(index_dataflow,
                                            label,
@@ -295,6 +296,7 @@ class NetworkInstance:
         del is_parsing_dataflow
         del index_task
         del index_dataflow
+        return True
 
     # By default set the unknown contiguities to 0.0, unless the pair is composed by the same zone, in that case its 1.0.
     def define_missing_contiguities(self):
@@ -354,7 +356,7 @@ class NetworkInstance:
         for task in self.tasks:
             if len(task.getAllowedNode()) == 0:
                 print("There are no nodes that can contain task %s." % task)
-                exit(1)
+                return False
 
         print("* Checking if there are suitable channels for data-flows which cross zones...")
         for dataflow in self.dataflows:
@@ -379,7 +381,7 @@ class NetworkInstance:
                         elif ((source_node.mobile or target_node.mobile) and not channel.wireless):
                             reason = "unacceptable mobile/wireless"
                         print("\tChannel %s for %s." % (channel, reason))
-                    exit(1)
+                    return False
                 # If they resides in the same zone, there is a chance that the two tasks can be placed inside the same,
                 # node. However, this must be checked.
                 SumSizes = source_node.size + target_node.size
@@ -392,9 +394,10 @@ class NetworkInstance:
                 if not CanBeContained:
                     print("There are no channels that can contain data-flow %s." % dataflow)
                     print("And also there is no node which can contain both of its tasks.")
-                    exit(1)
+                    return False
 
                 del source_node
                 del target_node
                 del SumSizes
                 del CanBeContained
+        return True
