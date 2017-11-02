@@ -19,7 +19,7 @@
 # the tipologies section comprises C uncommented lines, one for each channel tipology
 # the format is the following:
 # LABEL           | ID |  COST |       SIZE | ENERGY | DF_ENERGY | ENERGY COST | DELAY |  ERROR | WIRELESS | POINT TO POINT |
-  Bluetooth-4.0      1       9           24        1           1          0.50      12       10          1               1
+  Bluetooth-4.0      1       9           24        1           1          0.75      10       11          1               1
   Wi-Fi-AC           2      34         7000        3           2          1.10       8        7          1               0
   Wi-Fi-AD           3      79         7400        7           4          1.15       3        4          1               0
   fiber-Type-1       4     256       232000       24           3          0.75       2        4          0               1
