@@ -22,6 +22,7 @@ class Channel:
 
     def setAllowedBetween(self, zone1, zone2):
         self.allowedBetween[zone1, zone2] = True
+        self.allowedBetween[zone2, zone1] = True
 
     def isAllowedBetween(self, zone1, zone2):
         return self.allowedBetween.get((zone1, zone2), False)

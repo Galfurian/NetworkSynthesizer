@@ -440,6 +440,12 @@ class NetworkInstance:
             # Delete the contiguity.
             del contiguity
 
+        print("* Checking between which zones a channel can be used to connect nodes...")
+        for channel in self.channels:
+            for zone1, zone2 in itertools.combinations_with_replacement(self.zones, 2):
+                if self.contiguities.get((zone1, zone2, channel)).conductance > 0:
+                    channel.setAllowedBetween(zone1, zone2)
+
     def perform_precheck(self):
         print("* Checking if there is at least one suitable node for each task...")
         for task in self.tasks:

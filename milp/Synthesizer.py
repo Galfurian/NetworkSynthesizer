@@ -197,14 +197,12 @@ N = {}
 C = {}
 x = {}
 y = {}
-md = {}
 gamma = {}
 rho = {}
 w = {}
 h = {}
 j = {}
 q = {}
-# sigma = {}
 
 # ---------------------------------------------------------------------------------------------------------------------
 for node, zone in itertools.product(instance.nodes, instance.zones):
@@ -277,19 +275,6 @@ print("* \tthere are c1q channels of type c1 deployed inside the network.")
 print("*")
 
 # ---------------------------------------------------------------------------------------------------------------------
-for dataflow in instance.dataflows:
-    md[dataflow] = (dataflow.source.mobile or dataflow.target.mobile)
-
-# Log the information concerning the variable.
-print("*")
-print("* md [%s]" % len(md))
-print("* \tVariable md identifies if at least one of the tasks connected by a given")
-print("* \tdata-flow is placed inside a mobile node. It is worth noting that if the")
-print("* \tat least one of the tasks is actually a mobile task, the md variable needs")
-print("* \tto be set to 1.")
-print("*")
-
-# ---------------------------------------------------------------------------------------------------------------------
 for dataflow, task in itertools.product(instance.dataflows, instance.tasks):
     if dataflow.source == task or dataflow.target == task:
         gamma[dataflow, task] = m.addVar(lb=0.0, ub=0.0, obj=0.0, vtype=GRB.BINARY,
@@ -303,22 +288,19 @@ for dataflow, task in itertools.product(instance.dataflows, instance.tasks):
 # Log the information concerning the variable.
 print("*")
 print("* gamma [%s]" % len(gamma))
-print("* \tVariable gamma identifies if the tasks of the dataflow and the given task are not")
+print("* \tVariable gamma identifies if the tasks of the dataflow and the given task are")
 print("* \tnot placed inside the same node.")
 print("*")
 
 # ---------------------------------------------------------------------------------------------------------------------
-for task1 in instance.tasks:
-    for task2 in instance.tasks:
-        if task1 == task2:
-            rho[task1, task2] = False
-            rho[task2, task1] = False
-        elif task1.zone != task2.zone:
-            rho[task1, task2] = True
-            rho[task2, task1] = True
-        elif task1 < task2:
-            rho[task1, task2] = m.addVar(lb=0.0, ub=1.0, obj=0.0, vtype=GRB.BINARY, name='rho_%s_%s' % (task1, task2))
-            rho[task2, task1] = rho[task1, task2]
+for task1, task2 in itertools.combinations_with_replacement(instance.tasks, 2):
+    if task1 == task2:
+        rho[task1, task2] = m.addVar(lb=0.0, ub=0.0, obj=0.0, vtype=GRB.BINARY, name='rho_%s_%s' % (task1, task2))
+    elif task1.zone != task2.zone:
+        rho[task1, task2] = m.addVar(lb=1.0, ub=1.0, obj=0.0, vtype=GRB.BINARY, name='rho_%s_%s' % (task1, task2))
+    else:
+        rho[task1, task2] = m.addVar(lb=0.0, ub=1.0, obj=0.0, vtype=GRB.BINARY, name='rho_%s_%s' % (task1, task2))
+    rho[task2, task1] = rho[task1, task2]
 # Log the information concerning the variable.
 print("*")
 print("* rho [%s]" % len(rho))
@@ -355,10 +337,8 @@ print("*")
 # ---------------------------------------------------------------------------------------------------------------------
 for channel in instance.channels:
     for zone1, zone2 in itertools.combinations_with_replacement(instance.zones, 2):
-        q[channel, zone1, zone2] = (instance.contiguities.get((zone1, zone2, channel)).conductance > 0)
+        q[channel, zone1, zone2] = channel.isAllowedBetween(zone1, zone2)
         q[channel, zone2, zone1] = q[channel, zone1, zone2]
-        if q[channel, zone1, zone2]:
-            channel.setAllowedBetween(zone1, zone2)
 
 # Log the information concerning the variable.
 print("*")
@@ -371,22 +351,13 @@ print("*")
 for channel in instance.channels:
     for channelIndex in instance.Set_UB_on_C[channel]:
         for zone1, zone2 in itertools.combinations_with_replacement(instance.zones, 2):
-            if q[channel, zone1, zone2]:
-                j[channel, channelIndex, zone1, zone2] = m.addVar(lb=0.0,
-                                                                  ub=1.0,
-                                                                  obj=0.0,
-                                                                  vtype=GRB.BINARY,
-                                                                  name='j_%s_%s_%s_%s' % (
-                                                                      channel, channelIndex, zone1, zone2))
-                j[channel, channelIndex, zone2, zone1] = j[channel, channelIndex, zone1, zone2]
-            else:
-                j[channel, channelIndex, zone1, zone2] = m.addVar(lb=0.0,
-                                                                  ub=0.0,
-                                                                  obj=0.0,
-                                                                  vtype=GRB.BINARY,
-                                                                  name='j_%s_%s_%s_%s' % (
-                                                                      channel, channelIndex, zone1, zone2))
-                j[channel, channelIndex, zone2, zone1] = j[channel, channelIndex, zone1, zone2]
+            j[channel, channelIndex, zone1, zone2] = m.addVar(lb=0.0,
+                                                              ub=channel.isAllowedBetween(zone1, zone2),
+                                                              obj=0.0,
+                                                              vtype=GRB.BINARY,
+                                                              name='j_%s_%s_%s_%s' % (
+                                                                  channel, channelIndex, zone1, zone2))
+            j[channel, channelIndex, zone2, zone1] = j[channel, channelIndex, zone1, zone2]
 # Log the information concerning the variable.
 print("*")
 print("* j [%s]" % len(j))
@@ -565,7 +536,7 @@ for channel in instance.channels:
                                 rhs=2,
                                 name="Cabled_channel_%s_%s_serves_only_two_nodes_%s_%s" % (
                                     channel, channelIndex, dataflow1, dataflow2))
-                elif not dataflow1.hasTask(dataflow2.target):
+                if not dataflow1.hasTask(dataflow2.target):
                     m.addConstr(lhs=h[dataflow1, channel, channelIndex] +
                                     h[dataflow2, channel, channelIndex] +
                                     gamma[dataflow1, dataflow2.target],
@@ -599,34 +570,6 @@ for dataflow, task in itertools.product(instance.dataflows, instance.tasks):
                 sense=GRB.LESS_EQUAL,
                 rhs=rho[dataflow.source, dataflow.target],
                 name="Contrain_gamma_%s_%s_wrt_%s_%s" % (dataflow, task, dataflow.source, dataflow.target))
-
-# ---------------------------------------------------------------------------------------------------------------------
-print("* Constraint C21")
-for zone1, zone2 in itertools.combinations(instance.zones, 2):
-    for channel in instance.channels:
-        if not channel.point_to_point:
-            continue
-        if not channel.isAllowedBetween(zone1, zone2):
-            continue
-        for channelIndex in instance.Set_UB_on_C[channel]:
-            for dataflow in channel.getAllowedDataFlow():
-                if not dataflow.concernsZones(zone1, zone2):
-                    continue
-                m.addConstr(lhs=j[channel, channelIndex, zone1, zone2],
-                            sense=GRB.GREATER_EQUAL,
-                            rhs=h[dataflow, channel, channelIndex] + q[channel, zone1, zone2] - 1,
-                            name="Cabled_channel_%s_%s_between_zones_%s_%s" % (
-                                channel, channelIndex, zone1, zone2))
-                m.addConstr(lhs=j[channel, channelIndex, zone1, zone2],
-                            sense=GRB.LESS_EQUAL,
-                            rhs=h[dataflow, channel, channelIndex],
-                            name="Cabled_channel_%s_%s_between_zones_%s_%s" % (
-                                channel, channelIndex, zone1, zone2))
-                m.addConstr(lhs=j[channel, channelIndex, zone1, zone2],
-                            sense=GRB.LESS_EQUAL,
-                            rhs=q[channel, zone1, zone2],
-                            name="Cabled_channel_%s_%s_between_zones_%s_%s" % (
-                                channel, channelIndex, zone1, zone2))
 
 # ---------------------------------------------------------------------------------------------------------------------
 print("* Constraint C22")
