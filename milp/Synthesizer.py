@@ -33,25 +33,19 @@ parse_timer_begin = parse_timer_end = 0
 structure_timer_begin = structure_timer_end = 0
 constraints_timer_begin = constraints_timer_end = 0
 optimization_timer_begin = optimization_timer_end = 0
-elapsed_parse = 0
-elapsed_struc = 0
-elapsed_const = 0
-elapsed_optim = 0
-elapsed_total = 0
 
 # Used memory
 used_memory = 0
 
 # Optimization Results
 # Economic Cost
+total_cost_nodes = 0
 total_cost_cable = 0
 total_cost_wirls = 0
-total_cost_nodes = 0
 # Energy Consumption
 total_energy_nodes = 0
-total_energy_nodes_usage = 0
-total_energy_channels = 0
-total_energy_channels_usage = 0
+total_energy_cable = 0
+total_energy_wirls = 0
 # Communication Delay
 total_delay_cable = 0
 total_delay_wireless = 0
@@ -79,7 +73,7 @@ def QuitSynthesizer(_outcome_txt=outcome_txt):
          elapsed_parse, elapsed_struc, elapsed_const, elapsed_optim, elapsed_total,
          used_memory,
          total_cost_nodes + total_cost_wirls + total_cost_cable,
-         total_energy_nodes + total_energy_nodes_usage + total_energy_channels + total_energy_channels_usage,
+         total_energy_nodes + total_energy_wirls + total_energy_cable,
          total_delay_wireless + total_delay_cable,
          total_error_wireless + total_error_cable))
     outcome.flush()
@@ -88,8 +82,12 @@ def QuitSynthesizer(_outcome_txt=outcome_txt):
 
 
 # ---------------------------------------------------------------------------------------------------------------------
+def GetSeparator():
+    return "*******************************************************************************"
+
+
 def Separator():
-    print("*******************************************************************************")
+    print(GetSeparator())
 
 
 # ---------------------------------------------------------------------------------------------------------------------
@@ -250,9 +248,7 @@ Separator()
 
 # Create the model variables.
 UB_on_N = {}
-Set_UB_on_N = {}
 UB_on_C = {}
-Set_UB_on_C = {}
 N = {}
 C = {}
 x = {}
@@ -269,7 +265,7 @@ q = {}
 # ---------------------------------------------------------------------------------------------------------------------
 for node, zone in itertools.product(instance.nodes, instance.zones):
     UB_on_N[node, zone] = len([task for task in node.getAllowedTask() if task.zone == zone])
-    Set_UB_on_N[node, zone] = range(1, UB_on_N[node, zone] + 1)
+    instance.Set_UB_on_N[node, zone] = range(1, UB_on_N[node, zone] + 1)
 # Log the information concerning the variable.
 print("*")
 print("* UB_on_N [%s]" % len(UB_on_N))
@@ -280,7 +276,7 @@ print("*")
 # ---------------------------------------------------------------------------------------------------------------------
 for channel in instance.channels:
     UB_on_C[channel] = len(channel.getAllowedDataFlow())
-    Set_UB_on_C[channel] = range(1, UB_on_C[channel] + 1)
+    instance.Set_UB_on_C[channel] = range(1, UB_on_C[channel] + 1)
 # Log the information concerning the variable.
 print("*")
 print("* UB_on_C [%s]" % len(UB_on_C))
@@ -312,7 +308,7 @@ print("*")
 
 # ---------------------------------------------------------------------------------------------------------------------
 for node, zone in itertools.product(instance.nodes, instance.zones):
-    for nodeIndex in Set_UB_on_N[node, zone]:
+    for nodeIndex in instance.Set_UB_on_N[node, zone]:
         x[node, nodeIndex, zone] = m.addVar(lb=0.0, ub=1.0, obj=0.0, vtype=GRB.BINARY,
                                             name='x_%s_%s_%s' % (node, nodeIndex, zone))
 # Log the information concerning the variable.
@@ -325,7 +321,7 @@ print("*")
 
 # ---------------------------------------------------------------------------------------------------------------------
 for channel in instance.channels:
-    for channelIndex in Set_UB_on_C[channel]:
+    for channelIndex in instance.Set_UB_on_C[channel]:
         y[channel, channelIndex] = m.addVar(lb=0.0, ub=1.0, obj=0.0, vtype=GRB.BINARY,
                                             name='y_%s_%s' % (channel, channelIndex))
 # Log the information concerning the variable.
@@ -381,7 +377,7 @@ print("*")
 # ---------------------------------------------------------------------------------------------------------------------
 for task in instance.tasks:
     for node in task.getAllowedNode():
-        for nodeIndex in Set_UB_on_N[node, task.zone]:
+        for nodeIndex in instance.Set_UB_on_N[node, task.zone]:
             w[task, node, nodeIndex] = m.addVar(lb=0.0, ub=1.0, obj=0.0, vtype=GRB.BINARY,
                                                 name='w_%s_%s_%s' % (task, node, nodeIndex))
 # Log the information concerning the variable.
@@ -394,7 +390,7 @@ print("*")
 # ---------------------------------------------------------------------------------------------------------------------
 for dataflow in instance.dataflows:
     for channel in dataflow.getAllowedChannel():
-        for channelIndex in Set_UB_on_C[channel]:
+        for channelIndex in instance.Set_UB_on_C[channel]:
             h[dataflow, channel, channelIndex] = m.addVar(lb=0.0, ub=1.0, obj=0.0, vtype=GRB.BINARY,
                                                           name='h_%s_%s_%s' % (dataflow, channel, channelIndex))
 # Log the information concerning the variable.
@@ -421,7 +417,7 @@ print("*")
 
 # ---------------------------------------------------------------------------------------------------------------------
 for channel in instance.channels:
-    for channelIndex in Set_UB_on_C[channel]:
+    for channelIndex in instance.Set_UB_on_C[channel]:
         for zone1, zone2 in itertools.combinations_with_replacement(instance.zones, 2):
             if q[channel, zone1, zone2]:
                 j[channel, channelIndex, zone1, zone2] = m.addVar(lb=0.0,
@@ -432,8 +428,13 @@ for channel in instance.channels:
                                                                       channel, channelIndex, zone1, zone2))
                 j[channel, channelIndex, zone2, zone1] = j[channel, channelIndex, zone1, zone2]
             else:
-                j[channel, channelIndex, zone1, zone2] = False
-                j[channel, channelIndex, zone2, zone1] = False
+                j[channel, channelIndex, zone1, zone2] = m.addVar(lb=0.0,
+                                                                  ub=0.0,
+                                                                  obj=0.0,
+                                                                  vtype=GRB.BINARY,
+                                                                  name='j_%s_%s_%s_%s' % (
+                                                                      channel, channelIndex, zone1, zone2))
+                j[channel, channelIndex, zone2, zone1] = j[channel, channelIndex, zone1, zone2]
 # Log the information concerning the variable.
 print("*")
 print("* j [%s]" % len(j))
@@ -461,13 +462,13 @@ print("* Constraint C1")
 for node, zone in itertools.product(instance.nodes, instance.zones):
     m.addConstr(lhs=N[node, zone],
                 sense=GRB.EQUAL,
-                rhs=quicksum(x[node, nodeIndex, zone] for nodeIndex in Set_UB_on_N[node, zone]),
+                rhs=quicksum(x[node, nodeIndex, zone] for nodeIndex in instance.Set_UB_on_N[node, zone]),
                 name="define_N_%s_%s" % (node, zone))
 
 # ---------------------------------------------------------------------------------------------------------------------
 print("* Constraint C2")
 for node, zone in itertools.product(instance.nodes, instance.zones):
-    for nodeIndex in Set_UB_on_N[node, zone]:
+    for nodeIndex in instance.Set_UB_on_N[node, zone]:
         m.addConstr(lhs=N[node, zone],
                     sense=GRB.GREATER_EQUAL,
                     rhs=nodeIndex * x[node, nodeIndex, zone],
@@ -478,13 +479,13 @@ print("* Constraint C3")
 for channel in instance.channels:
     m.addConstr(lhs=C[channel],
                 sense=GRB.EQUAL,
-                rhs=quicksum(y[channel, channelIndex] for channelIndex in Set_UB_on_C[channel]),
+                rhs=quicksum(y[channel, channelIndex] for channelIndex in instance.Set_UB_on_C[channel]),
                 name="define_C_%s" % channel)
 
 # ---------------------------------------------------------------------------------------------------------------------
 print("* Constraint C4")
 for channel in instance.channels:
-    for channelIndex in Set_UB_on_C[channel]:
+    for channelIndex in instance.Set_UB_on_C[channel]:
         m.addConstr(lhs=C[channel],
                     sense=GRB.GREATER_EQUAL,
                     rhs=channelIndex * y[channel, channelIndex],
@@ -494,7 +495,7 @@ for channel in instance.channels:
 print("* Constraint C5")
 for task in instance.tasks:
     for node in task.getAllowedNode():
-        for nodeIndex in Set_UB_on_N[node, task.zone]:
+        for nodeIndex in instance.Set_UB_on_N[node, task.zone]:
             m.addConstr(lhs=w[task, node, nodeIndex],
                         sense=GRB.LESS_EQUAL,
                         rhs=x[node, nodeIndex, task.zone],
@@ -504,7 +505,7 @@ for task in instance.tasks:
 print("* Constraint C6")
 for dataflow in instance.dataflows:
     for channel in dataflow.getAllowedChannel():
-        for channelIndex in Set_UB_on_C[channel]:
+        for channelIndex in instance.Set_UB_on_C[channel]:
             m.addConstr(lhs=h[dataflow, channel, channelIndex],
                         sense=GRB.LESS_EQUAL,
                         rhs=y[channel, channelIndex],
@@ -513,7 +514,7 @@ for dataflow in instance.dataflows:
 # ---------------------------------------------------------------------------------------------------------------------
 print("* Constraint C7")
 for node, zone in itertools.product(instance.nodes, instance.zones):
-    for nodeIndex in Set_UB_on_N[node, zone]:
+    for nodeIndex in instance.Set_UB_on_N[node, zone]:
         m.addConstr(lhs=x[node, nodeIndex, zone],
                     sense=GRB.LESS_EQUAL,
                     rhs=quicksum(w[task, node, nodeIndex]
@@ -524,7 +525,7 @@ for node, zone in itertools.product(instance.nodes, instance.zones):
 # ---------------------------------------------------------------------------------------------------------------------
 print("* Constraint C8")
 for channel in instance.channels:
-    for channelIndex in Set_UB_on_C[channel]:
+    for channelIndex in instance.Set_UB_on_C[channel]:
         m.addConstr(lhs=y[channel, channelIndex],
                     sense=GRB.LESS_EQUAL,
                     rhs=quicksum(h[dataflow, channel, channelIndex]
@@ -534,7 +535,7 @@ for channel in instance.channels:
 # ---------------------------------------------------------------------------------------------------------------------
 print("* Constraint C9")
 for node, zone in itertools.product(instance.nodes, instance.zones):
-    for nodeIndex in Set_UB_on_N[node, zone]:
+    for nodeIndex in instance.Set_UB_on_N[node, zone]:
         m.addConstr(lhs=quicksum((task.size * w[task, node, nodeIndex])
                                  for task in node.getAllowedTask()
                                  if task.zone == zone),
@@ -545,7 +546,7 @@ for node, zone in itertools.product(instance.nodes, instance.zones):
 # ---------------------------------------------------------------------------------------------------------------------
 print("* Constraint C10")
 for channel in instance.channels:
-    for channelIndex in Set_UB_on_C[channel]:
+    for channelIndex in instance.Set_UB_on_C[channel]:
         m.addConstr(lhs=quicksum(((dataflow.size * h[dataflow, channel, channelIndex]) /
                                   instance.contiguities.get(
                                       (dataflow.source.zone, dataflow.target.zone, channel)).conductance)
@@ -559,7 +560,7 @@ print("* Constraint C11")
 for task in instance.tasks:
     m.addConstr(lhs=quicksum(w[task, node, nodeIndex]
                              for node in task.getAllowedNode()
-                             for nodeIndex in Set_UB_on_N[node, task.zone]),
+                             for nodeIndex in instance.Set_UB_on_N[node, task.zone]),
                 sense=GRB.EQUAL,
                 rhs=1,
                 name="unique_mapping_of_task_%s" % task)
@@ -570,7 +571,7 @@ for dataflow in instance.dataflows:
     if dataflow.source.zone != dataflow.target.zone:
         m.addConstr(lhs=quicksum(h[dataflow, channel, channelIndex]
                                  for channel in dataflow.getAllowedChannel()
-                                 for channelIndex in Set_UB_on_C[channel]),
+                                 for channelIndex in instance.Set_UB_on_C[channel]),
                     sense=GRB.EQUAL,
                     rhs=1,
                     name="unique_mapping_of_dataflow_%s" % dataflow)
@@ -580,7 +581,7 @@ for dataflow in instance.dataflows:
     if dataflow.source.zone == dataflow.target.zone:
         m.addConstr(lhs=quicksum(h[dataflow, channel, channelIndex]
                                  for channel in dataflow.getAllowedChannel()
-                                 for channelIndex in Set_UB_on_C[channel]),
+                                 for channelIndex in instance.Set_UB_on_C[channel]),
                     sense=GRB.EQUAL,
                     rhs=rho[dataflow.source, dataflow.target],
                     name="unique_mapping_of_dataflow_%s" % dataflow)
@@ -591,7 +592,8 @@ for task1, task2 in itertools.combinations(instance.tasks, 2):
     if task1.zone != task2.zone:
         continue
     for node1, node2 in itertools.product(task1.getAllowedNode(), task2.getAllowedNode()):
-        for node1Index, node2Index in itertools.product(Set_UB_on_N[node1, task1.zone], Set_UB_on_N[node2, task2.zone]):
+        for node1Index, node2Index in itertools.product(instance.Set_UB_on_N[node1, task1.zone],
+                                                        instance.Set_UB_on_N[node2, task2.zone]):
             if [node1, node1Index] == [node2, node2Index]:
                 continue
             m.addConstr(lhs=rho[task1, task2],
@@ -604,7 +606,7 @@ print("* Constraint C19")
 for channel in instance.channels:
     if channel.wireless:
         continue
-    for channelIndex in Set_UB_on_C[channel]:
+    for channelIndex in instance.Set_UB_on_C[channel]:
         for dataflow1, dataflow2 in itertools.combinations(channel.getAllowedDataFlow(), 2):
             if not (gamma[dataflow1, dataflow2.source] or gamma[dataflow1, dataflow2.target]):
                 continue
@@ -632,13 +634,23 @@ for zone1, zone2 in itertools.combinations(instance.zones, 2):
             continue
         if not channel.isAllowedBetween(zone1, zone2):
             continue
-        for channelIndex in Set_UB_on_C[channel]:
+        for channelIndex in instance.Set_UB_on_C[channel]:
             for dataflow in channel.getAllowedDataFlow():
                 if not dataflow.concernsZones(zone1, zone2):
                     continue
                 m.addConstr(lhs=j[channel, channelIndex, zone1, zone2],
                             sense=GRB.GREATER_EQUAL,
-                            rhs=h[dataflow, channel, channelIndex] * q[channel, zone1, zone2],
+                            rhs=h[dataflow, channel, channelIndex] + q[channel, zone1, zone2] - 1,
+                            name="Cabled_channel_%s_%s_between_zones_%s_%s" % (
+                                channel, channelIndex, zone1, zone2))
+                m.addConstr(lhs=j[channel, channelIndex, zone1, zone2],
+                            sense=GRB.LESS_EQUAL,
+                            rhs=h[dataflow, channel, channelIndex],
+                            name="Cabled_channel_%s_%s_between_zones_%s_%s" % (
+                                channel, channelIndex, zone1, zone2))
+                m.addConstr(lhs=j[channel, channelIndex, zone1, zone2],
+                            sense=GRB.LESS_EQUAL,
+                            rhs=q[channel, zone1, zone2],
                             name="Cabled_channel_%s_%s_between_zones_%s_%s" % (
                                 channel, channelIndex, zone1, zone2))
 
@@ -646,7 +658,7 @@ for zone1, zone2 in itertools.combinations(instance.zones, 2):
 print("* Constraint C22")
 for channel in instance.channels:
     if channel.wireless:
-        for channelIndex in Set_UB_on_C[channel]:
+        for channelIndex in instance.Set_UB_on_C[channel]:
             for dataflow1, dataflow2 in itertools.combinations(channel.getAllowedDataFlow(), 2):
                 m.addConstr(lhs=h[dataflow1, channel, channelIndex] + h[dataflow2, channel, channelIndex],
                             sense=GRB.LESS_EQUAL,
@@ -673,27 +685,27 @@ if OPTIMIZATION == 1:
         quicksum(
             x[node, nodeIndex, zone] * (node.cost + node.energy * node.energy_cost)
             for node, zone in itertools.product(instance.nodes, instance.zones)
-            for nodeIndex in Set_UB_on_N[node, zone]) +
+            for nodeIndex in instance.Set_UB_on_N[node, zone]) +
         quicksum(
             w[task, node, nodeIndex] * node.task_energy * task.size * node.energy_cost
             for task in instance.tasks
             for node in task.getAllowedNode()
-            for nodeIndex in Set_UB_on_N[node, task.zone]) +
+            for nodeIndex in instance.Set_UB_on_N[node, task.zone]) +
         quicksum(
             y[channel, channelIndex] * (channel.cost + channel.energy * channel.energy_cost)
             for channel in instance.channels
-            for channelIndex in Set_UB_on_C[channel]) +
+            for channelIndex in instance.Set_UB_on_C[channel]) +
         quicksum(
             j[channel, channelIndex, zone1, zone2] * instance.contiguities.get((zone1, zone2, channel)).deploymentCost
             for zone1, zone2 in itertools.combinations(instance.zones, 2)
             for channel in instance.channels if channel.isAllowedBetween(zone1, zone2) if not channel.wireless
-            for channelIndex in Set_UB_on_C[channel]) +
+            for channelIndex in instance.Set_UB_on_C[channel]) +
         quicksum(
             h[dataflow, channel, channelIndex] * channel.df_energy * dataflow.size * channel.energy_cost /
             instance.contiguities.get((dataflow.source.zone, dataflow.target.zone, channel)).conductance
             for dataflow in instance.dataflows
             for channel in dataflow.getAllowedChannel()
-            for channelIndex in Set_UB_on_C[channel]),
+            for channelIndex in instance.Set_UB_on_C[channel]),
         GRB.MINIMIZE
     )
     m.update()
@@ -704,19 +716,19 @@ elif OPTIMIZATION == 2:
     m.setObjective(
         quicksum(x[node, nodeIndex, zone] * node.energy
                  for node, zone in itertools.product(instance.nodes, instance.zones)
-                 for nodeIndex in Set_UB_on_N[node, zone]) +
+                 for nodeIndex in instance.Set_UB_on_N[node, zone]) +
         quicksum(w[task, node, nodeIndex] * node.task_energy * task.size
                  for task in instance.tasks
                  for node in task.getAllowedNode()
-                 for nodeIndex in Set_UB_on_N[node, task.zone]) +
+                 for nodeIndex in instance.Set_UB_on_N[node, task.zone]) +
         quicksum(y[channel, channelIndex] * channel.energy
                  for channel in instance.channels
-                 for channelIndex in Set_UB_on_C[channel]) +
+                 for channelIndex in instance.Set_UB_on_C[channel]) +
         quicksum(h[dataflow, channel, channelIndex] * channel.df_energy * dataflow.size /
                  instance.contiguities.get((dataflow.source.zone, dataflow.target.zone, channel)).conductance
                  for dataflow in instance.dataflows
                  for channel in dataflow.getAllowedChannel()
-                 for channelIndex in Set_UB_on_C[channel]),
+                 for channelIndex in instance.Set_UB_on_C[channel]),
         GRB.MINIMIZE
     )
     m.update()
@@ -730,7 +742,7 @@ elif OPTIMIZATION == 3:
                  instance.contiguities.get((dataflow.source.zone, dataflow.target.zone, channel)).conductance
                  for dataflow in instance.dataflows
                  for channel in dataflow.getAllowedChannel()
-                 for channelIndex in Set_UB_on_C[channel]),
+                 for channelIndex in instance.Set_UB_on_C[channel]),
         GRB.MINIMIZE
     )
     m.update()
@@ -743,7 +755,7 @@ elif OPTIMIZATION == 4:
                  instance.contiguities.get((dataflow.source.zone, dataflow.target.zone, channel)).conductance
                  for dataflow in instance.dataflows
                  for channel in dataflow.getAllowedChannel()
-                 for channelIndex in Set_UB_on_C[channel]),
+                 for channelIndex in instance.Set_UB_on_C[channel]),
         GRB.MINIMIZE
     )
     m.update()
@@ -759,7 +771,7 @@ elif OPTIMIZATION == 5:
                 (channel.error * h[dataflow, channel, channelIndex]) / (
                     instance.contiguities.get((dataflow.source.zone, dataflow.target.zone, channel)).conductance)
             ) for dataflow in instance.dataflows for channel in dataflow.getAllowedChannel() for channelIndex in
-            Set_UB_on_C[channel]
+            instance.Set_UB_on_C[channel]
         ),
         GRB.MINIMIZE
     )
@@ -876,128 +888,100 @@ m.printQuality()
 
 used_memory = GetMemoryUsage()
 
+# Update the elapsed time.
+elapsed_parse = parse_timer_end - parse_timer_begin
+elapsed_struc = structure_timer_end - structure_timer_begin
+elapsed_const = constraints_timer_end - constraints_timer_begin
+elapsed_optim = optimization_timer_end - optimization_timer_begin
+elapsed_total = elapsed_parse + elapsed_struc + elapsed_const + elapsed_optim
+
+# Open the output file.
 outfile = open(str(argv[1]).replace("/", "_"), 'a+')
 
-# print(solution
 if m.status == GRB.status.OPTIMAL:
-
     instance.sol_N = m.getAttr('x', N)
     instance.sol_C = m.getAttr('x', C)
-
     instance.sol_x = m.getAttr('x', x)
     instance.sol_y = m.getAttr('x', y)
-
     instance.sol_w = m.getAttr('x', w)
     instance.sol_h = m.getAttr('x', h)
+    instance.sol_j = m.getAttr('x', j)
+
+    # Perform post optimization.
+    instance.perform_post_optimization()
+
+    # Evaluate the costs.
+    total_cost_nodes = instance.get_node_cost()
+    total_cost_cable = instance.get_cable_cost()
+    total_cost_wirls = instance.get_wireless_cost()
+
+    # Evaluate the energy consumption.
+    total_energy_nodes = instance.get_node_energy()
+    total_energy_cable = instance.get_cable_energy()
+    total_energy_wirls = instance.get_wireless_energy()
+
+    # Evaluate the delay.
+    total_delay_cable = instance.get_cable_delay()
+    total_delay_wireless = instance.get_wireless_delay()
+
+    # Evaluate the error.
+    total_error_cable = instance.get_cable_error()
+    total_error_wireless = instance.get_wireless_error()
 
     # -----------------------------------------------------------------------------------------------------------------
-    for zone in instance.zones:
-        for node in instance.nodes:
-            # Update COST
-            total_cost_nodes += instance.sol_N[node, zone] * (node.cost + node.energy * node.energy_cost)
-            # Update ENERGY
-            total_energy_nodes += instance.sol_N[node, zone] * node.energy
-            # Considers also the tasks.
-            for task in node.getAllowedTask():
-                if task.zone == zone:
-                    for nodeIndex in Set_UB_on_N[node, zone]:
-                        if instance.sol_w[task, node, nodeIndex]:
-                            # Update COST * NODE
-                            total_cost_nodes += (node.task_energy * task.size * node.energy_cost)
-                            # Update ENERGY * NODE
-                            total_energy_nodes_usage += (node.task_energy * task.size)
-
-    for channel in instance.channels:
-        # Update COST
-        if channel.wireless:
-            total_cost_wirls += instance.sol_C[channel] * (channel.cost + channel.energy * channel.energy_cost)
-        else:
-            total_cost_cable += instance.sol_C[channel] * (channel.cost + channel.energy * channel.energy_cost)
-        # Update ENERGY
-        total_energy_channels += instance.sol_C[channel] * channel.energy
-        # Considers also the dataflows.
-        for dataflow in channel.getAllowedDataFlow():
-            conductance = instance.contiguities.get((dataflow.source.zone, dataflow.target.zone, channel)).conductance
-            for channelIndex in Set_UB_on_C[channel]:
-                # Update the general case
-                if instance.sol_h[dataflow, channel, channelIndex]:
-                    # Update COST * DATAFLOW, DELAY * DATAFLOW, ERROR * DATAFLOW
-                    if channel.wireless:
-                        total_cost_wirls += (channel.df_energy * dataflow.size * channel.energy_cost) / conductance
-                        total_delay_wireless += (channel.delay / conductance)
-                        total_error_wireless += (channel.error / conductance)
-                    else:
-                        total_cost_cable += (channel.df_energy * dataflow.size * channel.energy_cost) / conductance
-                        total_delay_cable += (channel.delay / conductance)
-                        total_error_cable += (channel.error / conductance)
-                    # Update ENERGY * DATAFLOW
-                    total_energy_channels_usage += (channel.df_energy * dataflow.size)
-                # Update also the DEPLOYMENT COST
-                if not channel.wireless and instance.sol_y[channel, channelIndex]:
-                    deploymentCost = sys.maxint
-                    for dataflow in channel.getAllowedDataFlow():
-                        contiguity = instance.contiguities.get((dataflow.source.zone, dataflow.target.zone, channel))
-                        if instance.sol_h[dataflow, channel, channelIndex]:
-                            deploymentCost = contiguity.deploymentCost
-                    # Update COST * DEPLOYMENT
-                    total_cost_cable += deploymentCost
-
-    # -----------------------------------------------------------------------------------------------------------------
+    outfile.write("%s\n" % GetSeparator())
     outfile.write("Optimal objective: %g\n" % m.objVal)
-    outfile.write("*******************************************************************************\n")
-    outfile.write("# Optimal Solution\n")
-    outfile.write("# List of activated nodes:\n")
+    outfile.write("%s\n" % GetSeparator())
+    outfile.write("* SOLUTION\n")
+    outfile.write("%s\n" % GetSeparator())
+    outfile.write("* List of activated nodes:\n")
     for zone in instance.zones:
         for node in instance.nodes:
             if instance.sol_N[node, zone]:
-                outfile.write("\tZone %4s, use %4g nodes of type %s\n" % (zone, instance.sol_N[node, zone], node))
+                outfile.write("*\tZone %4s, use %4g nodes of type %s\n" % (zone, instance.sol_N[node, zone], node))
 
-    outfile.write("# List of activated channels:\n")
+    outfile.write("* List of activated channels:\n")
     for channel in instance.channels:
         if instance.sol_C[channel]:
-            outfile.write("\tUse %4g channels of type %s\n" % (instance.sol_C[channel], channel))
+            outfile.write("*\tUse %4g channels of type %s\n" % (instance.sol_C[channel], channel))
 
-    outfile.write("# Tasks allocation:\n")
+    outfile.write("* Tasks allocation:\n")
     for zone in instance.zones:
         for task in instance.tasks:
             if task.zone == zone:
                 for node in task.getAllowedNode():
-                    for nodeIndex in Set_UB_on_N[node, zone]:
+                    for nodeIndex in instance.Set_UB_on_N[node, zone]:
                         if instance.sol_w[task, node, nodeIndex]:
-                            task.setDeployedIn(node, nodeIndex, zone)
-                            outfile.write("\tTask %-24s inside node Zone%s.%s.%s\n" % (task, zone, node, nodeIndex))
+                            outfile.write("*\tTask     %-24s inside node Zone%s.%s.%s\n" % (task, zone, node, nodeIndex))
 
-    outfile.write("# Data-Flows allocation:\n")
+    outfile.write("* Data-Flows allocation:\n")
     for dataflow in instance.dataflows:
         for channel in dataflow.getAllowedChannel():
             contiguity = instance.contiguities.get((dataflow.source.zone, dataflow.target.zone, channel))
-            for channelIndex in Set_UB_on_C[channel]:
+            for channelIndex in instance.Set_UB_on_C[channel]:
                 if instance.sol_h[dataflow, channel, channelIndex]:
-                    dataflow.setDeployedIn(channel, channelIndex)
-                    outfile.write("\tDataflow %-24s inside channel %s.%s\n" % (dataflow, channel, channelIndex))
+                    outfile.write("*\tDataflow %-24s inside channel %s.%s\n" % (dataflow, channel, channelIndex))
 
-    # -----------------------------------------------------------------------------------------------------------------
-    outfile.write("*                                  \n")
-    outfile.write("* Final Statistics:                \n")
-    outfile.write("* \tEconomic Cost      : %s      \n" % (total_cost_nodes + total_cost_wirls + total_cost_cable))
-    outfile.write("* \t\tNodes Deployment     : %s\n" % total_cost_nodes)
-    outfile.write("* \t\tWireless Channels    : %s\n" % total_cost_wirls)
-    outfile.write("* \t\tCable    Channels    : %s\n" % total_cost_cable)
-    outfile.write("* \tEnergy Consumption : %s      \n" % (total_energy_nodes +
-                                                           total_energy_nodes_usage +
-                                                           total_energy_channels +
-                                                           total_energy_channels_usage))
-    outfile.write("* \t\tNodes Power          : %s\n" % total_energy_nodes)
-    outfile.write("* \t\tNodes Power Usage    : %s\n" % total_energy_nodes_usage)
-    outfile.write("* \t\tChannels Power       : %s\n" % total_energy_channels)
-    outfile.write("* \t\tChannels Power Usage : %s\n" % total_energy_channels_usage)
-    outfile.write("* \tTotal Delay        : %s      \n" % (total_delay_wireless + total_delay_cable))
-    outfile.write("* \t\tWireless Channels    : %s\n" % total_delay_wireless)
-    outfile.write("* \t\tCable    Channels    : %s\n" % total_delay_cable)
-    outfile.write("* \tTotal Error        : %s      \n" % (total_error_wireless + total_error_cable))
-    outfile.write("* \t\tWireless Channels    : %s\n" % total_error_wireless)
-    outfile.write("* \t\tCable    Channels    : %s\n" % total_error_cable)
-
+    outfile.write("%s\n" % GetSeparator())
+    outfile.write("* STATISTICS\n")
+    outfile.write("%s\n" % GetSeparator())
+    outfile.write("* Economic Cost      : %s\n" % (total_cost_nodes + total_cost_wirls + total_cost_cable))
+    outfile.write("* \tNodes            : %s\n" % total_cost_nodes)
+    outfile.write("* \tWireless         : %s\n" % total_cost_wirls)
+    outfile.write("* \tChannels         : %s\n" % total_cost_cable)
+    outfile.write("* Energy Consumption : %s\n" % (total_energy_nodes + total_energy_cable + total_energy_wirls))
+    outfile.write("* \tNodes            : %s\n" % total_energy_nodes)
+    outfile.write("* \tWireless         : %s\n" % total_energy_wirls)
+    outfile.write("* \tCable            : %s\n" % total_energy_cable)
+    outfile.write("* Total Delay        : %s\n" % (total_delay_wireless + total_delay_cable))
+    outfile.write("* \tWireless         : %s\n" % total_delay_wireless)
+    outfile.write("* \tCable            : %s\n" % total_delay_cable)
+    outfile.write("* Total Error        : %s\n" % (total_error_wireless + total_error_cable))
+    outfile.write("* \tWireless         : %s\n" % total_error_wireless)
+    outfile.write("* \tCable            : %s\n" % total_error_cable)
+    outfile.write("%s\n" % GetSeparator())
+    outfile.write("* RUNNING NETWORK CHECKER\n")
+    outfile.write("%s\n" % GetSeparator())
     checker = NetworkChecker(instance.nodes,
                              instance.channels,
                              instance.zones,
@@ -1008,8 +992,8 @@ if m.status == GRB.status.OPTIMAL:
                              instance.sol_C,
                              instance.sol_w,
                              instance.sol_h,
-                             Set_UB_on_C,
-                             Set_UB_on_N,
+                             instance.Set_UB_on_C,
+                             instance.Set_UB_on_N,
                              outfile)
     if not checker.checkNetwork():
         outcome_txt = "FAILED"
@@ -1048,8 +1032,8 @@ if XML_GENERATION == 1:
                                      instance.sol_C,
                                      instance.sol_w,
                                      instance.sol_h,
-                                     Set_UB_on_C,
-                                     Set_UB_on_N)
+                                     instance.Set_UB_on_C,
+                                     instance.Set_UB_on_N)
     umlPrinter.printNetwork()
     print("*##########################################")
     print("* Generating Technological Library...")
@@ -1061,21 +1045,18 @@ if SCNSL_GENERATION == 1:
                                   instance.tasks, instance.dataflows,
                                   instance.sol_N,
                                   instance.sol_C,
-                                  instance.sol_w, instance.sol_h, Set_UB_on_C, Set_UB_on_N)
+                                  instance.sol_w, instance.sol_h, instance.Set_UB_on_C, instance.Set_UB_on_N)
     scnslPrinter.printScnslNetwork("main.cc")
 
-# Print elapsed times.
-outfile.write("*\n")
-outfile.write("*##########################################\n")
-outfile.write("* Statistics...\n")
-outfile.write("*\n")
-outfile.write("*    File parsing           : %s s\n" % elapsed_parse)
-outfile.write("*    Structure creation     : %s s\n" % elapsed_struc)
-outfile.write("*    Constraints definition : %s s\n" % elapsed_const)
-outfile.write("*    Optimization           : %s s\n" % elapsed_optim)
-outfile.write("*    Total : %s s\n" % elapsed_total)
-outfile.write("*##########################################\n")
-
+outfile.write("%s\n" % GetSeparator())
+outfile.write("* FINAL STATISTICS\n")
+outfile.write("%s\n" % GetSeparator())
+outfile.write("*\tFile parsing           : %s s\n" % elapsed_parse)
+outfile.write("*\tStructure creation     : %s s\n" % elapsed_struc)
+outfile.write("*\tConstraints definition : %s s\n" % elapsed_const)
+outfile.write("*\tOptimization           : %s s\n" % elapsed_optim)
+outfile.write("*\tTotal : %s s\n" % elapsed_total)
+outfile.write("%s\n" % GetSeparator())
 outfile.flush()
 outfile.close()
 

@@ -26,12 +26,15 @@ class NetworkInstance:
         self.contiguities = {}
         self.tasks = []
         self.dataflows = []
+        self.Set_UB_on_N = {}
+        self.Set_UB_on_C = {}
         self.sol_N = 0
         self.sol_C = 0
         self.sol_x = 0
         self.sol_y = 0
         self.sol_w = 0
         self.sol_h = 0
+        self.sol_j = 0
 
     def add_channel(self, channel):
         self.channels.append(channel)
@@ -409,3 +412,243 @@ class NetworkInstance:
                 del SumSizes
                 del CanBeContained
         return True
+
+    # -----------------------------------------------------------------------------------------------------------------
+    # -----------------------------------------------------------------------------------------------------------------
+    def perform_post_optimization(self):
+        # -------------------------------------------------------------------------------------------------------------
+        # Set where the dataflows are deployed.
+        for c in self.channels:
+            if not c.wireless:
+                for p in self.Set_UB_on_C[c]:
+                    for df in c.getAllowedDataFlow():
+                        contiguity = self.contiguities.get((df.source.zone, df.target.zone, c))
+                        if self.sol_h[df, c, p]:
+                            df.setDeployedIn(c, p)
+
+        # -------------------------------------------------------------------------------------------------------------
+        # Set where the tasks are deployed.
+        for n, z in itertools.product(self.nodes, self.zones):
+            for p in self.Set_UB_on_N[n, z]:
+                if self.sol_x[n, p, z]:
+                    for t in n.getAllowedTask():
+                        if (t.zone == z) and self.sol_w[t, n, p]:
+                            t.setDeployedIn(n, p, z)
+
+    # -----------------------------------------------------------------------------------------------------------------
+    # -----------------------------------------------------------------------------------------------------------------
+    def get_node_cost(self):
+        total_cost_nodes = 0
+
+        # -------------------------------------------------------------------------------------------------------------
+        # Add the intrinsic cost of the nodes.
+        for n, z in itertools.product(self.nodes, self.zones):
+            for p in self.Set_UB_on_N[n, z]:
+                if self.sol_x[n, p, z]:
+                    total_cost_nodes += (n.cost + n.energy * n.energy_cost)
+
+        # -------------------------------------------------------------------------------------------------------------
+        # Add the cost of tasks inside the nodes.
+        for n, z in itertools.product(self.nodes, self.zones):
+            for p in self.Set_UB_on_N[n, z]:
+                if self.sol_x[n, p, z]:
+                    for t in n.getAllowedTask():
+                        if (t.zone == z) and self.sol_w[t, n, p]:
+                            total_cost_nodes += (t.size * n.task_energy * n.energy_cost)
+
+        return total_cost_nodes
+
+    # -----------------------------------------------------------------------------------------------------------------
+    # -----------------------------------------------------------------------------------------------------------------
+    def get_wireless_cost(self):
+        total_cost_wirls = 0
+        # -------------------------------------------------------------------------------------------------------------
+        # Add the intrinsic cost of the wireless channel.
+        for c in self.channels:
+            if c.wireless:
+                for p in self.Set_UB_on_C[c]:
+                    if self.sol_y[c, p]:
+                        total_cost_wirls += (c.cost + c.energy * c.energy_cost)
+
+        # -------------------------------------------------------------------------------------------------------------
+        # Considers also the dataflows placed inside the channels.
+        for c in self.channels:
+            if c.wireless:
+                for df in c.getAllowedDataFlow():
+                    contiguity = self.contiguities.get((df.source.zone, df.target.zone, c))
+                    for p in self.Set_UB_on_C[c]:
+                        if self.sol_h[df, c, p]:
+                            total_cost_wirls += (c.df_energy * df.size * c.energy_cost) / contiguity.conductance
+
+        # -------------------------------------------------------------------------------------------------------------
+        return total_cost_wirls
+
+    # -----------------------------------------------------------------------------------------------------------------
+    # -----------------------------------------------------------------------------------------------------------------
+    def get_cable_cost(self):
+        total_cost_cable = 0
+        # -------------------------------------------------------------------------------------------------------------
+        # Add the intrinsic cost of the wired channel.
+        for c in self.channels:
+            if not c.wireless:
+                for p in self.Set_UB_on_C[c]:
+                    if self.sol_y[c, p]:
+                        total_cost_cable += (c.cost + c.energy * c.energy_cost)
+
+        # -------------------------------------------------------------------------------------------------------------
+        # Considers also the dataflows placed inside the channels.
+        for c in self.channels:
+            if not c.wireless:
+                for p in self.Set_UB_on_C[c]:
+                    for df in c.getAllowedDataFlow():
+                        contiguity = self.contiguities.get((df.source.zone, df.target.zone, c))
+                        if self.sol_h[df, c, p]:
+                            total_cost_cable += (c.df_energy * df.size * c.energy_cost) / contiguity.conductance
+
+        # -------------------------------------------------------------------------------------------------------------
+        # Considers also the deployment cost.
+        for z1, z2 in itertools.combinations(self.zones, 2):
+            for c in self.channels:
+                if not c.wireless and c.isAllowedBetween(z1, z2):
+                    contiguity = self.contiguities.get((z1, z2, c))
+                    for p in self.Set_UB_on_C[c]:
+                        if self.sol_j[c, p, z1, z2]:
+                            total_cost_cable += contiguity.deploymentCost
+
+        return total_cost_cable
+
+    # -----------------------------------------------------------------------------------------------------------------
+    # -----------------------------------------------------------------------------------------------------------------
+    def get_node_energy(self):
+        total_cost_nodes = 0
+
+        # -------------------------------------------------------------------------------------------------------------
+        # Add the intrinsic cost of the nodes.
+        for n, z in itertools.product(self.nodes, self.zones):
+            for p in self.Set_UB_on_N[n, z]:
+                if self.sol_x[n, p, z]:
+                    total_cost_nodes += n.energy
+
+        # -------------------------------------------------------------------------------------------------------------
+        # Add the cost of tasks inside the nodes.
+        for n, z in itertools.product(self.nodes, self.zones):
+            for p in self.Set_UB_on_N[n, z]:
+                if self.sol_x[n, p, z]:
+                    for t in n.getAllowedTask():
+                        if (t.zone == z) and self.sol_w[t, n, p]:
+                            total_cost_nodes += (t.size * n.task_energy)
+
+        return total_cost_nodes
+
+    # -----------------------------------------------------------------------------------------------------------------
+    # -----------------------------------------------------------------------------------------------------------------
+    def get_wireless_energy(self):
+        total_energy_channels = 0
+        # -------------------------------------------------------------------------------------------------------------
+        # Add the intrinsic cost of the wireless channel.
+        for c in self.channels:
+            if c.wireless:
+                for p in self.Set_UB_on_C[c]:
+                    if self.sol_y[c, p]:
+                        total_energy_channels += c.energy
+
+        # -------------------------------------------------------------------------------------------------------------
+        # Considers also the dataflows placed inside the channels.
+        for c in self.channels:
+            if c.wireless:
+                for df in c.getAllowedDataFlow():
+                    contiguity = self.contiguities.get((df.source.zone, df.target.zone, c))
+                    for p in self.Set_UB_on_C[c]:
+                        if self.sol_h[df, c, p]:
+                            total_energy_channels += (c.df_energy * df.size) / contiguity.conductance
+
+        # -------------------------------------------------------------------------------------------------------------
+        return total_energy_channels
+
+    # -----------------------------------------------------------------------------------------------------------------
+    # -----------------------------------------------------------------------------------------------------------------
+    def get_cable_energy(self):
+        total_energy_channels = 0
+        # -------------------------------------------------------------------------------------------------------------
+        # Add the intrinsic cost of the wired channel.
+        for c in self.channels:
+            if not c.wireless:
+                for p in self.Set_UB_on_C[c]:
+                    if self.sol_y[c, p]:
+                        total_energy_channels += c.energy
+
+        # -------------------------------------------------------------------------------------------------------------
+        # Considers also the dataflows placed inside the channels.
+        for c in self.channels:
+            if not c.wireless:
+                for p in self.Set_UB_on_C[c]:
+                    for df in c.getAllowedDataFlow():
+                        contiguity = self.contiguities.get((df.source.zone, df.target.zone, c))
+                        if self.sol_h[df, c, p]:
+                            total_energy_channels += (c.df_energy * df.size) / contiguity.conductance
+
+        return total_energy_channels
+
+    # -----------------------------------------------------------------------------------------------------------------
+    # -----------------------------------------------------------------------------------------------------------------
+    def get_wireless_delay(self):
+        total_delay = 0
+        # -------------------------------------------------------------------------------------------------------------
+        # Considers the dataflows placed inside the channels.
+        for c in self.channels:
+            if c.wireless:
+                for df in c.getAllowedDataFlow():
+                    contiguity = self.contiguities.get((df.source.zone, df.target.zone, c))
+                    for p in self.Set_UB_on_C[c]:
+                        if self.sol_h[df, c, p]:
+                            total_delay += c.delay / contiguity.conductance
+        # -------------------------------------------------------------------------------------------------------------
+        return total_delay
+
+    # -----------------------------------------------------------------------------------------------------------------
+    # -----------------------------------------------------------------------------------------------------------------
+    def get_cable_delay(self):
+        total_delay = 0
+        # -------------------------------------------------------------------------------------------------------------
+        # Considers the dataflows placed inside the channels.
+        for c in self.channels:
+            if not c.wireless:
+                for df in c.getAllowedDataFlow():
+                    contiguity = self.contiguities.get((df.source.zone, df.target.zone, c))
+                    for p in self.Set_UB_on_C[c]:
+                        if self.sol_h[df, c, p]:
+                            total_delay += c.delay / contiguity.conductance
+        # -------------------------------------------------------------------------------------------------------------
+        return total_delay
+
+    # -----------------------------------------------------------------------------------------------------------------
+    # -----------------------------------------------------------------------------------------------------------------
+    def get_wireless_error(self):
+        total_error = 0
+        # -------------------------------------------------------------------------------------------------------------
+        # Considers the dataflows placed inside the channels.
+        for c in self.channels:
+            if c.wireless:
+                for df in c.getAllowedDataFlow():
+                    contiguity = self.contiguities.get((df.source.zone, df.target.zone, c))
+                    for p in self.Set_UB_on_C[c]:
+                        if self.sol_h[df, c, p]:
+                            total_error += c.error / contiguity.conductance
+        # -------------------------------------------------------------------------------------------------------------
+        return total_error
+
+    # -----------------------------------------------------------------------------------------------------------------
+    # -----------------------------------------------------------------------------------------------------------------
+    def get_cable_error(self):
+        total_error = 0
+        # -------------------------------------------------------------------------------------------------------------
+        # Considers the dataflows placed inside the channels.
+        for c in self.channels:
+            if not c.wireless:
+                for df in c.getAllowedDataFlow():
+                    contiguity = self.contiguities.get((df.source.zone, df.target.zone, c))
+                    for p in self.Set_UB_on_C[c]:
+                        if self.sol_h[df, c, p]:
+                            total_error += c.error / contiguity.conductance
+        # -------------------------------------------------------------------------------------------------------------
+        return total_error
