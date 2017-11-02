@@ -18,66 +18,13 @@ from networklib.UmlForScilabPrinter import *
 from networklib.NetworkInstance import *
 
 # ---------------------------------------------------------------------------------------------------------------------
-# Synthesizer arguments
-OPTIMIZATION = 1
-XML_GENERATION = 0
-SCNSL_GENERATION = 0
-VERBOSE = 1
-
-# Outcome file
-outcome = open("result.txt", 'a+')
-outcome_txt = "SUCCESS"
-
-# Elapsed time variables
-parse_timer_begin = parse_timer_end = 0
-structure_timer_begin = structure_timer_end = 0
-constraints_timer_begin = constraints_timer_end = 0
-optimization_timer_begin = optimization_timer_end = 0
-
-# Used memory
-used_memory = 0
-
-# Optimization Results
-# Economic Cost
-total_cost_nodes = 0
-total_cost_cable = 0
-total_cost_wirls = 0
-# Energy Consumption
-total_energy_nodes = 0
-total_energy_cable = 0
-total_energy_wirls = 0
-# Communication Delay
-total_delay_cable = 0
-total_delay_wireless = 0
-# Error Rate
-total_error_cable = 0
-total_error_wireless = 0
+# Create the network instance.
+instance = NetworkInstance()
 
 
 # ---------------------------------------------------------------------------------------------------------------------
-def QuitSynthesizer(_outcome_txt=outcome_txt):
-    if _outcome_txt:
-        outcome_txt = _outcome_txt
-
-    elapsed_parse = parse_timer_end - parse_timer_begin
-    elapsed_struc = structure_timer_end - structure_timer_begin
-    elapsed_const = constraints_timer_end - constraints_timer_begin
-    elapsed_optim = optimization_timer_end - optimization_timer_begin
-    elapsed_total = elapsed_parse + elapsed_struc + elapsed_const + elapsed_optim
-
-    outcome.write(
-        "[%-42s] OBJ-%d %-7s | %8.6s s| %8.6s s| %8.6s s| %8.6s s| %8.6s s| %8.6s Mb| %8.6s | %8.6s | %8.6s | %8.6s |\n" %
-        (argv[1] if argc > 1 else "None",
-         OPTIMIZATION,
-         outcome_txt,
-         elapsed_parse, elapsed_struc, elapsed_const, elapsed_optim, elapsed_total,
-         used_memory,
-         total_cost_nodes + total_cost_wirls + total_cost_cable,
-         total_energy_nodes + total_energy_wirls + total_energy_cable,
-         total_delay_wireless + total_delay_cable,
-         total_error_wireless + total_error_cable))
-    outcome.flush()
-    outcome.close()
+def QuitSynthesizer(outcome_txt):
+    instance.print_outcome(argv[1] if argc > 1 else "None", outcome_txt)
     exit(0)
 
 
@@ -133,7 +80,7 @@ def RoundInt(x):
 
 # ---------------------------------------------------------------------------------------------------------------------
 # Files parsing starting time.
-parse_timer_begin = time.time()
+instance.parsing_begin = time.time()
 
 # ---------------------------------------------------------------------------------------------------------------------
 argc = len(argv)
@@ -141,25 +88,23 @@ if (argc <= 2) or (argc >= 7):
     Usage()
 
 if argc >= 5:
-    OPTIMIZATION = int(argv[4])
-    if (OPTIMIZATION <= 0) or (OPTIMIZATION >= 6):
+    instance.OPTIMIZATION = int(argv[4])
+    if (instance.OPTIMIZATION <= 0) or (instance.OPTIMIZATION >= 6):
         Usage()
 
 if argc >= 6:
-    XML_GENERATION = int(argv[5])
-    if (XML_GENERATION != 0) and (XML_GENERATION != 1):
+    instance.GENERATE_XML = int(argv[5])
+    if (instance.GENERATE_XML != 0) and (instance.GENERATE_XML != 1):
         Usage()
 
 if argc >= 7:
-    SCNSL_GENERATION = int(argv[6])
-    if (SCNSL_GENERATION != 0) and (SCNSL_GENERATION != 1):
+    instance.GENERATE_SCNSL = int(argv[6])
+    if (instance.GENERATE_SCNSL != 0) and (instance.GENERATE_SCNSL != 1):
         Usage()
 
 # ---------------------------------------------------------------------------------------------------------------------
 # Start with the general information.
 About()
-
-instance = NetworkInstance()
 
 # ---------------------------------------------------------------------------------------------------------------------
 Separator()
@@ -202,34 +147,33 @@ if not instance.perform_precheck():
 Separator()
 
 # ---------------------------------------------------------------------------------------------------------------------
-if VERBOSE:
-    Separator()
-    print("* The tasks can be placed into:")
-    for task in instance.tasks:
-        print("*     Task '%15s' Nodes : %s" % (task, task.getAllowedNode()))
-    print("*")
-    print("* The data-flows can be placed into:")
-    for dataflow in instance.dataflows:
-        print("*     DataFlow '%15s' Channels : %s" % (dataflow, dataflow.getAllowedChannel()))
+Separator()
+print("* The tasks can be placed into:")
+for task in instance.tasks:
+    print("*     Task '%15s' Nodes : %s" % (task, task.getAllowedNode()))
+print("*")
+print("* The data-flows can be placed into:")
+for dataflow in instance.dataflows:
+    print("*     DataFlow '%15s' Channels : %s" % (dataflow, dataflow.getAllowedChannel()))
 
-    print("*")
-    print("* The nodes can host:")
-    for node in instance.nodes:
-        print("*     Node '%15s' Tasks : %s" % (node, node.getAllowedTask()))
+print("*")
+print("* The nodes can host:")
+for node in instance.nodes:
+    print("*     Node '%15s' Tasks : %s" % (node, node.getAllowedTask()))
 
-    print("*")
-    print("* The channels can host:")
-    for channel in instance.channels:
-        print("*     Channel '%15s' Data-Flows : %s" % (channel, channel.getAllowedDataFlow()))
-    Separator()
+print("*")
+print("* The channels can host:")
+for channel in instance.channels:
+    print("*     Channel '%15s' Data-Flows : %s" % (channel, channel.getAllowedDataFlow()))
+Separator()
 
 # Files parsing ending time.
-parse_timer_end = time.time()
+instance.parsing_end = time.time()
 
 # ---------------------------------------------------------------------------------------------------------------------
 # ---------------------------------------------------------------------------------------------------------------------
 # Make the timer start.
-structure_timer_begin = time.time()
+instance.setup_begin = time.time()
 
 # ---------------------------------------------------------------------------------------------------------------------
 Separator()
@@ -444,7 +388,7 @@ print("*")
 
 # ---------------------------------------------------------------------------------------------------------------------
 # Datastructures ending time.
-structure_timer_end = time.time()
+instance.setup_end = time.time()
 
 # Model update (force the take in of all the variables):
 m.update()
@@ -452,7 +396,7 @@ m.update()
 # ---------------------------------------------------------------------------------------------------------------------
 # ---------------------------------------------------------------------------------------------------------------------
 # Constraints definition start.
-constraints_timer_begin = time.time()
+instance.constraints_begin = time.time()
 
 print("*******************************************************************************")
 print("* Defining constraints...")
@@ -672,12 +616,12 @@ for channel in instance.channels:
 m.update()
 
 # Constraints definition end.
-constraints_timer_end = time.time()
+instance.constraints_end = time.time()
 
 print("*******************************************************************************")
 print("* Defining the optimization objective:")
 
-if OPTIMIZATION == 1:
+if instance.OPTIMIZATION == 1:
     print("*    Economic Cost Minimization")
     # Economic Cost Minimization:
     #   Its objective is to minimize the global economic cost of the network.
@@ -709,7 +653,7 @@ if OPTIMIZATION == 1:
         GRB.MINIMIZE
     )
     m.update()
-elif OPTIMIZATION == 2:
+elif instance.OPTIMIZATION == 2:
     print("*    Energy Consumption Minimization")
     # Energy Consumption Minimization:
     #   The second optimization objective is to minimize the global energy consumption of the network.
@@ -732,7 +676,7 @@ elif OPTIMIZATION == 2:
         GRB.MINIMIZE
     )
     m.update()
-elif OPTIMIZATION == 3:
+elif instance.OPTIMIZATION == 3:
     print("*    Transmission Delay Minimization")
     # Transmission Delay Minimization:
     #   The third possible constrains is on the overall delay of the network.
@@ -746,7 +690,7 @@ elif OPTIMIZATION == 3:
         GRB.MINIMIZE
     )
     m.update()
-elif OPTIMIZATION == 4:
+elif instance.OPTIMIZATION == 4:
     print("*    Error Rate Minimization")
     # Error Rate Minimization:
     #   The optimization objective is to minimize the global error rate of the network.
@@ -759,7 +703,7 @@ elif OPTIMIZATION == 4:
         GRB.MINIMIZE
     )
     m.update()
-elif OPTIMIZATION == 5:
+elif instance.OPTIMIZATION == 5:
     print("*    Error Rate and Delay Minimization")
     # Error Rate and Delay Minimization:
     #   The optimization objective is to minimize both the global error rate and delay of the network.
@@ -862,38 +806,14 @@ print("* Starting optimization...")
 # m.setParam("NumericFocus", 2)
 
 # Optimization start.
-optimization_timer_begin = time.time()
-
-# r = m.relax()
-# r.write("gurobi.relax-nopre.rew")
-# p = m.presolve()
-# r = p.relax()
-# r.write("gurobi.relax-pre.rew")
-# m.reset()
-# m.Params.Aggregate = 0
-# p = m.presolve()
-# r = p.relax()
-# r.write("gurobi.relax-agg0.rew")
-# m.feasRelaxS(0, True, False, True)
-
-# m.printStats()
-
+instance.optimization_begin = time.time()
 # Compute optimal solution
 m.optimize()
-
 # Optimization end.
-optimization_timer_end = time.time()
+instance.optimization_end = time.time()
 
-m.printQuality()
-
-used_memory = GetMemoryUsage()
-
-# Update the elapsed time.
-elapsed_parse = parse_timer_end - parse_timer_begin
-elapsed_struc = structure_timer_end - structure_timer_begin
-elapsed_const = constraints_timer_end - constraints_timer_begin
-elapsed_optim = optimization_timer_end - optimization_timer_begin
-elapsed_total = elapsed_parse + elapsed_struc + elapsed_const + elapsed_optim
+# Evaluate the used memory.
+instance.used_memory = GetMemoryUsage()
 
 # Open the output file.
 outfile = open(str(argv[1]).replace("/", "_"), 'a+')
@@ -909,24 +829,6 @@ if m.status == GRB.status.OPTIMAL:
 
     # Perform post optimization.
     instance.perform_post_optimization()
-
-    # Evaluate the costs.
-    total_cost_nodes = instance.get_node_cost()
-    total_cost_cable = instance.get_cable_cost()
-    total_cost_wirls = instance.get_wireless_cost()
-
-    # Evaluate the energy consumption.
-    total_energy_nodes = instance.get_node_energy()
-    total_energy_cable = instance.get_cable_energy()
-    total_energy_wirls = instance.get_wireless_energy()
-
-    # Evaluate the delay.
-    total_delay_cable = instance.get_cable_delay()
-    total_delay_wireless = instance.get_wireless_delay()
-
-    # Evaluate the error.
-    total_error_cable = instance.get_cable_error()
-    total_error_wireless = instance.get_wireless_error()
 
     # -----------------------------------------------------------------------------------------------------------------
     outfile.write("%s\n" % GetSeparator())
@@ -952,7 +854,8 @@ if m.status == GRB.status.OPTIMAL:
                 for node in task.getAllowedNode():
                     for nodeIndex in instance.Set_UB_on_N[node, zone]:
                         if instance.sol_w[task, node, nodeIndex]:
-                            outfile.write("*\tTask     %-24s inside node Zone%s.%s.%s\n" % (task, zone, node, nodeIndex))
+                            outfile.write(
+                                "*\tTask     %-24s inside node Zone%s.%s.%s\n" % (task, zone, node, nodeIndex))
 
     outfile.write("* Data-Flows allocation:\n")
     for dataflow in instance.dataflows:
@@ -965,20 +868,24 @@ if m.status == GRB.status.OPTIMAL:
     outfile.write("%s\n" % GetSeparator())
     outfile.write("* STATISTICS\n")
     outfile.write("%s\n" % GetSeparator())
-    outfile.write("* Economic Cost      : %s\n" % (total_cost_nodes + total_cost_wirls + total_cost_cable))
-    outfile.write("* \tNodes            : %s\n" % total_cost_nodes)
-    outfile.write("* \tWireless         : %s\n" % total_cost_wirls)
-    outfile.write("* \tChannels         : %s\n" % total_cost_cable)
-    outfile.write("* Energy Consumption : %s\n" % (total_energy_nodes + total_energy_cable + total_energy_wirls))
-    outfile.write("* \tNodes            : %s\n" % total_energy_nodes)
-    outfile.write("* \tWireless         : %s\n" % total_energy_wirls)
-    outfile.write("* \tCable            : %s\n" % total_energy_cable)
-    outfile.write("* Total Delay        : %s\n" % (total_delay_wireless + total_delay_cable))
-    outfile.write("* \tWireless         : %s\n" % total_delay_wireless)
-    outfile.write("* \tCable            : %s\n" % total_delay_cable)
-    outfile.write("* Total Error        : %s\n" % (total_error_wireless + total_error_cable))
-    outfile.write("* \tWireless         : %s\n" % total_error_wireless)
-    outfile.write("* \tCable            : %s\n" % total_error_cable)
+    outfile.write("* Economic Cost      : %s\n" % (instance.total_cost_nodes +
+                                                   instance.total_cost_wirls +
+                                                   instance.total_cost_cable))
+    outfile.write("* \tNodes            : %s\n" % instance.total_cost_nodes)
+    outfile.write("* \tWireless         : %s\n" % instance.total_cost_wirls)
+    outfile.write("* \tChannels         : %s\n" % instance.total_cost_cable)
+    outfile.write("* Energy Consumption : %s\n" % (instance.total_energy_nodes +
+                                                   instance.total_energy_cable +
+                                                   instance.total_energy_wirls))
+    outfile.write("* \tNodes            : %s\n" % instance.total_energy_nodes)
+    outfile.write("* \tWireless         : %s\n" % instance.total_energy_wirls)
+    outfile.write("* \tCable            : %s\n" % instance.total_energy_cable)
+    outfile.write("* Total Delay        : %s\n" % (instance.total_delay_wireless + instance.total_delay_cable))
+    outfile.write("* \tWireless         : %s\n" % instance.total_delay_wireless)
+    outfile.write("* \tCable            : %s\n" % instance.total_delay_cable)
+    outfile.write("* Total Error        : %s\n" % (instance.total_error_wireless + instance.total_error_cable))
+    outfile.write("* \tWireless         : %s\n" % instance.total_error_wireless)
+    outfile.write("* \tCable            : %s\n" % instance.total_error_cable)
     outfile.write("%s\n" % GetSeparator())
     outfile.write("* RUNNING NETWORK CHECKER\n")
     outfile.write("%s\n" % GetSeparator())
@@ -996,31 +903,44 @@ if m.status == GRB.status.OPTIMAL:
                              instance.Set_UB_on_N,
                              outfile)
     if not checker.checkNetwork():
-        outcome_txt = "FAILED"
+        QuitSynthesizer("FAILED")
 
 elif m.status == GRB.Status.INF_OR_UNBD:
     outfile.write("Model is infeasible or unbounded\n")
-    outcome_txt = "FAILED"
     m.computeIIS()
     m.write("model.ilp")
     QuitSynthesizer("FAILED")
 
 elif m.status == GRB.Status.INFEASIBLE:
     outfile.write("Model is infeasible\n")
-    outcome_txt = "FAILED"
     m.computeIIS()
     m.write("model.ilp")
+    QuitSynthesizer("FAILED")
 
 elif m.status == GRB.Status.UNBOUNDED:
     outfile.write("Model is unbounded\n")
-    outcome_txt = "FAILED"
+    QuitSynthesizer("FAILED")
 
 else:
     outfile.write("Optimization ended with status %d\n" % m.status)
-    outcome_txt = "FAILED"
+    QuitSynthesizer("FAILED")
 
-if XML_GENERATION == 1:
-    print("*##########################################")
+# ---------------------------------------------------------------------------------------------------------------------
+outfile.write("%s\n" % GetSeparator())
+outfile.write("* FINAL STATISTICS\n")
+outfile.write("%s\n" % GetSeparator())
+outfile.write("*\tFile parsing           : %s s\n" % instance.get_time_parse())
+outfile.write("*\tStructure creation     : %s s\n" % instance.get_time_setup())
+outfile.write("*\tConstraints definition : %s s\n" % instance.get_time_constraints())
+outfile.write("*\tOptimization           : %s s\n" % instance.get_time_optimization())
+outfile.write("*\tTotal : %s s\n" % instance.get_time_total())
+outfile.write("%s\n" % GetSeparator())
+outfile.flush()
+outfile.close()
+
+# ---------------------------------------------------------------------------------------------------------------------
+if instance.GENERATE_XML == 1:
+    print("%s\n" % GetSeparator())
     print("* Generating UML for Scilab...")
     umlPrinter = UmlForScilabPrinter(instance.nodes,
                                      instance.channels,
@@ -1035,12 +955,14 @@ if XML_GENERATION == 1:
                                      instance.Set_UB_on_C,
                                      instance.Set_UB_on_N)
     umlPrinter.printNetwork()
-    print("*##########################################")
+    print("%s\n" % GetSeparator())
     print("* Generating Technological Library...")
     techLibPrinter = TechLibPrinter(instance.nodes, instance.channels)
     techLibPrinter.printTechLib()
+    print("%s\n" % GetSeparator())
 
-if SCNSL_GENERATION == 1:
+# ---------------------------------------------------------------------------------------------------------------------
+if instance.GENERATE_SCNSL == 1:
     scnslPrinter = ScnslGenerator(instance.nodes, instance.channels, instance.zones, instance.contiguities,
                                   instance.tasks, instance.dataflows,
                                   instance.sol_N,
@@ -1048,19 +970,8 @@ if SCNSL_GENERATION == 1:
                                   instance.sol_w, instance.sol_h, instance.Set_UB_on_C, instance.Set_UB_on_N)
     scnslPrinter.printScnslNetwork("main.cc")
 
-outfile.write("%s\n" % GetSeparator())
-outfile.write("* FINAL STATISTICS\n")
-outfile.write("%s\n" % GetSeparator())
-outfile.write("*\tFile parsing           : %s s\n" % elapsed_parse)
-outfile.write("*\tStructure creation     : %s s\n" % elapsed_struc)
-outfile.write("*\tConstraints definition : %s s\n" % elapsed_const)
-outfile.write("*\tOptimization           : %s s\n" % elapsed_optim)
-outfile.write("*\tTotal : %s s\n" % elapsed_total)
-outfile.write("%s\n" % GetSeparator())
-outfile.flush()
-outfile.close()
-
-QuitSynthesizer()
+# ---------------------------------------------------------------------------------------------------------------------
+QuitSynthesizer("SUCCESS")
 
 exit(0)
 

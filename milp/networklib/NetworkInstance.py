@@ -26,8 +26,45 @@ class NetworkInstance:
         self.contiguities = {}
         self.tasks = []
         self.dataflows = []
+
+        # The input arguments.
+        self.OPTIMIZATION = 1
+        self.GENERATE_XML = 0
+        self.GENERATE_SCNSL = 0
+
+        # Optimization Results
+        # Economic Cost
+        self.total_cost_nodes = 0
+        self.total_cost_cable = 0
+        self.total_cost_wirls = 0
+        # Energy Consumption
+        self.total_energy_nodes = 0
+        self.total_energy_cable = 0
+        self.total_energy_wirls = 0
+        # Communication Delay
+        self.total_delay_cable = 0
+        self.total_delay_wireless = 0
+        # Error Rate
+        self.total_error_cable = 0
+        self.total_error_wireless = 0
+
+        # Timers
+        self.parsing_begin = 0
+        self.parsing_end = 0
+        self.setup_begin = 0
+        self.setup_end = 0
+        self.constraints_begin = 0
+        self.constraints_end = 0
+        self.optimization_begin = 0
+        self.optimization_end = 0
+
+        # General information.
+        self.used_memory = 0
+
         self.Set_UB_on_N = {}
         self.Set_UB_on_C = {}
+
+        # Solved variables.
         self.sol_N = 0
         self.sol_C = 0
         self.sol_x = 0
@@ -35,6 +72,47 @@ class NetworkInstance:
         self.sol_w = 0
         self.sol_h = 0
         self.sol_j = 0
+
+        # Output files.
+        self.outcome = None
+        self.outfile = None
+
+    def get_time_parse(self):
+        return self.parsing_end - self.parsing_begin
+
+    def get_time_setup(self):
+        return self.setup_end - self.setup_begin
+
+    def get_time_constraints(self):
+        return self.constraints_end - self.constraints_begin
+
+    def get_time_optimization(self):
+        return self.optimization_end - self.optimization_begin
+
+    def get_time_total(self):
+        return self.get_time_parse() + self.get_time_setup() + self.get_time_constraints() + self.get_time_optimization()
+
+    def print_outcome(self, test_case, outcome_result):
+        self.outcome = open("result.txt", 'a+')
+        tot_co = self.total_cost_nodes + self.total_cost_wirls + self.total_cost_cable
+        tot_en = self.total_energy_nodes + self.total_energy_wirls + self.total_energy_cable
+        tot_de = self.total_delay_wireless + self.total_delay_cable
+        tot_er = self.total_error_wireless + self.total_error_cable
+
+        self.outcome.write(
+            "[%-42s] OBJ-%d %-7s | %5.2f s| %5.2f s| %5.2f s| %5.2f s| %5.2f s| %6.2f Mb| %10.2f | %10.2f | %10.2f | %10.2f |\n" %
+            (test_case,
+             self.OPTIMIZATION,
+             outcome_result,
+             self.get_time_parse(),
+             self.get_time_setup(),
+             self.get_time_constraints(),
+             self.get_time_optimization(),
+             self.get_time_total(),
+             self.used_memory,
+             tot_co, tot_en, tot_de, tot_er))
+        self.outcome.flush()
+        self.outcome.close()
 
     def add_channel(self, channel):
         self.channels.append(channel)
@@ -434,6 +512,24 @@ class NetworkInstance:
                     for t in n.getAllowedTask():
                         if (t.zone == z) and self.sol_w[t, n, p]:
                             t.setDeployedIn(n, p, z)
+
+        # Evaluate the costs.
+        self.total_cost_nodes = self.get_node_cost()
+        self.total_cost_cable = self.get_cable_cost()
+        self.total_cost_wirls = self.get_wireless_cost()
+
+        # Evaluate the energy consumption.
+        self.total_energy_nodes = self.get_node_energy()
+        self.total_energy_cable = self.get_cable_energy()
+        self.total_energy_wirls = self.get_wireless_energy()
+
+        # Evaluate the delay.
+        self.total_delay_cable = self.get_cable_delay()
+        self.total_delay_wireless = self.get_wireless_delay()
+
+        # Evaluate the error.
+        self.total_error_cable = self.get_cable_error()
+        self.total_error_wireless = self.get_wireless_error()
 
     # -----------------------------------------------------------------------------------------------------------------
     # -----------------------------------------------------------------------------------------------------------------

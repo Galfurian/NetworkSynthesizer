@@ -17,8 +17,8 @@
 #
 # BEGIN the Typologies Section
 # LABEL           | ID |  COST |       SIZE | ENERGY |  TASK ENERGY | ENERGY COST | MOBILE
-  db_lc              1       5           21        5              1          1.00        0
+  db_lc              1       5           21        5              1          0.75        0
   db_iot_lc          2      22           29        8              2          1.00        1
-  db_iot             3      98           70       12              5          1.00        1
-  db_iot_he          4     128          256       15              6          1.00        0
+  db_iot             3      98           70       12              5          1.15        1
+  db_iot_he          4     128          256       15              6          0.90        0
 # END   the Typologies Section
