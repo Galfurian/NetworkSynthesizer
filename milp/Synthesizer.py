@@ -291,12 +291,20 @@ print("*")
 
 # ---------------------------------------------------------------------------------------------------------------------
 for dataflow, task in itertools.product(instance.dataflows, instance.tasks):
-    gamma[dataflow, task] = not (dataflow.hasTask(task))
+    if dataflow.source == task or dataflow.target == task:
+        gamma[dataflow, task] = m.addVar(lb=0.0, ub=0.0, obj=0.0, vtype=GRB.BINARY,
+                                         name='gamma_%s_%s' % (dataflow, task))
+    elif dataflow.source.zone != dataflow.target.zone != task.zone:
+        gamma[dataflow, task] = m.addVar(lb=1.0, ub=1.0, obj=0.0, vtype=GRB.BINARY,
+                                         name='gamma_%s_%s' % (dataflow, task))
+    else:
+        gamma[dataflow, task] = m.addVar(lb=0.0, ub=1.0, obj=0.0, vtype=GRB.BINARY,
+                                         name='gamma_%s_%s' % (dataflow, task))
 # Log the information concerning the variable.
 print("*")
 print("* gamma [%s]" % len(gamma))
-print("* \tVariable gamma identifies if the given task is not the source or target")
-print("* \ttask of the given data-flow.")
+print("* \tVariable gamma identifies if the tasks of the dataflow and the given task are not")
+print("* \tnot placed inside the same node.")
 print("*")
 
 # ---------------------------------------------------------------------------------------------------------------------
@@ -533,48 +541,70 @@ for dataflow in instance.dataflows:
 # ---------------------------------------------------------------------------------------------------------------------
 print("* Constraint C18")
 for task1, task2 in itertools.combinations(instance.tasks, 2):
-    if task1.zone != task2.zone:
-        continue
-    for node1, node2 in itertools.product(task1.getAllowedNode(), task2.getAllowedNode()):
-        for node1Index, node2Index in itertools.product(instance.Set_UB_on_N[node1, task1.zone],
-                                                        instance.Set_UB_on_N[node2, task2.zone]):
-            if [node1, node1Index] == [node2, node2Index]:
-                continue
-            m.addConstr(lhs=rho[task1, task2],
-                        sense=GRB.GREATER_EQUAL,
-                        rhs=w[task1, node1, node1Index] + w[task2, node2, node2Index] - 1,
-                        name="Task_mapping_in_different_nodes_of_%s_%s" % (task1, task2))
+    if task1.zone == task2.zone:
+        for node1, node2 in itertools.product(task1.getAllowedNode(), task2.getAllowedNode()):
+            for node1Index, node2Index in itertools.product(instance.Set_UB_on_N[node1, task1.zone],
+                                                            instance.Set_UB_on_N[node2, task2.zone]):
+                if [node1, node1Index] != [node2, node2Index]:
+                    m.addConstr(lhs=rho[task1, task2],
+                                sense=GRB.GREATER_EQUAL,
+                                rhs=w[task1, node1, node1Index] + w[task2, node2, node2Index] - 1,
+                                name="Task_mapping_in_different_nodes_of_%s_%s" % (task1, task2))
 
 # ---------------------------------------------------------------------------------------------------------------------
 print("* Constraint C19")
 for channel in instance.channels:
-    if channel.wireless:
-        continue
-    for channelIndex in instance.Set_UB_on_C[channel]:
-        for dataflow1, dataflow2 in itertools.combinations(channel.getAllowedDataFlow(), 2):
-            if not (gamma[dataflow1, dataflow2.source] or gamma[dataflow1, dataflow2.target]):
-                continue
-            m.addConstr(lhs=h[dataflow1, channel, channelIndex] + h[dataflow2, channel, channelIndex],
-                        sense=GRB.LESS_EQUAL,
-                        rhs=1,
-                        name="Cabled_channel_%s_%s_serves_only_two_nodes_%s_%s" % (
-                            channel, channelIndex, dataflow1, dataflow2))
+    if channel.point_to_point:
+        for channelIndex in instance.Set_UB_on_C[channel]:
+            for dataflow1, dataflow2 in itertools.combinations(channel.getAllowedDataFlow(), 2):
+                if not dataflow1.hasTask(dataflow2.source):
+                    m.addConstr(lhs=h[dataflow1, channel, channelIndex] +
+                                    h[dataflow2, channel, channelIndex] +
+                                    gamma[dataflow1, dataflow2.source],
+                                sense=GRB.LESS_EQUAL,
+                                rhs=2,
+                                name="Cabled_channel_%s_%s_serves_only_two_nodes_%s_%s" % (
+                                    channel, channelIndex, dataflow1, dataflow2))
+                elif not dataflow1.hasTask(dataflow2.target):
+                    m.addConstr(lhs=h[dataflow1, channel, channelIndex] +
+                                    h[dataflow2, channel, channelIndex] +
+                                    gamma[dataflow1, dataflow2.target],
+                                sense=GRB.LESS_EQUAL,
+                                rhs=2,
+                                name="Cabled_channel_%s_%s_serves_only_two_nodes_%s_%s" % (
+                                    channel, channelIndex, dataflow1, dataflow2))
 
 # ---------------------------------------------------------------------------------------------------------------------
 print("* Constraint C20")
 for dataflow, task in itertools.product(instance.dataflows, instance.tasks):
-    if gamma[dataflow, task]:
-        m.addConstr(
-            lhs=rho[task, dataflow.source] + rho[task, dataflow.target] + rho[dataflow.source, dataflow.target] - 2,
-            sense=GRB.LESS_EQUAL,
-            rhs=1,
-            name="Define_gamma_variable_for_%s_%s_%s" % (task, dataflow.source, dataflow.target))
+    if not dataflow.hasTask(task):
+        if not dataflow.source.zone != dataflow.target.zone != task.zone:
+            m.addConstr(
+                lhs=gamma[dataflow, task],
+                sense=GRB.GREATER_EQUAL,
+                rhs=rho[task, dataflow.source] + rho[task, dataflow.target] + rho[dataflow.source, dataflow.target] - 2,
+                name="Define_gamma_variable_for_%s_%s_%s" % (task, dataflow.source, dataflow.target))
+            m.addConstr(
+                lhs=gamma[dataflow, task],
+                sense=GRB.LESS_EQUAL,
+                rhs=rho[task, dataflow.source],
+                name="Contrain_gamma_%s_%s_wrt_%s_%s" % (dataflow, task, task, dataflow.source))
+            m.addConstr(
+                lhs=gamma[dataflow, task],
+                sense=GRB.LESS_EQUAL,
+                rhs=rho[task, dataflow.target],
+                name="Contrain_gamma_%s_%s_wrt_%s_%s" % (dataflow, task, task, dataflow.target))
+            m.addConstr(
+                lhs=gamma[dataflow, task],
+                sense=GRB.LESS_EQUAL,
+                rhs=rho[dataflow.source, dataflow.target],
+                name="Contrain_gamma_%s_%s_wrt_%s_%s" % (dataflow, task, dataflow.source, dataflow.target))
 
 # ---------------------------------------------------------------------------------------------------------------------
 print("* Constraint C21")
 for zone1, zone2 in itertools.combinations(instance.zones, 2):
     for channel in instance.channels:
-        if channel.wireless:
+        if not channel.point_to_point:
             continue
         if not channel.isAllowedBetween(zone1, zone2):
             continue
