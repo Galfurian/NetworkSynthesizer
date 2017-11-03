@@ -497,7 +497,7 @@ for dataflow in instance.dataflows:
                                  for channelIndex in instance.Set_UB_on_C[channel]),
                     sense=GRB.EQUAL,
                     rhs=1,
-                    name="unique_mapping_of_dataflow_%s" % dataflow)
+                    name="unique_mapping_of_dataflow_%s_different_zones" % dataflow)
 
 print("* Constraint C13")
 for dataflow in instance.dataflows:
@@ -507,20 +507,23 @@ for dataflow in instance.dataflows:
                                  for channelIndex in instance.Set_UB_on_C[channel]),
                     sense=GRB.EQUAL,
                     rhs=rho[dataflow.source, dataflow.target],
-                    name="unique_mapping_of_dataflow_%s" % dataflow)
+                    name="unique_mapping_of_dataflow_%s_same_zones" % dataflow)
 
 # ---------------------------------------------------------------------------------------------------------------------
 print("* Constraint C18")
-for task1, task2 in itertools.combinations(instance.tasks, 2):
-    if task1.zone == task2.zone:
-        for node1, node2 in itertools.product(task1.getAllowedNode(), task2.getAllowedNode()):
-            for node1Index, node2Index in itertools.product(instance.Set_UB_on_N[node1, task1.zone],
-                                                            instance.Set_UB_on_N[node2, task2.zone]):
-                if [node1, node1Index] != [node2, node2Index]:
-                    m.addConstr(lhs=rho[task1, task2],
-                                sense=GRB.GREATER_EQUAL,
-                                rhs=w[task1, node1, node1Index] + w[task2, node2, node2Index] - 1,
-                                name="Task_mapping_in_different_nodes_of_%s_%s" % (task1, task2))
+for task1 in instance.tasks:
+    for node1 in task1.getAllowedNode():
+        for node1Index in instance.Set_UB_on_N[node1, task1.zone]:
+            for task2 in instance.tasks:
+                if task1 < task2 and task1.zone == task2.zone:
+                    for node2 in task2.getAllowedNode():
+                        for node2Index in instance.Set_UB_on_N[node2, task2.zone]:
+                            if [node1, node1Index] != [node2, node2Index]:
+                                m.addConstr(lhs=rho[task1, task2],
+                                            sense=GRB.GREATER_EQUAL,
+                                            rhs=w[task1, node1, node1Index] + w[task2, node2, node2Index] - 1,
+                                            name="mapping_in_different_nodes_of_%s_in_%s_%s_and_%s_in_%s_%s"
+                                                 % (task1, node1, node1Index, task2, node2, node2Index))
 
 # ---------------------------------------------------------------------------------------------------------------------
 print("* Constraint C19")
@@ -529,20 +532,17 @@ for channel in instance.channels:
         for channelIndex in instance.Set_UB_on_C[channel]:
             for dataflow1, dataflow2 in itertools.combinations(channel.getAllowedDataFlow(), 2):
                 if not dataflow1.hasTask(dataflow2.source):
-                    m.addConstr(lhs=h[dataflow1, channel, channelIndex] +
-                                    h[dataflow2, channel, channelIndex] +
-                                    gamma[dataflow1, dataflow2.source],
+                    m.addConstr(lhs=gamma[dataflow1, dataflow2.source],
                                 sense=GRB.LESS_EQUAL,
-                                rhs=2,
-                                name="Cabled_channel_%s_%s_serves_only_two_nodes_%s_%s" % (
+                                rhs=2 - h[dataflow1, channel, channelIndex] - h[dataflow2, channel, channelIndex],
+                                name="point_to_point_channel_%s_%s_serves_%s_or_%s_source" % (
                                     channel, channelIndex, dataflow1, dataflow2))
+
                 if not dataflow1.hasTask(dataflow2.target):
-                    m.addConstr(lhs=h[dataflow1, channel, channelIndex] +
-                                    h[dataflow2, channel, channelIndex] +
-                                    gamma[dataflow1, dataflow2.target],
+                    m.addConstr(lhs=gamma[dataflow1, dataflow2.target],
                                 sense=GRB.LESS_EQUAL,
-                                rhs=2,
-                                name="Cabled_channel_%s_%s_serves_only_two_nodes_%s_%s" % (
+                                rhs=2 - h[dataflow1, channel, channelIndex] - h[dataflow2, channel, channelIndex],
+                                name="point_to_point_channel_%s_%s_serves_%s_or_%s_target" % (
                                     channel, channelIndex, dataflow1, dataflow2))
 
 # ---------------------------------------------------------------------------------------------------------------------
@@ -554,22 +554,7 @@ for dataflow, task in itertools.product(instance.dataflows, instance.tasks):
                 lhs=gamma[dataflow, task],
                 sense=GRB.GREATER_EQUAL,
                 rhs=rho[task, dataflow.source] + rho[task, dataflow.target] + rho[dataflow.source, dataflow.target] - 2,
-                name="Define_gamma_variable_for_%s_%s_%s" % (task, dataflow.source, dataflow.target))
-            m.addConstr(
-                lhs=gamma[dataflow, task],
-                sense=GRB.LESS_EQUAL,
-                rhs=rho[task, dataflow.source],
-                name="Contrain_gamma_%s_%s_wrt_%s_%s" % (dataflow, task, task, dataflow.source))
-            m.addConstr(
-                lhs=gamma[dataflow, task],
-                sense=GRB.LESS_EQUAL,
-                rhs=rho[task, dataflow.target],
-                name="Contrain_gamma_%s_%s_wrt_%s_%s" % (dataflow, task, task, dataflow.target))
-            m.addConstr(
-                lhs=gamma[dataflow, task],
-                sense=GRB.LESS_EQUAL,
-                rhs=rho[dataflow.source, dataflow.target],
-                name="Contrain_gamma_%s_%s_wrt_%s_%s" % (dataflow, task, dataflow.source, dataflow.target))
+                name="set_gamma_for_%s_%s_%s" % (task, dataflow.source, dataflow.target))
 
 # ---------------------------------------------------------------------------------------------------------------------
 print("* Constraint C22")
@@ -584,7 +569,7 @@ for channel in instance.channels:
                                  q[channel, dataflow1.source.zone, dataflow2.target.zone] *
                                  q[channel, dataflow1.target.zone, dataflow2.source.zone] *
                                  q[channel, dataflow1.target.zone, dataflow2.target.zone]),
-                            name="Wireless_with_df_%s_%s" % (dataflow1.label, dataflow2.label))
+                            name="feasable_wireless_%s_%s" % (dataflow1.label, dataflow2.label))
 
 m.update()
 
