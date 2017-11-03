@@ -149,22 +149,22 @@ Separator()
 # ---------------------------------------------------------------------------------------------------------------------
 Separator()
 print("* The tasks can be placed into:")
-for task in instance.tasks:
-    print("*     Task '%15s' Nodes : %s" % (task, task.getAllowedNode()))
+for t in instance.tasks:
+    print("*     Task '%15s' Nodes : %s" % (t, t.getAllowedNode()))
 print("*")
 print("* The data-flows can be placed into:")
-for dataflow in instance.dataflows:
-    print("*     DataFlow '%15s' Channels : %s" % (dataflow, dataflow.getAllowedChannel()))
+for df in instance.dataflows:
+    print("*     DataFlow '%15s' Channels : %s" % (df, df.getAllowedChannel()))
 
 print("*")
 print("* The nodes can host:")
-for node in instance.nodes:
-    print("*     Node '%15s' Tasks : %s" % (node, node.getAllowedTask()))
+for n in instance.nodes:
+    print("*     Node '%15s' Tasks : %s" % (n, n.getAllowedTask()))
 
 print("*")
 print("* The channels can host:")
-for channel in instance.channels:
-    print("*     Channel '%15s' Data-Flows : %s" % (channel, channel.getAllowedDataFlow()))
+for c in instance.channels:
+    print("*     Channel '%15s' Data-Flows : %s" % (c, c.getAllowedDataFlow()))
 Separator()
 
 # Files parsing ending time.
@@ -205,9 +205,9 @@ j = {}
 q = {}
 
 # ---------------------------------------------------------------------------------------------------------------------
-for node, zone in itertools.product(instance.nodes, instance.zones):
-    UB_on_N[node, zone] = len([task for task in node.getAllowedTask() if task.zone == zone])
-    instance.Set_UB_on_N[node, zone] = range(1, UB_on_N[node, zone] + 1)
+for n, z in itertools.product(instance.nodes, instance.zones):
+    UB_on_N[n, z] = len([t for t in n.getAllowedTask() if t.zone == z])
+    instance.Set_UB_on_N[n, z] = range(1, UB_on_N[n, z] + 1)
 # Log the information concerning the variable.
 print("*")
 print("* UB_on_N [%s]" % len(UB_on_N))
@@ -216,9 +216,9 @@ print("* \ttype inside a given zone. This value can be pre-computed.")
 print("*")
 
 # ---------------------------------------------------------------------------------------------------------------------
-for channel in instance.channels:
-    UB_on_C[channel] = len(channel.getAllowedDataFlow())
-    instance.Set_UB_on_C[channel] = range(1, UB_on_C[channel] + 1)
+for c in instance.channels:
+    UB_on_C[c] = len(c.getAllowedDataFlow())
+    instance.Set_UB_on_C[c] = range(1, UB_on_C[c] + 1)
 # Log the information concerning the variable.
 print("*")
 print("* UB_on_C [%s]" % len(UB_on_C))
@@ -227,9 +227,8 @@ print("* \ttype. This upper-bound can be pre-computed")
 print("*")
 
 # ---------------------------------------------------------------------------------------------------------------------
-for node, zone in itertools.product(instance.nodes, instance.zones):
-    N[node, zone] = m.addVar(lb=0.0, ub=UB_on_N[node, zone], obj=0.0, vtype=GRB.CONTINUOUS,
-                             name='N_%s_%s' % (node, zone))
+for n, z in itertools.product(instance.nodes, instance.zones):
+    N[n, z] = m.addVar(lb=0.0, ub=UB_on_N[n, z], obj=0.0, vtype=GRB.CONTINUOUS, name='N_%s_%s' % (n, z))
 # Log the information concerning the variable.
 print("*")
 print("* N [%s]" % len(N))
@@ -238,9 +237,8 @@ print("* \ta given zone. The upper-bound on this variable is equal to UB_on_N.")
 print("*")
 
 # ---------------------------------------------------------------------------------------------------------------------
-for channel in instance.channels:
-    C[channel] = m.addVar(lb=0.0, ub=UB_on_C[channel], obj=0.0, vtype=GRB.CONTINUOUS,
-                          name='C_%s' % channel)
+for c in instance.channels:
+    C[c] = m.addVar(lb=0.0, ub=UB_on_C[c], obj=0.0, vtype=GRB.CONTINUOUS, name='C_%s' % c)
 # Log the information concerning the variable.
 print("*")
 print("* C [%s]" % len(C))
@@ -249,10 +247,9 @@ print("* \tThe upper-bound on this variable is equal to UB_on_C.")
 print("*")
 
 # ---------------------------------------------------------------------------------------------------------------------
-for node, zone in itertools.product(instance.nodes, instance.zones):
-    for nodeIndex in instance.Set_UB_on_N[node, zone]:
-        x[node, nodeIndex, zone] = m.addVar(lb=0.0, ub=1.0, obj=0.0, vtype=GRB.BINARY,
-                                            name='x_%s_%s_%s' % (node, nodeIndex, zone))
+for n, z in itertools.product(instance.nodes, instance.zones):
+    for p in instance.Set_UB_on_N[n, z]:
+        x[n, p, z] = m.addVar(lb=0.0, ub=1.0, obj=0.0, vtype=GRB.BINARY, name='x_%s_%s_%s' % (n, p, z))
 # Log the information concerning the variable.
 print("*")
 print("* x [%s]" % len(x))
@@ -262,10 +259,9 @@ print("* \tthere are n1q nodes of type n1 inside zone z1.")
 print("*")
 
 # ---------------------------------------------------------------------------------------------------------------------
-for channel in instance.channels:
-    for channelIndex in instance.Set_UB_on_C[channel]:
-        y[channel, channelIndex] = m.addVar(lb=0.0, ub=1.0, obj=0.0, vtype=GRB.BINARY,
-                                            name='y_%s_%s' % (channel, channelIndex))
+for c in instance.channels:
+    for p in instance.Set_UB_on_C[c]:
+        y[c, p] = m.addVar(lb=0.0, ub=1.0, obj=0.0, vtype=GRB.BINARY, name='y_%s_%s' % (c, p))
 # Log the information concerning the variable.
 print("*")
 print("* y [%s]" % len(y))
@@ -275,16 +271,13 @@ print("* \tthere are c1q channels of type c1 deployed inside the network.")
 print("*")
 
 # ---------------------------------------------------------------------------------------------------------------------
-for dataflow, task in itertools.product(instance.dataflows, instance.tasks):
-    if dataflow.source == task or dataflow.target == task:
-        gamma[dataflow, task] = m.addVar(lb=0.0, ub=0.0, obj=0.0, vtype=GRB.BINARY,
-                                         name='gamma_%s_%s' % (dataflow, task))
-    elif dataflow.source.zone != dataflow.target.zone != task.zone:
-        gamma[dataflow, task] = m.addVar(lb=1.0, ub=1.0, obj=0.0, vtype=GRB.BINARY,
-                                         name='gamma_%s_%s' % (dataflow, task))
+for df, t in itertools.product(instance.dataflows, instance.tasks):
+    if df.source == t or df.target == t:
+        gamma[df, t] = m.addVar(lb=0.0, ub=0.0, obj=0.0, vtype=GRB.BINARY, name='gamma_%s_%s' % (df, t))
+    elif (t.zone != df.source.zone) and (t.zone != df.target.zone) and (df.source.zone != df.target.zone):
+        gamma[df, t] = m.addVar(lb=1.0, ub=1.0, obj=0.0, vtype=GRB.BINARY, name='gamma_%s_%s' % (df, t))
     else:
-        gamma[dataflow, task] = m.addVar(lb=0.0, ub=1.0, obj=0.0, vtype=GRB.BINARY,
-                                         name='gamma_%s_%s' % (dataflow, task))
+        gamma[df, t] = m.addVar(lb=0.0, ub=1.0, obj=0.0, vtype=GRB.BINARY, name='gamma_%s_%s' % (df, t))
 # Log the information concerning the variable.
 print("*")
 print("* gamma [%s]" % len(gamma))
@@ -293,14 +286,14 @@ print("* \tnot placed inside the same node.")
 print("*")
 
 # ---------------------------------------------------------------------------------------------------------------------
-for task1, task2 in itertools.combinations_with_replacement(instance.tasks, 2):
-    if task1 == task2:
-        rho[task1, task2] = m.addVar(lb=0.0, ub=0.0, obj=0.0, vtype=GRB.BINARY, name='rho_%s_%s' % (task1, task2))
-    elif task1.zone != task2.zone:
-        rho[task1, task2] = m.addVar(lb=1.0, ub=1.0, obj=0.0, vtype=GRB.BINARY, name='rho_%s_%s' % (task1, task2))
+for t1, t2 in itertools.combinations_with_replacement(instance.tasks, 2):
+    if t1 == t2:
+        rho[t1, t2] = m.addVar(lb=0.0, ub=0.0, obj=0.0, vtype=GRB.BINARY, name='rho_%s_%s' % (t1, t2))
+    elif t1.zone != t2.zone:
+        rho[t1, t2] = m.addVar(lb=1.0, ub=1.0, obj=0.0, vtype=GRB.BINARY, name='rho_%s_%s' % (t1, t2))
     else:
-        rho[task1, task2] = m.addVar(lb=0.0, ub=1.0, obj=0.0, vtype=GRB.BINARY, name='rho_%s_%s' % (task1, task2))
-    rho[task2, task1] = rho[task1, task2]
+        rho[t1, t2] = m.addVar(lb=0.0, ub=1.0, obj=0.0, vtype=GRB.BINARY, name='rho_%s_%s' % (t1, t2))
+    rho[t2, t1] = rho[t1, t2]
 # Log the information concerning the variable.
 print("*")
 print("* rho [%s]" % len(rho))
@@ -309,11 +302,10 @@ print("* \tnodes.")
 print("*")
 
 # ---------------------------------------------------------------------------------------------------------------------
-for task in instance.tasks:
-    for node in task.getAllowedNode():
-        for nodeIndex in instance.Set_UB_on_N[node, task.zone]:
-            w[task, node, nodeIndex] = m.addVar(lb=0.0, ub=1.0, obj=0.0, vtype=GRB.BINARY,
-                                                name='w_%s_%s_%s' % (task, node, nodeIndex))
+for t in instance.tasks:
+    for n in t.getAllowedNode():
+        for p in instance.Set_UB_on_N[n, t.zone]:
+            w[t, n, p] = m.addVar(lb=0.0, ub=1.0, obj=0.0, vtype=GRB.BINARY, name='w_%s_%s_%s' % (t, n, p))
 # Log the information concerning the variable.
 print("*")
 print("* w [%s]" % len(w))
@@ -322,11 +314,10 @@ print("* \tgiven instance of the given type of node.")
 print("*")
 
 # ---------------------------------------------------------------------------------------------------------------------
-for dataflow in instance.dataflows:
-    for channel in dataflow.getAllowedChannel():
-        for channelIndex in instance.Set_UB_on_C[channel]:
-            h[dataflow, channel, channelIndex] = m.addVar(lb=0.0, ub=1.0, obj=0.0, vtype=GRB.BINARY,
-                                                          name='h_%s_%s_%s' % (dataflow, channel, channelIndex))
+for df in instance.dataflows:
+    for c in df.getAllowedChannel():
+        for p in instance.Set_UB_on_C[c]:
+            h[df, c, p] = m.addVar(lb=0.0, ub=1.0, obj=0.0, vtype=GRB.BINARY, name='h_%s_%s_%s' % (df, c, p))
 # Log the information concerning the variable.
 print("*")
 print("* h [%s]" % len(h))
@@ -335,10 +326,10 @@ print("* \tgiven instance of the given type of channel.")
 print("*")
 
 # ---------------------------------------------------------------------------------------------------------------------
-for channel in instance.channels:
-    for zone1, zone2 in itertools.combinations_with_replacement(instance.zones, 2):
-        q[channel, zone1, zone2] = channel.isAllowedBetween(zone1, zone2)
-        q[channel, zone2, zone1] = q[channel, zone1, zone2]
+for c in instance.channels:
+    for z1, z2 in itertools.combinations_with_replacement(instance.zones, 2):
+        q[c, z1, z2] = c.isAllowedBetween(z1, z2)
+        q[c, z2, z1] = q[c, z1, z2]
 
 # Log the information concerning the variable.
 print("*")
@@ -348,16 +339,12 @@ print("* \tcan be placed between the given pair of zones.")
 print("*")
 
 # ---------------------------------------------------------------------------------------------------------------------
-for channel in instance.channels:
-    for channelIndex in instance.Set_UB_on_C[channel]:
-        for zone1, zone2 in itertools.combinations_with_replacement(instance.zones, 2):
-            j[channel, channelIndex, zone1, zone2] = m.addVar(lb=0.0,
-                                                              ub=channel.isAllowedBetween(zone1, zone2),
-                                                              obj=0.0,
-                                                              vtype=GRB.BINARY,
-                                                              name='j_%s_%s_%s_%s' % (
-                                                                  channel, channelIndex, zone1, zone2))
-            j[channel, channelIndex, zone2, zone1] = j[channel, channelIndex, zone1, zone2]
+for c in instance.channels:
+    for p in instance.Set_UB_on_C[c]:
+        for z1, z2 in itertools.combinations_with_replacement(instance.zones, 2):
+            j[c, p, z1, z2] = m.addVar(lb=0.0, ub=c.isAllowedBetween(z1, z2), obj=0.0, vtype=GRB.BINARY,
+                                       name='j_%s_%s_%s_%s' % (c, p, z1, z2))
+            j[c, p, z2, z1] = j[c, p, z1, z2]
 # Log the information concerning the variable.
 print("*")
 print("* j [%s]" % len(j))
@@ -382,194 +369,194 @@ print("* Defining constraints...")
 
 # ---------------------------------------------------------------------------------------------------------------------
 print("* Constraint C1")
-for node, zone in itertools.product(instance.nodes, instance.zones):
-    m.addConstr(lhs=N[node, zone],
+for n, z in itertools.product(instance.nodes, instance.zones):
+    m.addConstr(lhs=N[n, z],
                 sense=GRB.EQUAL,
-                rhs=quicksum(x[node, nodeIndex, zone] for nodeIndex in instance.Set_UB_on_N[node, zone]),
-                name="define_N_%s_%s" % (node, zone))
+                rhs=quicksum(x[n, p, z] for p in instance.Set_UB_on_N[n, z]),
+                name="define_N_%s_%s" % (n, z))
 
 # ---------------------------------------------------------------------------------------------------------------------
 print("* Constraint C2")
-for node, zone in itertools.product(instance.nodes, instance.zones):
-    for nodeIndex in instance.Set_UB_on_N[node, zone]:
-        m.addConstr(lhs=N[node, zone],
+for n, z in itertools.product(instance.nodes, instance.zones):
+    for p in instance.Set_UB_on_N[n, z]:
+        m.addConstr(lhs=N[n, z],
                     sense=GRB.GREATER_EQUAL,
-                    rhs=nodeIndex * x[node, nodeIndex, zone],
-                    name="mono_clones_of_N_%s_%s_%s" % (node, zone, nodeIndex))
+                    rhs=p * x[n, p, z],
+                    name="mono_clones_of_N_%s_%s_%s" % (n, z, p))
 
 # ---------------------------------------------------------------------------------------------------------------------
 print("* Constraint C3")
-for channel in instance.channels:
-    m.addConstr(lhs=C[channel],
+for c in instance.channels:
+    m.addConstr(lhs=C[c],
                 sense=GRB.EQUAL,
-                rhs=quicksum(y[channel, channelIndex] for channelIndex in instance.Set_UB_on_C[channel]),
-                name="define_C_%s" % channel)
+                rhs=quicksum(y[c, p] for p in instance.Set_UB_on_C[c]),
+                name="define_C_%s" % c)
 
 # ---------------------------------------------------------------------------------------------------------------------
 print("* Constraint C4")
-for channel in instance.channels:
-    for channelIndex in instance.Set_UB_on_C[channel]:
-        m.addConstr(lhs=C[channel],
+for c in instance.channels:
+    for p in instance.Set_UB_on_C[c]:
+        m.addConstr(lhs=C[c],
                     sense=GRB.GREATER_EQUAL,
-                    rhs=channelIndex * y[channel, channelIndex],
-                    name="mono_clones_of_C_%s_%s" % (channel, channelIndex))
+                    rhs=p * y[c, p],
+                    name="mono_clones_of_C_%s_%s" % (c, p))
 
 # ---------------------------------------------------------------------------------------------------------------------
 print("* Constraint C5")
-for task in instance.tasks:
-    for node in task.getAllowedNode():
-        for nodeIndex in instance.Set_UB_on_N[node, task.zone]:
-            m.addConstr(lhs=w[task, node, nodeIndex],
+for t in instance.tasks:
+    for n in t.getAllowedNode():
+        for p in instance.Set_UB_on_N[n, t.zone]:
+            m.addConstr(lhs=w[t, n, p],
                         sense=GRB.LESS_EQUAL,
-                        rhs=x[node, nodeIndex, task.zone],
-                        name="codomain_existance_for_w_%s_%s_%s" % (task, node, nodeIndex))
+                        rhs=x[n, p, t.zone],
+                        name="codomain_existance_for_w_%s_%s_%s" % (t, n, p))
 
 # ---------------------------------------------------------------------------------------------------------------------
 print("* Constraint C6")
-for dataflow in instance.dataflows:
-    for channel in dataflow.getAllowedChannel():
-        for channelIndex in instance.Set_UB_on_C[channel]:
-            m.addConstr(lhs=h[dataflow, channel, channelIndex],
+for df in instance.dataflows:
+    for c in df.getAllowedChannel():
+        for p in instance.Set_UB_on_C[c]:
+            m.addConstr(lhs=h[df, c, p],
                         sense=GRB.LESS_EQUAL,
-                        rhs=y[channel, channelIndex],
-                        name="codomain_existance_for_h_%s_%s_%s" % (dataflow, channel, channelIndex))
+                        rhs=y[c, p],
+                        name="codomain_existance_for_h_%s_%s_%s" % (df, c, p))
 
 # ---------------------------------------------------------------------------------------------------------------------
 print("* Constraint C7")
-for node, zone in itertools.product(instance.nodes, instance.zones):
-    for nodeIndex in instance.Set_UB_on_N[node, zone]:
-        m.addConstr(lhs=x[node, nodeIndex, zone],
+for n, z in itertools.product(instance.nodes, instance.zones):
+    for p in instance.Set_UB_on_N[n, z]:
+        m.addConstr(lhs=x[n, p, z],
                     sense=GRB.LESS_EQUAL,
-                    rhs=quicksum(w[task, node, nodeIndex]
-                                 for task in node.getAllowedTask()
-                                 if task.zone == zone),
-                    name="deactivate_unecessary_clones_of_x_%s_%s_%s" % (node, zone, nodeIndex))
+                    rhs=quicksum(w[t, n, p]
+                                 for t in n.getAllowedTask()
+                                 if t.zone == z),
+                    name="deactivate_unecessary_clones_of_x_%s_%s_%s" % (n, z, p))
 
 # ---------------------------------------------------------------------------------------------------------------------
 print("* Constraint C8")
-for channel in instance.channels:
-    for channelIndex in instance.Set_UB_on_C[channel]:
-        m.addConstr(lhs=y[channel, channelIndex],
+for c in instance.channels:
+    for p in instance.Set_UB_on_C[c]:
+        m.addConstr(lhs=y[c, p],
                     sense=GRB.LESS_EQUAL,
-                    rhs=quicksum(h[dataflow, channel, channelIndex]
-                                 for dataflow in channel.getAllowedDataFlow()),
-                    name="deactivate_unecessary_clones_of_y_%s_%s" % (channel, channelIndex))
+                    rhs=quicksum(h[df, c, p]
+                                 for df in c.getAllowedDataFlow()),
+                    name="deactivate_unecessary_clones_of_y_%s_%s" % (c, p))
 
 # ---------------------------------------------------------------------------------------------------------------------
 print("* Constraint C9")
-for node, zone in itertools.product(instance.nodes, instance.zones):
-    for nodeIndex in instance.Set_UB_on_N[node, zone]:
-        m.addConstr(lhs=quicksum((task.size * w[task, node, nodeIndex])
-                                 for task in node.getAllowedTask()
-                                 if task.zone == zone),
+for n, z in itertools.product(instance.nodes, instance.zones):
+    for p in instance.Set_UB_on_N[n, z]:
+        m.addConstr(lhs=quicksum((t.size * w[t, n, p])
+                                 for t in n.getAllowedTask()
+                                 if t.zone == z),
                     sense=GRB.LESS_EQUAL,
-                    rhs=node.size,
-                    name="node_size_%s_%s" % (node, nodeIndex))
+                    rhs=n.size,
+                    name="node_size_%s_%s" % (n, p))
 
 # ---------------------------------------------------------------------------------------------------------------------
 print("* Constraint C10")
-for channel in instance.channels:
-    for channelIndex in instance.Set_UB_on_C[channel]:
-        m.addConstr(lhs=quicksum(((dataflow.size * h[dataflow, channel, channelIndex]) /
+for c in instance.channels:
+    for p in instance.Set_UB_on_C[c]:
+        m.addConstr(lhs=quicksum(((df.size * h[df, c, p]) /
                                   instance.contiguities.get(
-                                      (dataflow.source.zone, dataflow.target.zone, channel)).conductance)
-                                 for dataflow in channel.getAllowedDataFlow()),
+                                      (df.source.zone, df.target.zone, c)).conductance)
+                                 for df in c.getAllowedDataFlow()),
                     sense=GRB.LESS_EQUAL,
-                    rhs=channel.size,
-                    name="channel_size_%s_%s" % (channel, channelIndex))
+                    rhs=c.size,
+                    name="channel_size_%s_%s" % (c, p))
 
 # ---------------------------------------------------------------------------------------------------------------------
 print("* Constraint C11")
-for task in instance.tasks:
-    m.addConstr(lhs=quicksum(w[task, node, nodeIndex]
-                             for node in task.getAllowedNode()
-                             for nodeIndex in instance.Set_UB_on_N[node, task.zone]),
+for t in instance.tasks:
+    m.addConstr(lhs=quicksum(w[t, n, p]
+                             for n in t.getAllowedNode()
+                             for p in instance.Set_UB_on_N[n, t.zone]),
                 sense=GRB.EQUAL,
                 rhs=1,
-                name="unique_mapping_of_task_%s" % task)
+                name="unique_mapping_of_task_%s" % t)
 
 # ---------------------------------------------------------------------------------------------------------------------
 print("* Constraint C12")
-for dataflow in instance.dataflows:
-    if dataflow.source.zone != dataflow.target.zone:
-        m.addConstr(lhs=quicksum(h[dataflow, channel, channelIndex]
-                                 for channel in dataflow.getAllowedChannel()
-                                 for channelIndex in instance.Set_UB_on_C[channel]),
+for df in instance.dataflows:
+    if df.source.zone != df.target.zone:
+        m.addConstr(lhs=quicksum(h[df, c, p]
+                                 for c in df.getAllowedChannel()
+                                 for p in instance.Set_UB_on_C[c]),
                     sense=GRB.EQUAL,
                     rhs=1,
-                    name="unique_mapping_of_dataflow_%s_different_zones" % dataflow)
+                    name="unique_mapping_of_dataflow_%s_different_zones" % df)
 
 print("* Constraint C13")
-for dataflow in instance.dataflows:
-    if dataflow.source.zone == dataflow.target.zone:
-        m.addConstr(lhs=quicksum(h[dataflow, channel, channelIndex]
-                                 for channel in dataflow.getAllowedChannel()
-                                 for channelIndex in instance.Set_UB_on_C[channel]),
+for df in instance.dataflows:
+    if df.source.zone == df.target.zone:
+        m.addConstr(lhs=quicksum(h[df, c, p]
+                                 for c in df.getAllowedChannel()
+                                 for p in instance.Set_UB_on_C[c]),
                     sense=GRB.EQUAL,
-                    rhs=rho[dataflow.source, dataflow.target],
-                    name="unique_mapping_of_dataflow_%s_same_zones" % dataflow)
+                    rhs=rho[df.source, df.target],
+                    name="unique_mapping_of_dataflow_%s_same_zones" % df)
 
 # ---------------------------------------------------------------------------------------------------------------------
-print("* Constraint C18")
-for task1 in instance.tasks:
-    for node1 in task1.getAllowedNode():
-        for node1Index in instance.Set_UB_on_N[node1, task1.zone]:
-            for task2 in instance.tasks:
-                if task1 < task2 and task1.zone == task2.zone:
-                    for node2 in task2.getAllowedNode():
-                        for node2Index in instance.Set_UB_on_N[node2, task2.zone]:
-                            if [node1, node1Index] != [node2, node2Index]:
-                                m.addConstr(lhs=rho[task1, task2],
+print("* Constraint C14")
+for t1 in instance.tasks:
+    for n1 in t1.getAllowedNode():
+        for n1p in instance.Set_UB_on_N[n1, t1.zone]:
+            for t2 in instance.tasks:
+                if t1 < t2 and t1.zone == t2.zone:
+                    for n2 in t2.getAllowedNode():
+                        for n2p in instance.Set_UB_on_N[n2, t2.zone]:
+                            if [n1, n1p] != [n2, n2p]:
+                                m.addConstr(lhs=rho[t1, t2],
                                             sense=GRB.GREATER_EQUAL,
-                                            rhs=w[task1, node1, node1Index] + w[task2, node2, node2Index] - 1,
+                                            rhs=w[t1, n1, n1p] + w[t2, n2, n2p] - 1,
                                             name="mapping_in_different_nodes_of_%s_in_%s_%s_and_%s_in_%s_%s"
-                                                 % (task1, node1, node1Index, task2, node2, node2Index))
+                                                 % (t1, n1, n1p, t2, n2, n2p))
 
 # ---------------------------------------------------------------------------------------------------------------------
-print("* Constraint C19")
-for channel in instance.channels:
-    if channel.point_to_point:
-        for channelIndex in instance.Set_UB_on_C[channel]:
-            for dataflow1, dataflow2 in itertools.combinations(channel.getAllowedDataFlow(), 2):
-                if not dataflow1.hasTask(dataflow2.source):
-                    m.addConstr(lhs=gamma[dataflow1, dataflow2.source],
+print("* Constraint C15")
+for c in instance.channels:
+    if c.point_to_point:
+        for p in instance.Set_UB_on_C[c]:
+            for df1, df2 in itertools.combinations(c.getAllowedDataFlow(), 2):
+                if not df1.hasTask(df2.source):
+                    m.addConstr(lhs=gamma[df1, df2.source],
                                 sense=GRB.LESS_EQUAL,
-                                rhs=2 - h[dataflow1, channel, channelIndex] - h[dataflow2, channel, channelIndex],
+                                rhs=2 - h[df1, c, p] - h[df2, c, p],
                                 name="point_to_point_channel_%s_%s_serves_%s_or_%s_source" % (
-                                    channel, channelIndex, dataflow1, dataflow2))
+                                    c, p, df1, df2))
 
-                if not dataflow1.hasTask(dataflow2.target):
-                    m.addConstr(lhs=gamma[dataflow1, dataflow2.target],
+                if not df1.hasTask(df2.target):
+                    m.addConstr(lhs=gamma[df1, df2.target],
                                 sense=GRB.LESS_EQUAL,
-                                rhs=2 - h[dataflow1, channel, channelIndex] - h[dataflow2, channel, channelIndex],
+                                rhs=2 - h[df1, c, p] - h[df2, c, p],
                                 name="point_to_point_channel_%s_%s_serves_%s_or_%s_target" % (
-                                    channel, channelIndex, dataflow1, dataflow2))
+                                    c, p, df1, df2))
 
 # ---------------------------------------------------------------------------------------------------------------------
-print("* Constraint C20")
-for dataflow, task in itertools.product(instance.dataflows, instance.tasks):
-    if not dataflow.hasTask(task):
-        if not dataflow.source.zone != dataflow.target.zone != task.zone:
+print("* Constraint C16")
+for df, t in itertools.product(instance.dataflows, instance.tasks):
+    if not df.hasTask(t):
+        if df.target.zone == t.zone or df.source.zone == t.zone or df.source.zone == df.target.zone:
             m.addConstr(
-                lhs=gamma[dataflow, task],
+                lhs=gamma[df, t],
                 sense=GRB.GREATER_EQUAL,
-                rhs=rho[task, dataflow.source] + rho[task, dataflow.target] + rho[dataflow.source, dataflow.target] - 2,
-                name="set_gamma_for_%s_%s_%s" % (task, dataflow.source, dataflow.target))
+                rhs=rho[t, df.source] + rho[t, df.target] + rho[df.source, df.target] - 2,
+                name="set_gamma_for_%s_%s_%s_a" % (t, df.source, df.target))
 
 # ---------------------------------------------------------------------------------------------------------------------
-print("* Constraint C22")
-for channel in instance.channels:
-    if channel.wireless:
-        for channelIndex in instance.Set_UB_on_C[channel]:
-            for dataflow1, dataflow2 in itertools.combinations(channel.getAllowedDataFlow(), 2):
-                m.addConstr(lhs=h[dataflow1, channel, channelIndex] + h[dataflow2, channel, channelIndex],
+print("* Constraint C17")
+for c in instance.channels:
+    if c.wireless:
+        for p in instance.Set_UB_on_C[c]:
+            for df1, df2 in itertools.combinations(c.getAllowedDataFlow(), 2):
+                m.addConstr(lhs=h[df1, c, p] + h[df2, c, p],
                             sense=GRB.LESS_EQUAL,
                             rhs=(1 +
-                                 q[channel, dataflow1.source.zone, dataflow2.source.zone] *
-                                 q[channel, dataflow1.source.zone, dataflow2.target.zone] *
-                                 q[channel, dataflow1.target.zone, dataflow2.source.zone] *
-                                 q[channel, dataflow1.target.zone, dataflow2.target.zone]),
-                            name="feasable_wireless_%s_%s" % (dataflow1.label, dataflow2.label))
+                                 q[c, df1.source.zone, df2.source.zone] *
+                                 q[c, df1.source.zone, df2.target.zone] *
+                                 q[c, df1.target.zone, df2.source.zone] *
+                                 q[c, df1.target.zone, df2.target.zone]),
+                            name="feasable_wireless_%s_%s" % (df1.label, df2.label))
 
 m.update()
 
@@ -585,29 +572,29 @@ if instance.OPTIMIZATION == 1:
     #   Its objective is to minimize the global economic cost of the network.
     m.setObjective(
         quicksum(
-            x[node, nodeIndex, zone] * (node.cost + node.energy * node.energy_cost)
-            for node, zone in itertools.product(instance.nodes, instance.zones)
-            for nodeIndex in instance.Set_UB_on_N[node, zone]) +
+            x[n, p, z] * (n.cost + n.energy * n.energy_cost)
+            for n, z in itertools.product(instance.nodes, instance.zones)
+            for p in instance.Set_UB_on_N[n, z]) +
         quicksum(
-            w[task, node, nodeIndex] * node.task_energy * task.size * node.energy_cost
-            for task in instance.tasks
-            for node in task.getAllowedNode()
-            for nodeIndex in instance.Set_UB_on_N[node, task.zone]) +
+            w[t, n, p] * n.task_energy * t.size * n.energy_cost
+            for t in instance.tasks
+            for n in t.getAllowedNode()
+            for p in instance.Set_UB_on_N[n, t.zone]) +
         quicksum(
-            y[channel, channelIndex] * (channel.cost + channel.energy * channel.energy_cost)
-            for channel in instance.channels
-            for channelIndex in instance.Set_UB_on_C[channel]) +
+            y[c, p] * (c.cost + c.energy * c.energy_cost)
+            for c in instance.channels
+            for p in instance.Set_UB_on_C[c]) +
         quicksum(
-            j[channel, channelIndex, zone1, zone2] * instance.contiguities.get((zone1, zone2, channel)).deploymentCost
-            for zone1, zone2 in itertools.combinations(instance.zones, 2)
-            for channel in instance.channels if channel.isAllowedBetween(zone1, zone2) if not channel.wireless
-            for channelIndex in instance.Set_UB_on_C[channel]) +
+            j[c, p, z1, z2] * instance.contiguities.get((z1, z2, c)).deploymentCost
+            for z1, z2 in itertools.combinations(instance.zones, 2)
+            for c in instance.channels if c.isAllowedBetween(z1, z2) if not c.wireless
+            for p in instance.Set_UB_on_C[c]) +
         quicksum(
-            h[dataflow, channel, channelIndex] * channel.df_energy * dataflow.size * channel.energy_cost /
-            instance.contiguities.get((dataflow.source.zone, dataflow.target.zone, channel)).conductance
-            for dataflow in instance.dataflows
-            for channel in dataflow.getAllowedChannel()
-            for channelIndex in instance.Set_UB_on_C[channel]),
+            h[df, c, p] * c.df_energy * df.size * c.energy_cost /
+            instance.contiguities.get((df.source.zone, df.target.zone, c)).conductance
+            for df in instance.dataflows
+            for c in df.getAllowedChannel()
+            for p in instance.Set_UB_on_C[c]),
         GRB.MINIMIZE
     )
     m.update()
@@ -616,21 +603,21 @@ elif instance.OPTIMIZATION == 2:
     # Energy Consumption Minimization:
     #   The second optimization objective is to minimize the global energy consumption of the network.
     m.setObjective(
-        quicksum(x[node, nodeIndex, zone] * node.energy
-                 for node, zone in itertools.product(instance.nodes, instance.zones)
-                 for nodeIndex in instance.Set_UB_on_N[node, zone]) +
-        quicksum(w[task, node, nodeIndex] * node.task_energy * task.size
-                 for task in instance.tasks
-                 for node in task.getAllowedNode()
-                 for nodeIndex in instance.Set_UB_on_N[node, task.zone]) +
-        quicksum(y[channel, channelIndex] * channel.energy
-                 for channel in instance.channels
-                 for channelIndex in instance.Set_UB_on_C[channel]) +
-        quicksum(h[dataflow, channel, channelIndex] * channel.df_energy * dataflow.size /
-                 instance.contiguities.get((dataflow.source.zone, dataflow.target.zone, channel)).conductance
-                 for dataflow in instance.dataflows
-                 for channel in dataflow.getAllowedChannel()
-                 for channelIndex in instance.Set_UB_on_C[channel]),
+        quicksum(x[n, p, z] * n.energy
+                 for n, z in itertools.product(instance.nodes, instance.zones)
+                 for p in instance.Set_UB_on_N[n, z]) +
+        quicksum(w[t, n, p] * n.task_energy * t.size
+                 for t in instance.tasks
+                 for n in t.getAllowedNode()
+                 for p in instance.Set_UB_on_N[n, t.zone]) +
+        quicksum(y[c, p] * c.energy
+                 for c in instance.channels
+                 for p in instance.Set_UB_on_C[c]) +
+        quicksum(h[df, c, p] * c.df_energy * df.size /
+                 instance.contiguities.get((df.source.zone, df.target.zone, c)).conductance
+                 for df in instance.dataflows
+                 for c in df.getAllowedChannel()
+                 for p in instance.Set_UB_on_C[c]),
         GRB.MINIMIZE
     )
     m.update()
@@ -640,11 +627,11 @@ elif instance.OPTIMIZATION == 3:
     #   The third possible constrains is on the overall delay of the network.
     #   Its purpose is to minimize the global transmission delay of the network.
     m.setObjective(
-        quicksum(channel.delay * h[dataflow, channel, channelIndex] /
-                 instance.contiguities.get((dataflow.source.zone, dataflow.target.zone, channel)).conductance
-                 for dataflow in instance.dataflows
-                 for channel in dataflow.getAllowedChannel()
-                 for channelIndex in instance.Set_UB_on_C[channel]),
+        quicksum(c.delay * h[df, c, p] /
+                 instance.contiguities.get((df.source.zone, df.target.zone, c)).conductance
+                 for df in instance.dataflows
+                 for c in df.getAllowedChannel()
+                 for p in instance.Set_UB_on_C[c]),
         GRB.MINIMIZE
     )
     m.update()
@@ -653,11 +640,11 @@ elif instance.OPTIMIZATION == 4:
     # Error Rate Minimization:
     #   The optimization objective is to minimize the global error rate of the network.
     m.setObjective(
-        quicksum(channel.error * h[dataflow, channel, channelIndex] /
-                 instance.contiguities.get((dataflow.source.zone, dataflow.target.zone, channel)).conductance
-                 for dataflow in instance.dataflows
-                 for channel in dataflow.getAllowedChannel()
-                 for channelIndex in instance.Set_UB_on_C[channel]),
+        quicksum(c.error * h[df, c, p] /
+                 instance.contiguities.get((df.source.zone, df.target.zone, c)).conductance
+                 for df in instance.dataflows
+                 for c in df.getAllowedChannel()
+                 for p in instance.Set_UB_on_C[c]),
         GRB.MINIMIZE
     )
     m.update()
@@ -668,12 +655,12 @@ elif instance.OPTIMIZATION == 5:
     m.setObjective(
         quicksum(
             (
-                (channel.delay * h[dataflow, channel, channelIndex]) / (
-                    instance.contiguities.get((dataflow.source.zone, dataflow.target.zone, channel)).conductance) +
-                (channel.error * h[dataflow, channel, channelIndex]) / (
-                    instance.contiguities.get((dataflow.source.zone, dataflow.target.zone, channel)).conductance)
-            ) for dataflow in instance.dataflows for channel in dataflow.getAllowedChannel() for channelIndex in
-            instance.Set_UB_on_C[channel]
+                (c.delay * h[df, c, p]) / (
+                    instance.contiguities.get((df.source.zone, df.target.zone, c)).conductance) +
+                (c.error * h[df, c, p]) / (
+                    instance.contiguities.get((df.source.zone, df.target.zone, c)).conductance)
+            ) for df in instance.dataflows for c in df.getAllowedChannel() for p in
+            instance.Set_UB_on_C[c]
         ),
         GRB.MINIMIZE
     )
@@ -795,33 +782,33 @@ if m.status == GRB.status.OPTIMAL:
     outfile.write("* SOLUTION\n")
     outfile.write("%s\n" % GetSeparator())
     outfile.write("* List of activated nodes:\n")
-    for zone in instance.zones:
-        for node in instance.nodes:
-            if instance.sol_N[node, zone]:
-                outfile.write("*\tZone %4s, use %4g nodes of type %s\n" % (zone, instance.sol_N[node, zone], node))
+    for z in instance.zones:
+        for n in instance.nodes:
+            if instance.sol_N[n, z]:
+                outfile.write("*\tZone %4s, use %4g nodes of type %s\n" % (z, instance.sol_N[n, z], n))
 
     outfile.write("* List of activated channels:\n")
-    for channel in instance.channels:
-        if instance.sol_C[channel]:
-            outfile.write("*\tUse %4g channels of type %s\n" % (instance.sol_C[channel], channel))
+    for c in instance.channels:
+        if instance.sol_C[c]:
+            outfile.write("*\tUse %4g channels of type %s\n" % (instance.sol_C[c], c))
 
     outfile.write("* Tasks allocation:\n")
-    for zone in instance.zones:
-        for task in instance.tasks:
-            if task.zone == zone:
-                for node in task.getAllowedNode():
-                    for nodeIndex in instance.Set_UB_on_N[node, zone]:
-                        if instance.sol_w[task, node, nodeIndex]:
+    for z in instance.zones:
+        for t in instance.tasks:
+            if t.zone == z:
+                for n in t.getAllowedNode():
+                    for p in instance.Set_UB_on_N[n, z]:
+                        if instance.sol_w[t, n, p]:
                             outfile.write(
-                                "*\tTask     %-24s inside node Zone%s.%s.%s\n" % (task, zone, node, nodeIndex))
+                                "*\tTask     %-24s inside n Zone%s.%s.%s\n" % (t, z, n, p))
 
     outfile.write("* Data-Flows allocation:\n")
-    for dataflow in instance.dataflows:
-        for channel in dataflow.getAllowedChannel():
-            contiguity = instance.contiguities.get((dataflow.source.zone, dataflow.target.zone, channel))
-            for channelIndex in instance.Set_UB_on_C[channel]:
-                if instance.sol_h[dataflow, channel, channelIndex]:
-                    outfile.write("*\tDataflow %-24s inside channel %s.%s\n" % (dataflow, channel, channelIndex))
+    for df in instance.dataflows:
+        for c in df.getAllowedChannel():
+            contiguity = instance.contiguities.get((df.source.zone, df.target.zone, c))
+            for p in instance.Set_UB_on_C[c]:
+                if instance.sol_h[df, c, p]:
+                    outfile.write("*\tDataflow %-24s inside c %s.%s\n" % (df, c, p))
 
     outfile.write("%s\n" % GetSeparator())
     outfile.write("* STATISTICS\n")
