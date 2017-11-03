@@ -458,8 +458,7 @@ print("* Constraint C10")
 for c in instance.channels:
     for p in instance.Set_UB_on_C[c]:
         m.addConstr(lhs=quicksum(((df.size * h[df, c, p]) /
-                                  instance.contiguities.get(
-                                      (df.source.zone, df.target.zone, c)).conductance)
+                                  instance.contiguities.get((df.source.zone, df.target.zone, c)).conductance)
                                  for df in c.getAllowedDataFlow()),
                     sense=GRB.LESS_EQUAL,
                     rhs=c.size,
@@ -478,16 +477,6 @@ for t in instance.tasks:
 # ---------------------------------------------------------------------------------------------------------------------
 print("* Constraint C12")
 for df in instance.dataflows:
-    if df.source.zone != df.target.zone:
-        m.addConstr(lhs=quicksum(h[df, c, p]
-                                 for c in df.getAllowedChannel()
-                                 for p in instance.Set_UB_on_C[c]),
-                    sense=GRB.EQUAL,
-                    rhs=1,
-                    name="unique_mapping_of_dataflow_%s_different_zones" % df)
-
-print("* Constraint C13")
-for df in instance.dataflows:
     if df.source.zone == df.target.zone:
         m.addConstr(lhs=quicksum(h[df, c, p]
                                  for c in df.getAllowedChannel()
@@ -496,21 +485,30 @@ for df in instance.dataflows:
                     rhs=rho[df.source, df.target],
                     name="unique_mapping_of_dataflow_%s_same_zones" % df)
 
+print("* Constraint C13")
+for df in instance.dataflows:
+    if df.source.zone != df.target.zone:
+        m.addConstr(lhs=quicksum(h[df, c, p]
+                                 for c in df.getAllowedChannel()
+                                 for p in instance.Set_UB_on_C[c]),
+                    sense=GRB.EQUAL,
+                    rhs=1,
+                    name="unique_mapping_of_dataflow_%s_different_zones" % df)
+
 # ---------------------------------------------------------------------------------------------------------------------
 print("* Constraint C14")
-for t1 in instance.tasks:
-    for n1 in t1.getAllowedNode():
-        for n1p in instance.Set_UB_on_N[n1, t1.zone]:
-            for t2 in instance.tasks:
-                if t1 < t2 and t1.zone == t2.zone:
-                    for n2 in t2.getAllowedNode():
-                        for n2p in instance.Set_UB_on_N[n2, t2.zone]:
-                            if [n1, n1p] != [n2, n2p]:
-                                m.addConstr(lhs=rho[t1, t2],
-                                            sense=GRB.GREATER_EQUAL,
-                                            rhs=w[t1, n1, n1p] + w[t2, n2, n2p] - 1,
-                                            name="mapping_in_different_nodes_of_%s_in_%s_%s_and_%s_in_%s_%s"
-                                                 % (t1, n1, n1p, t2, n2, n2p))
+for t1, t2 in itertools.combinations(instance.tasks, 2):
+    if t1.zone == t2.zone:
+        for n1 in t1.getAllowedNode():
+            for n1p in instance.Set_UB_on_N[n1, t1.zone]:
+                for n2 in t2.getAllowedNode():
+                    for n2p in instance.Set_UB_on_N[n2, t2.zone]:
+                        if (n1 != n2) or (n1p != n2p):
+                            m.addConstr(lhs=rho[t1, t2],
+                                        sense=GRB.GREATER_EQUAL,
+                                        rhs=w[t1, n1, n1p] + w[t2, n2, n2p] - 1,
+                                        name="mapping_in_different_nodes_of_%s_in_%s_%s_and_%s_in_%s_%s"
+                                             % (t1, n1, n1p, t2, n2, n2p))
 
 # ---------------------------------------------------------------------------------------------------------------------
 print("* Constraint C15")
@@ -518,14 +516,14 @@ for c in instance.channels:
     if c.point_to_point:
         for p in instance.Set_UB_on_C[c]:
             for df1, df2 in itertools.combinations(c.getAllowedDataFlow(), 2):
-                if not df1.hasTask(df2.source):
+                if (df1.source != df2.source) and (df1.target != df2.source):
                     m.addConstr(lhs=gamma[df1, df2.source],
                                 sense=GRB.LESS_EQUAL,
                                 rhs=2 - h[df1, c, p] - h[df2, c, p],
                                 name="point_to_point_channel_%s_%s_serves_%s_or_%s_source" % (
                                     c, p, df1, df2))
 
-                if not df1.hasTask(df2.target):
+                if (df1.source != df2.target) and (df1.target != df2.target):
                     m.addConstr(lhs=gamma[df1, df2.target],
                                 sense=GRB.LESS_EQUAL,
                                 rhs=2 - h[df1, c, p] - h[df2, c, p],
