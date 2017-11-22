@@ -1,0 +1,7 @@
+# Label      Id  Cost      Size    EnCons   EcPerDF   TD   ER    W
+  Bluetooth  1      9        24         1         1   12   10    1
+  Wi-Fi-AC   2     34      7000         3         2    8    7    1
+  Wi-Fi-AD   3     79      7400         7         4    3    4    1
+  ethernet-1 4     27    100000        20         2    5    2    0
+  ethernet-2 5    367    273000        14         1    1    1    0
+  fiber      6    367    273000        14         1    1    1    0
