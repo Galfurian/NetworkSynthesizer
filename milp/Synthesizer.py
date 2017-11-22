@@ -272,12 +272,7 @@ print("*")
 
 # ---------------------------------------------------------------------------------------------------------------------
 for df, t in itertools.product(instance.dataflows, instance.tasks):
-    if df.source == t or df.target == t:
-        gamma[df, t] = m.addVar(lb=0.0, ub=0.0, obj=0.0, vtype=GRB.BINARY, name='gamma_%s_%s' % (df, t))
-    elif (t.zone != df.source.zone) and (t.zone != df.target.zone) and (df.source.zone != df.target.zone):
-        gamma[df, t] = m.addVar(lb=1.0, ub=1.0, obj=0.0, vtype=GRB.BINARY, name='gamma_%s_%s' % (df, t))
-    else:
-        gamma[df, t] = m.addVar(lb=0.0, ub=1.0, obj=0.0, vtype=GRB.BINARY, name='gamma_%s_%s' % (df, t))
+    gamma[df, t] = m.addVar(lb=0.0, ub=1.0, obj=0.0, vtype=GRB.BINARY, name='gamma_%s_%s' % (df, t))
 # Log the information concerning the variable.
 print("*")
 print("* gamma [%s]" % len(gamma))
@@ -286,13 +281,8 @@ print("* \tnot placed inside the same node.")
 print("*")
 
 # ---------------------------------------------------------------------------------------------------------------------
-for t1, t2 in itertools.combinations_with_replacement(instance.tasks, 2):
-    if t1 == t2:
-        rho[t1, t2] = m.addVar(lb=0.0, ub=0.0, obj=0.0, vtype=GRB.BINARY, name='rho_%s_%s' % (t1, t2))
-    elif t1.zone != t2.zone:
-        rho[t1, t2] = m.addVar(lb=1.0, ub=1.0, obj=0.0, vtype=GRB.BINARY, name='rho_%s_%s' % (t1, t2))
-    else:
-        rho[t1, t2] = m.addVar(lb=0.0, ub=1.0, obj=0.0, vtype=GRB.BINARY, name='rho_%s_%s' % (t1, t2))
+for t1, t2 in itertools.combinations(instance.tasks, 2):
+    rho[t1, t2] = m.addVar(lb=0.0, ub=1.0, obj=0.0, vtype=GRB.BINARY, name='rho_%s_%s' % (t1, t2))
     rho[t2, t1] = rho[t1, t2]
 # Log the information concerning the variable.
 print("*")
@@ -341,10 +331,11 @@ print("*")
 # ---------------------------------------------------------------------------------------------------------------------
 for c in instance.channels:
     for p in instance.Set_UB_on_C[c]:
-        for z1, z2 in itertools.combinations_with_replacement(instance.zones, 2):
-            j[c, p, z1, z2] = m.addVar(lb=0.0, ub=c.isAllowedBetween(z1, z2), obj=0.0, vtype=GRB.BINARY,
-                                       name='j_%s_%s_%s_%s' % (c, p, z1, z2))
-            j[c, p, z2, z1] = j[c, p, z1, z2]
+        j[c, p] = m.addVar(lb=0.0,
+                           ub=GRB.INFINITY,
+                           obj=0.0,
+                           vtype=GRB.CONTINUOUS,
+                           name='j_%s_%s' % (c, p))
 # Log the information concerning the variable.
 print("*")
 print("* j [%s]" % len(j))
@@ -510,8 +501,14 @@ for t1, t2 in itertools.combinations(instance.tasks, 2):
                                         name="mapping_in_different_nodes_of_%s_in_%s_%s_and_%s_in_%s_%s"
                                              % (t1, n1, n1p, t2, n2, n2p))
 
-# ---------------------------------------------------------------------------------------------------------------------
 print("* Constraint C15")
+for t1, t2 in itertools.combinations(instance.tasks, 2):
+    if t1.zone != t2.zone:
+        m.addConstr(lhs=rho[t1, t2], sense=GRB.EQUAL, rhs=1,
+                    name="mapping_in_different_nodes_of_%s_and_%s" % (t1, t2))
+
+# ---------------------------------------------------------------------------------------------------------------------
+print("* Constraint C16")
 for c in instance.channels:
     if c.point_to_point:
         for p in instance.Set_UB_on_C[c]:
@@ -531,18 +528,22 @@ for c in instance.channels:
                                     c, p, df1, df2))
 
 # ---------------------------------------------------------------------------------------------------------------------
-print("* Constraint C16")
+print("* Constraint C17")
 for df, t in itertools.product(instance.dataflows, instance.tasks):
-    if not df.hasTask(t):
-        if df.target.zone == t.zone or df.source.zone == t.zone or df.source.zone == df.target.zone:
-            m.addConstr(
-                lhs=gamma[df, t],
-                sense=GRB.GREATER_EQUAL,
-                rhs=rho[t, df.source] + rho[t, df.target] + rho[df.source, df.target] - 2,
-                name="set_gamma_for_%s_%s_%s_a" % (t, df.source, df.target))
+    if df.source == t or df.target == t:
+        m.addConstr(lhs=gamma[df, t], sense=GRB.EQUAL, rhs=0,
+                    name="set_gamma_for_%s_%s_%s_a" % (t, df.source, df.target))
+    elif (t.zone != df.source.zone) and (t.zone != df.target.zone) and (df.source.zone != df.target.zone):
+        m.addConstr(lhs=gamma[df, t], sense=GRB.EQUAL, rhs=1,
+                    name="set_gamma_for_%s_%s_%s_a" % (t, df.source, df.target))
+    else:
+        m.addConstr(lhs=gamma[df, t],
+                    sense=GRB.GREATER_EQUAL,
+                    rhs=rho[t, df.source] + rho[t, df.target] + rho[df.source, df.target] - 2,
+                    name="set_gamma_for_%s_%s_%s_a" % (t, df.source, df.target))
 
 # ---------------------------------------------------------------------------------------------------------------------
-print("* Constraint C17")
+print("* Constraint C18")
 for c in instance.channels:
     if c.wireless:
         for p in instance.Set_UB_on_C[c]:
@@ -555,6 +556,19 @@ for c in instance.channels:
                                  q[c, df1.target.zone, df2.source.zone] *
                                  q[c, df1.target.zone, df2.target.zone]),
                             name="feasable_wireless_%s_%s" % (df1.label, df2.label))
+
+# ---------------------------------------------------------------------------------------------------------------------
+print("* Constraint C19")
+for c in instance.channels:
+    if not c.wireless:
+        for p in instance.Set_UB_on_C[c]:
+            for d in c.getAllowedDataFlow():
+                if d.source.zone != d.target.zone:
+                    m.addConstr(lhs=j[c, p],
+                                sense=GRB.GREATER_EQUAL,
+                                rhs=h[d, c, p] * instance.contiguities.get(
+                                    (d.source.zone, d.target.zone, c)).deploymentCost,
+                                name="cable_cost_%s_%s_%s" % (c.label, p, d.label))
 
 m.update()
 
@@ -583,9 +597,8 @@ if instance.OPTIMIZATION == 1:
             for c in instance.channels
             for p in instance.Set_UB_on_C[c]) +
         quicksum(
-            j[c, p, z1, z2] * instance.contiguities.get((z1, z2, c)).deploymentCost
-            for z1, z2 in itertools.combinations(instance.zones, 2)
-            for c in instance.channels if c.isAllowedBetween(z1, z2) if not c.wireless
+            j[c, p]
+            for c in instance.channels if not c.wireless
             for p in instance.Set_UB_on_C[c]) +
         quicksum(
             h[df, c, p] * c.df_energy * df.size * c.energy_cost /
