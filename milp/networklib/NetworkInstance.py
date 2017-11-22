@@ -609,13 +609,11 @@ class NetworkInstance:
 
         # -------------------------------------------------------------------------------------------------------------
         # Considers also the deployment cost.
-        for z1, z2 in itertools.combinations(self.zones, 2):
-            for c in self.channels:
-                if not c.wireless and c.isAllowedBetween(z1, z2):
-                    contiguity = self.contiguities.get((z1, z2, c))
-                    for p in self.Set_UB_on_C[c]:
-                        if self.sol_j[c, p, z1, z2]:
-                            total_cost_cable += contiguity.deploymentCost
+        for c in self.channels:
+            if not c.wireless:
+                for p in self.Set_UB_on_C[c]:
+                    if self.sol_j[c, p] > 0:
+                        total_cost_cable += self.sol_j[c, p]
 
         return total_cost_cable
 
