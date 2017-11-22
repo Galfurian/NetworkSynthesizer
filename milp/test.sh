@@ -15,4 +15,4 @@ do
 done
 
 
-echo "DONE" > result.txt
+echo "DONE" >> result.txt
