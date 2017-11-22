@@ -593,12 +593,8 @@ if instance.OPTIMIZATION == 1:
             for n in t.getAllowedNode()
             for p in instance.Set_UB_on_N[n, t.zone]) +
         quicksum(
-            y[c, p] * (c.cost + c.energy * c.energy_cost)
+            j[c, p] + y[c, p] * (c.cost + c.energy * c.energy_cost)
             for c in instance.channels
-            for p in instance.Set_UB_on_C[c]) +
-        quicksum(
-            j[c, p]
-            for c in instance.channels if not c.wireless
             for p in instance.Set_UB_on_C[c]) +
         quicksum(
             h[df, c, p] * c.df_energy * df.size * c.energy_cost /
