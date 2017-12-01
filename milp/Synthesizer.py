@@ -207,7 +207,7 @@ q = {}
 # ---------------------------------------------------------------------------------------------------------------------
 for n, z in itertools.product(instance.nodes, instance.zones):
     UB_on_N[n, z] = len([t for t in n.getAllowedTask() if t.zone == z])
-    instance.Set_UB_on_N[n, z] = range(1, UB_on_N[n, z] + 1)
+    instance.indexSetOfClonesOfNodesInArea[n, z] = range(1, UB_on_N[n, z] + 1)
 # Log the information concerning the variable.
 print("*")
 print("* UB_on_N [%s]" % len(UB_on_N))
@@ -218,7 +218,7 @@ print("*")
 # ---------------------------------------------------------------------------------------------------------------------
 for c in instance.channels:
     UB_on_C[c] = len(c.getAllowedDataFlow())
-    instance.Set_UB_on_C[c] = range(1, UB_on_C[c] + 1)
+    instance.indexSetOfClonesOfChannel[c] = range(1, UB_on_C[c] + 1)
 # Log the information concerning the variable.
 print("*")
 print("* UB_on_C [%s]" % len(UB_on_C))
@@ -248,7 +248,7 @@ print("*")
 
 # ---------------------------------------------------------------------------------------------------------------------
 for n, z in itertools.product(instance.nodes, instance.zones):
-    for p in instance.Set_UB_on_N[n, z]:
+    for p in instance.indexSetOfClonesOfNodesInArea[n, z]:
         x[n, p, z] = m.addVar(lb=0.0, ub=1.0, obj=0.0, vtype=GRB.BINARY, name='x_%s_%s_%s' % (n, p, z))
 # Log the information concerning the variable.
 print("*")
@@ -260,7 +260,7 @@ print("*")
 
 # ---------------------------------------------------------------------------------------------------------------------
 for c in instance.channels:
-    for p in instance.Set_UB_on_C[c]:
+    for p in instance.indexSetOfClonesOfChannel[c]:
         y[c, p] = m.addVar(lb=0.0, ub=1.0, obj=0.0, vtype=GRB.BINARY, name='y_%s_%s' % (c, p))
 # Log the information concerning the variable.
 print("*")
@@ -294,7 +294,7 @@ print("*")
 # ---------------------------------------------------------------------------------------------------------------------
 for t in instance.tasks:
     for n in t.getAllowedNode():
-        for p in instance.Set_UB_on_N[n, t.zone]:
+        for p in instance.indexSetOfClonesOfNodesInArea[n, t.zone]:
             w[t, n, p] = m.addVar(lb=0.0, ub=1.0, obj=0.0, vtype=GRB.BINARY, name='w_%s_%s_%s' % (t, n, p))
 # Log the information concerning the variable.
 print("*")
@@ -306,7 +306,7 @@ print("*")
 # ---------------------------------------------------------------------------------------------------------------------
 for df in instance.dataflows:
     for c in df.getAllowedChannel():
-        for p in instance.Set_UB_on_C[c]:
+        for p in instance.indexSetOfClonesOfChannel[c]:
             h[df, c, p] = m.addVar(lb=0.0, ub=1.0, obj=0.0, vtype=GRB.BINARY, name='h_%s_%s_%s' % (df, c, p))
 # Log the information concerning the variable.
 print("*")
@@ -330,7 +330,7 @@ print("*")
 
 # ---------------------------------------------------------------------------------------------------------------------
 for c in instance.channels:
-    for p in instance.Set_UB_on_C[c]:
+    for p in instance.indexSetOfClonesOfChannel[c]:
         j[c, p] = m.addVar(lb=0.0,
                            ub=GRB.INFINITY,
                            obj=0.0,
@@ -363,13 +363,13 @@ print("* Constraint C1")
 for n, z in itertools.product(instance.nodes, instance.zones):
     m.addConstr(lhs=N[n, z],
                 sense=GRB.EQUAL,
-                rhs=quicksum(x[n, p, z] for p in instance.Set_UB_on_N[n, z]),
+                rhs=quicksum(x[n, p, z] for p in instance.indexSetOfClonesOfNodesInArea[n, z]),
                 name="define_N_%s_%s" % (n, z))
 
 # ---------------------------------------------------------------------------------------------------------------------
 print("* Constraint C2")
 for n, z in itertools.product(instance.nodes, instance.zones):
-    for p in instance.Set_UB_on_N[n, z]:
+    for p in instance.indexSetOfClonesOfNodesInArea[n, z]:
         m.addConstr(lhs=N[n, z],
                     sense=GRB.GREATER_EQUAL,
                     rhs=p * x[n, p, z],
@@ -380,13 +380,13 @@ print("* Constraint C3")
 for c in instance.channels:
     m.addConstr(lhs=C[c],
                 sense=GRB.EQUAL,
-                rhs=quicksum(y[c, p] for p in instance.Set_UB_on_C[c]),
+                rhs=quicksum(y[c, p] for p in instance.indexSetOfClonesOfChannel[c]),
                 name="define_C_%s" % c)
 
 # ---------------------------------------------------------------------------------------------------------------------
 print("* Constraint C4")
 for c in instance.channels:
-    for p in instance.Set_UB_on_C[c]:
+    for p in instance.indexSetOfClonesOfChannel[c]:
         m.addConstr(lhs=C[c],
                     sense=GRB.GREATER_EQUAL,
                     rhs=p * y[c, p],
@@ -396,7 +396,7 @@ for c in instance.channels:
 print("* Constraint C5")
 for t in instance.tasks:
     for n in t.getAllowedNode():
-        for p in instance.Set_UB_on_N[n, t.zone]:
+        for p in instance.indexSetOfClonesOfNodesInArea[n, t.zone]:
             m.addConstr(lhs=w[t, n, p],
                         sense=GRB.LESS_EQUAL,
                         rhs=x[n, p, t.zone],
@@ -406,7 +406,7 @@ for t in instance.tasks:
 print("* Constraint C6")
 for df in instance.dataflows:
     for c in df.getAllowedChannel():
-        for p in instance.Set_UB_on_C[c]:
+        for p in instance.indexSetOfClonesOfChannel[c]:
             m.addConstr(lhs=h[df, c, p],
                         sense=GRB.LESS_EQUAL,
                         rhs=y[c, p],
@@ -415,7 +415,7 @@ for df in instance.dataflows:
 # ---------------------------------------------------------------------------------------------------------------------
 print("* Constraint C7")
 for n, z in itertools.product(instance.nodes, instance.zones):
-    for p in instance.Set_UB_on_N[n, z]:
+    for p in instance.indexSetOfClonesOfNodesInArea[n, z]:
         m.addConstr(lhs=x[n, p, z],
                     sense=GRB.LESS_EQUAL,
                     rhs=quicksum(w[t, n, p]
@@ -426,7 +426,7 @@ for n, z in itertools.product(instance.nodes, instance.zones):
 # ---------------------------------------------------------------------------------------------------------------------
 print("* Constraint C8")
 for c in instance.channels:
-    for p in instance.Set_UB_on_C[c]:
+    for p in instance.indexSetOfClonesOfChannel[c]:
         m.addConstr(lhs=y[c, p],
                     sense=GRB.LESS_EQUAL,
                     rhs=quicksum(h[df, c, p]
@@ -436,7 +436,7 @@ for c in instance.channels:
 # ---------------------------------------------------------------------------------------------------------------------
 print("* Constraint C9")
 for n, z in itertools.product(instance.nodes, instance.zones):
-    for p in instance.Set_UB_on_N[n, z]:
+    for p in instance.indexSetOfClonesOfNodesInArea[n, z]:
         m.addConstr(lhs=quicksum((t.size * w[t, n, p])
                                  for t in n.getAllowedTask()
                                  if t.zone == z),
@@ -447,7 +447,7 @@ for n, z in itertools.product(instance.nodes, instance.zones):
 # ---------------------------------------------------------------------------------------------------------------------
 print("* Constraint C10")
 for c in instance.channels:
-    for p in instance.Set_UB_on_C[c]:
+    for p in instance.indexSetOfClonesOfChannel[c]:
         m.addConstr(lhs=quicksum(((df.size * h[df, c, p]) /
                                   instance.contiguities.get((df.source.zone, df.target.zone, c)).conductance)
                                  for df in c.getAllowedDataFlow()),
@@ -460,7 +460,7 @@ print("* Constraint C11")
 for t in instance.tasks:
     m.addConstr(lhs=quicksum(w[t, n, p]
                              for n in t.getAllowedNode()
-                             for p in instance.Set_UB_on_N[n, t.zone]),
+                             for p in instance.indexSetOfClonesOfNodesInArea[n, t.zone]),
                 sense=GRB.EQUAL,
                 rhs=1,
                 name="unique_mapping_of_task_%s" % t)
@@ -471,7 +471,7 @@ for df in instance.dataflows:
     if df.source.zone == df.target.zone:
         m.addConstr(lhs=quicksum(h[df, c, p]
                                  for c in df.getAllowedChannel()
-                                 for p in instance.Set_UB_on_C[c]),
+                                 for p in instance.indexSetOfClonesOfChannel[c]),
                     sense=GRB.EQUAL,
                     rhs=rho[df.source, df.target],
                     name="unique_mapping_of_dataflow_%s_same_zones" % df)
@@ -481,7 +481,7 @@ for df in instance.dataflows:
     if df.source.zone != df.target.zone:
         m.addConstr(lhs=quicksum(h[df, c, p]
                                  for c in df.getAllowedChannel()
-                                 for p in instance.Set_UB_on_C[c]),
+                                 for p in instance.indexSetOfClonesOfChannel[c]),
                     sense=GRB.EQUAL,
                     rhs=1,
                     name="unique_mapping_of_dataflow_%s_different_zones" % df)
@@ -491,9 +491,9 @@ print("* Constraint C14")
 for t1, t2 in itertools.combinations(instance.tasks, 2):
     if t1.zone == t2.zone:
         for n1 in t1.getAllowedNode():
-            for n1p in instance.Set_UB_on_N[n1, t1.zone]:
+            for n1p in instance.indexSetOfClonesOfNodesInArea[n1, t1.zone]:
                 for n2 in t2.getAllowedNode():
-                    for n2p in instance.Set_UB_on_N[n2, t2.zone]:
+                    for n2p in instance.indexSetOfClonesOfNodesInArea[n2, t2.zone]:
                         if (n1 != n2) or (n1p != n2p):
                             m.addConstr(lhs=rho[t1, t2],
                                         sense=GRB.GREATER_EQUAL,
@@ -511,7 +511,7 @@ for t1, t2 in itertools.combinations(instance.tasks, 2):
 print("* Constraint C16")
 for c in instance.channels:
     if c.point_to_point:
-        for p in instance.Set_UB_on_C[c]:
+        for p in instance.indexSetOfClonesOfChannel[c]:
             for df1, df2 in itertools.combinations(c.getAllowedDataFlow(), 2):
                 if (df1.source != df2.source) and (df1.target != df2.source):
                     m.addConstr(lhs=gamma[df1, df2.source],
@@ -546,7 +546,7 @@ for df, t in itertools.product(instance.dataflows, instance.tasks):
 print("* Constraint C18")
 for c in instance.channels:
     if c.wireless:
-        for p in instance.Set_UB_on_C[c]:
+        for p in instance.indexSetOfClonesOfChannel[c]:
             for df1, df2 in itertools.combinations(c.getAllowedDataFlow(), 2):
                 m.addConstr(lhs=h[df1, c, p] + h[df2, c, p],
                             sense=GRB.LESS_EQUAL,
@@ -561,7 +561,7 @@ for c in instance.channels:
 print("* Constraint C19")
 for c in instance.channels:
     if not c.wireless:
-        for p in instance.Set_UB_on_C[c]:
+        for p in instance.indexSetOfClonesOfChannel[c]:
             for d in c.getAllowedDataFlow():
                 if d.source.zone != d.target.zone:
                     m.addConstr(lhs=j[c, p],
@@ -586,22 +586,22 @@ if instance.OPTIMIZATION == 1:
         quicksum(
             x[n, p, z] * (n.cost + n.energy * n.energy_cost)
             for n, z in itertools.product(instance.nodes, instance.zones)
-            for p in instance.Set_UB_on_N[n, z]) +
+            for p in instance.indexSetOfClonesOfNodesInArea[n, z]) +
         quicksum(
             w[t, n, p] * n.task_energy * t.size * n.energy_cost
             for t in instance.tasks
             for n in t.getAllowedNode()
-            for p in instance.Set_UB_on_N[n, t.zone]) +
+            for p in instance.indexSetOfClonesOfNodesInArea[n, t.zone]) +
         quicksum(
             j[c, p] + y[c, p] * (c.cost + c.energy * c.energy_cost)
             for c in instance.channels
-            for p in instance.Set_UB_on_C[c]) +
+            for p in instance.indexSetOfClonesOfChannel[c]) +
         quicksum(
             h[df, c, p] * c.df_energy * df.size * c.energy_cost /
             instance.contiguities.get((df.source.zone, df.target.zone, c)).conductance
             for df in instance.dataflows
             for c in df.getAllowedChannel()
-            for p in instance.Set_UB_on_C[c]),
+            for p in instance.indexSetOfClonesOfChannel[c]),
         GRB.MINIMIZE
     )
     m.update()
@@ -612,19 +612,19 @@ elif instance.OPTIMIZATION == 2:
     m.setObjective(
         quicksum(x[n, p, z] * n.energy
                  for n, z in itertools.product(instance.nodes, instance.zones)
-                 for p in instance.Set_UB_on_N[n, z]) +
+                 for p in instance.indexSetOfClonesOfNodesInArea[n, z]) +
         quicksum(w[t, n, p] * n.task_energy * t.size
                  for t in instance.tasks
                  for n in t.getAllowedNode()
-                 for p in instance.Set_UB_on_N[n, t.zone]) +
+                 for p in instance.indexSetOfClonesOfNodesInArea[n, t.zone]) +
         quicksum(y[c, p] * c.energy
                  for c in instance.channels
-                 for p in instance.Set_UB_on_C[c]) +
+                 for p in instance.indexSetOfClonesOfChannel[c]) +
         quicksum(h[df, c, p] * c.df_energy * df.size /
                  instance.contiguities.get((df.source.zone, df.target.zone, c)).conductance
                  for df in instance.dataflows
                  for c in df.getAllowedChannel()
-                 for p in instance.Set_UB_on_C[c]),
+                 for p in instance.indexSetOfClonesOfChannel[c]),
         GRB.MINIMIZE
     )
     m.update()
@@ -638,7 +638,7 @@ elif instance.OPTIMIZATION == 3:
                  instance.contiguities.get((df.source.zone, df.target.zone, c)).conductance
                  for df in instance.dataflows
                  for c in df.getAllowedChannel()
-                 for p in instance.Set_UB_on_C[c]),
+                 for p in instance.indexSetOfClonesOfChannel[c]),
         GRB.MINIMIZE
     )
     m.update()
@@ -651,7 +651,7 @@ elif instance.OPTIMIZATION == 4:
                  instance.contiguities.get((df.source.zone, df.target.zone, c)).conductance
                  for df in instance.dataflows
                  for c in df.getAllowedChannel()
-                 for p in instance.Set_UB_on_C[c]),
+                 for p in instance.indexSetOfClonesOfChannel[c]),
         GRB.MINIMIZE
     )
     m.update()
@@ -667,7 +667,7 @@ elif instance.OPTIMIZATION == 5:
                 (c.error * h[df, c, p]) / (
                     instance.contiguities.get((df.source.zone, df.target.zone, c)).conductance)
             ) for df in instance.dataflows for c in df.getAllowedChannel() for p in
-            instance.Set_UB_on_C[c]
+            instance.indexSetOfClonesOfChannel[c]
         ),
         GRB.MINIMIZE
     )
@@ -804,7 +804,7 @@ if m.status == GRB.status.OPTIMAL:
         for t in instance.tasks:
             if t.zone == z:
                 for n in t.getAllowedNode():
-                    for p in instance.Set_UB_on_N[n, z]:
+                    for p in instance.indexSetOfClonesOfNodesInArea[n, z]:
                         if instance.sol_w[t, n, p]:
                             outfile.write(
                                 "*\tTask     %-24s inside n Zone%s.%s.%s\n" % (t, z, n, p))
@@ -813,7 +813,7 @@ if m.status == GRB.status.OPTIMAL:
     for df in instance.dataflows:
         for c in df.getAllowedChannel():
             contiguity = instance.contiguities.get((df.source.zone, df.target.zone, c))
-            for p in instance.Set_UB_on_C[c]:
+            for p in instance.indexSetOfClonesOfChannel[c]:
                 if instance.sol_h[df, c, p]:
                     outfile.write("*\tDataflow %-24s inside c %s.%s\n" % (df, c, p))
 
@@ -851,8 +851,8 @@ if m.status == GRB.status.OPTIMAL:
                              instance.sol_C,
                              instance.sol_w,
                              instance.sol_h,
-                             instance.Set_UB_on_C,
-                             instance.Set_UB_on_N,
+                             instance.indexSetOfClonesOfChannel,
+                             instance.indexSetOfClonesOfNodesInArea,
                              outfile)
     if not checker.checkNetwork():
         QuitSynthesizer("FAILED")
@@ -904,8 +904,8 @@ if instance.GENERATE_XML == 1:
                                      instance.sol_C,
                                      instance.sol_w,
                                      instance.sol_h,
-                                     instance.Set_UB_on_C,
-                                     instance.Set_UB_on_N)
+                                     instance.indexSetOfClonesOfChannel,
+                                     instance.indexSetOfClonesOfNodesInArea)
     umlPrinter.printNetwork()
     print("%s\n" % GetSeparator())
     print("* Generating Technological Library...")
@@ -919,7 +919,7 @@ if instance.GENERATE_SCNSL == 1:
                                   instance.tasks, instance.dataflows,
                                   instance.sol_N,
                                   instance.sol_C,
-                                  instance.sol_w, instance.sol_h, instance.Set_UB_on_C, instance.Set_UB_on_N)
+                                  instance.sol_w, instance.sol_h, instance.indexSetOfClonesOfChannel, instance.indexSetOfClonesOfNodesInArea)
     scnslPrinter.printScnslNetwork("main.cc")
 
 # ---------------------------------------------------------------------------------------------------------------------

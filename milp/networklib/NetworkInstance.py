@@ -61,8 +61,8 @@ class NetworkInstance:
         # General information.
         self.used_memory = 0
 
-        self.Set_UB_on_N = {}
-        self.Set_UB_on_C = {}
+        self.indexSetOfClonesOfNodesInArea = {}
+        self.indexSetOfClonesOfChannel = {}
 
         # Solved variables.
         self.sol_N = 0
@@ -504,7 +504,7 @@ class NetworkInstance:
         # Set where the dataflows are deployed.
         for c in self.channels:
             if not c.wireless:
-                for p in self.Set_UB_on_C[c]:
+                for p in self.indexSetOfClonesOfChannel[c]:
                     for df in c.getAllowedDataFlow():
                         contiguity = self.contiguities.get((df.source.zone, df.target.zone, c))
                         if self.sol_h[df, c, p]:
@@ -513,7 +513,7 @@ class NetworkInstance:
         # -------------------------------------------------------------------------------------------------------------
         # Set where the tasks are deployed.
         for n, z in itertools.product(self.nodes, self.zones):
-            for p in self.Set_UB_on_N[n, z]:
+            for p in self.indexSetOfClonesOfNodesInArea[n, z]:
                 if self.sol_x[n, p, z]:
                     for t in n.getAllowedTask():
                         if (t.zone == z) and self.sol_w[t, n, p]:
@@ -545,14 +545,14 @@ class NetworkInstance:
         # -------------------------------------------------------------------------------------------------------------
         # Add the intrinsic cost of the nodes.
         for n, z in itertools.product(self.nodes, self.zones):
-            for p in self.Set_UB_on_N[n, z]:
+            for p in self.indexSetOfClonesOfNodesInArea[n, z]:
                 if self.sol_x[n, p, z]:
                     total_cost_nodes += (n.cost + n.energy * n.energy_cost)
 
         # -------------------------------------------------------------------------------------------------------------
         # Add the cost of tasks inside the nodes.
         for n, z in itertools.product(self.nodes, self.zones):
-            for p in self.Set_UB_on_N[n, z]:
+            for p in self.indexSetOfClonesOfNodesInArea[n, z]:
                 if self.sol_x[n, p, z]:
                     for t in n.getAllowedTask():
                         if (t.zone == z) and self.sol_w[t, n, p]:
@@ -568,7 +568,7 @@ class NetworkInstance:
         # Add the intrinsic cost of the wireless channel.
         for c in self.channels:
             if c.wireless:
-                for p in self.Set_UB_on_C[c]:
+                for p in self.indexSetOfClonesOfChannel[c]:
                     if self.sol_y[c, p]:
                         total_cost_wirls += (c.cost + c.energy * c.energy_cost)
 
@@ -578,7 +578,7 @@ class NetworkInstance:
             if c.wireless:
                 for df in c.getAllowedDataFlow():
                     contiguity = self.contiguities.get((df.source.zone, df.target.zone, c))
-                    for p in self.Set_UB_on_C[c]:
+                    for p in self.indexSetOfClonesOfChannel[c]:
                         if self.sol_h[df, c, p]:
                             total_cost_wirls += (c.df_energy * df.size * c.energy_cost) / contiguity.conductance
 
@@ -593,7 +593,7 @@ class NetworkInstance:
         # Add the intrinsic cost of the wired channel.
         for c in self.channels:
             if not c.wireless:
-                for p in self.Set_UB_on_C[c]:
+                for p in self.indexSetOfClonesOfChannel[c]:
                     if self.sol_y[c, p]:
                         total_cost_cable += (c.cost + c.energy * c.energy_cost)
 
@@ -601,7 +601,7 @@ class NetworkInstance:
         # Considers also the dataflows placed inside the channels.
         for c in self.channels:
             if not c.wireless:
-                for p in self.Set_UB_on_C[c]:
+                for p in self.indexSetOfClonesOfChannel[c]:
                     for df in c.getAllowedDataFlow():
                         contiguity = self.contiguities.get((df.source.zone, df.target.zone, c))
                         if self.sol_h[df, c, p]:
@@ -611,7 +611,7 @@ class NetworkInstance:
         # Considers also the deployment cost.
         for c in self.channels:
             if not c.wireless:
-                for p in self.Set_UB_on_C[c]:
+                for p in self.indexSetOfClonesOfChannel[c]:
                     if self.sol_j[c, p] > 0:
                         total_cost_cable += self.sol_j[c, p]
 
@@ -625,14 +625,14 @@ class NetworkInstance:
         # -------------------------------------------------------------------------------------------------------------
         # Add the intrinsic cost of the nodes.
         for n, z in itertools.product(self.nodes, self.zones):
-            for p in self.Set_UB_on_N[n, z]:
+            for p in self.indexSetOfClonesOfNodesInArea[n, z]:
                 if self.sol_x[n, p, z]:
                     total_cost_nodes += n.energy
 
         # -------------------------------------------------------------------------------------------------------------
         # Add the cost of tasks inside the nodes.
         for n, z in itertools.product(self.nodes, self.zones):
-            for p in self.Set_UB_on_N[n, z]:
+            for p in self.indexSetOfClonesOfNodesInArea[n, z]:
                 if self.sol_x[n, p, z]:
                     for t in n.getAllowedTask():
                         if (t.zone == z) and self.sol_w[t, n, p]:
@@ -648,7 +648,7 @@ class NetworkInstance:
         # Add the intrinsic cost of the wireless channel.
         for c in self.channels:
             if c.wireless:
-                for p in self.Set_UB_on_C[c]:
+                for p in self.indexSetOfClonesOfChannel[c]:
                     if self.sol_y[c, p]:
                         total_energy_channels += c.energy
 
@@ -658,7 +658,7 @@ class NetworkInstance:
             if c.wireless:
                 for df in c.getAllowedDataFlow():
                     contiguity = self.contiguities.get((df.source.zone, df.target.zone, c))
-                    for p in self.Set_UB_on_C[c]:
+                    for p in self.indexSetOfClonesOfChannel[c]:
                         if self.sol_h[df, c, p]:
                             total_energy_channels += (c.df_energy * df.size) / contiguity.conductance
 
@@ -673,7 +673,7 @@ class NetworkInstance:
         # Add the intrinsic cost of the wired channel.
         for c in self.channels:
             if not c.wireless:
-                for p in self.Set_UB_on_C[c]:
+                for p in self.indexSetOfClonesOfChannel[c]:
                     if self.sol_y[c, p]:
                         total_energy_channels += c.energy
 
@@ -681,7 +681,7 @@ class NetworkInstance:
         # Considers also the dataflows placed inside the channels.
         for c in self.channels:
             if not c.wireless:
-                for p in self.Set_UB_on_C[c]:
+                for p in self.indexSetOfClonesOfChannel[c]:
                     for df in c.getAllowedDataFlow():
                         contiguity = self.contiguities.get((df.source.zone, df.target.zone, c))
                         if self.sol_h[df, c, p]:
@@ -699,7 +699,7 @@ class NetworkInstance:
             if c.wireless:
                 for df in c.getAllowedDataFlow():
                     contiguity = self.contiguities.get((df.source.zone, df.target.zone, c))
-                    for p in self.Set_UB_on_C[c]:
+                    for p in self.indexSetOfClonesOfChannel[c]:
                         if self.sol_h[df, c, p]:
                             total_delay += c.delay / contiguity.conductance
         # -------------------------------------------------------------------------------------------------------------
@@ -715,7 +715,7 @@ class NetworkInstance:
             if not c.wireless:
                 for df in c.getAllowedDataFlow():
                     contiguity = self.contiguities.get((df.source.zone, df.target.zone, c))
-                    for p in self.Set_UB_on_C[c]:
+                    for p in self.indexSetOfClonesOfChannel[c]:
                         if self.sol_h[df, c, p]:
                             total_delay += c.delay / contiguity.conductance
         # -------------------------------------------------------------------------------------------------------------
@@ -731,7 +731,7 @@ class NetworkInstance:
             if c.wireless:
                 for df in c.getAllowedDataFlow():
                     contiguity = self.contiguities.get((df.source.zone, df.target.zone, c))
-                    for p in self.Set_UB_on_C[c]:
+                    for p in self.indexSetOfClonesOfChannel[c]:
                         if self.sol_h[df, c, p]:
                             total_error += c.error / contiguity.conductance
         # -------------------------------------------------------------------------------------------------------------
@@ -747,7 +747,7 @@ class NetworkInstance:
             if not c.wireless:
                 for df in c.getAllowedDataFlow():
                     contiguity = self.contiguities.get((df.source.zone, df.target.zone, c))
-                    for p in self.Set_UB_on_C[c]:
+                    for p in self.indexSetOfClonesOfChannel[c]:
                         if self.sol_h[df, c, p]:
                             total_error += c.error / contiguity.conductance
         # -------------------------------------------------------------------------------------------------------------
