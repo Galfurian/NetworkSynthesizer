@@ -16,12 +16,11 @@
 #     2. spaces and tabs are treated the same
 #
 # BEGIN the Typologies Section
-# LABEL           | ID |  COST |       SIZE | ENERGY |  TASK ENERGY | MOBILE |
-  db_lc              1       5           24        5              1        0
-  db_iot_lc          2      22           64        8              2        1
-  db_iot             3      98          128       12              5        1
-  db_iot_he          4     127          178       15              6        1
-  db_hc              5     273          264       25              8        0
-  db_srv_lc          6     345          334       41              4        0
-  db_srv             7     421          421       65              5        0
+# LABEL           | ID |  COST |       SIZE | ENERGY |  TASK ENERGY | ENERGY COST | MOBILE |
+  db_board_1         1       5           32        5              1          0.10       0
+  db_board_2         2      18           84        7              2          0.15       0
+  db_board_3         3      22           64        8              2          0.30       1
+  db_board_4         4      98          128       12              5          0.41       1
+  db_board_5         5     128          345       15              6          0.33       1
+  db_board_6         6     512          512       30             12          1.20       0
 # END   the Typologies Section

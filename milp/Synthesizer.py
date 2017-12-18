@@ -789,15 +789,26 @@ if m.status == GRB.status.OPTIMAL:
     outfile.write("* SOLUTION\n")
     outfile.write("%s\n" % GetSeparator())
     outfile.write("* List of activated nodes:\n")
+    NodeQuantity = {}
+    for n in instance.nodes:
+        NodeQuantity[n.id] = 0
+
     for z in instance.zones:
         for n in instance.nodes:
             if instance.sol_N[n, z]:
-                outfile.write("*\tZone %4s, use %4g nodes of type %s\n" % (z, instance.sol_N[n, z], n))
+                NodeQuantity[n.id] = NodeQuantity[n.id] + instance.sol_N[n, z]
+                #outfile.write("*\tZone %4s, use %4g nodes of type %s\n" % (z, instance.sol_N[n, z], n))
+
+    outfile.write("* List of activated nodes per type:\n")
+    for n in instance.nodes:
+        outfile.write("*\tUse %4g nodes of type %s\n" % (NodeQuantity[n.id], n))
+        print("*\tUse %4g nodes of type %s" % (NodeQuantity[n.id], n))
 
     outfile.write("* List of activated channels:\n")
     for c in instance.channels:
         if instance.sol_C[c]:
             outfile.write("*\tUse %4g channels of type %s\n" % (instance.sol_C[c], c))
+            print("*\tUse %4g channels of type %s" % (instance.sol_C[c], c))
 
     outfile.write("* Tasks allocation:\n")
     for z in instance.zones:

@@ -288,7 +288,7 @@ class NetworkInstance:
                     # Set the same values for the vice-versa of the zones.
                     self.contiguities[zone2, zone1, channel] = new_contiguity
                     # Print the contiguity.
-                    print("* %s" % new_contiguity.to_string())
+                    #print("* %s" % new_contiguity.to_string())
                     # Delete the auxiliary variables.
                     del id_zone1, id_zone2, id_channel, conductance, deployment_cost
                     del zone1, zone2, channel
@@ -395,7 +395,7 @@ class NetworkInstance:
                     if self.contiguities.get((zone1, zone2, channel)) is None:
                         if zone1 == zone2:
                             self.contiguities[zone1, zone2, channel] = Contiguity(zone1, zone2, channel, 1.0, 0)
-                            print("* %s" % self.contiguities[zone1, zone2, channel].to_string())
+                            #print("* %s" % self.contiguities[zone1, zone2, channel].to_string())
                         else:
                             self.contiguities[zone1, zone2, channel] = Contiguity(zone1, zone2, channel, 0.0,
                                                                                   sys.maxint)
