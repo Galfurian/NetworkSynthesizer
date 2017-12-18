@@ -26,15 +26,17 @@ ProblemInstance corner_case_1()
 {
     ProblemInstance inst("corner_case_1");
     // Add the channels.
-    inst.addChannel(1, "Bluetooth-4.0", 9, 24, 1, 1, 12, 10, true, 1);
-    inst.addChannel(2, "Wi-Fi-AC", 34, 256, 3, 2, 8, 7, true, INT_MAX);
-//    inst.addChannel(3, "Wi-Fi-AD", 79, 7400, 7, 4, 3, 2, 1);
-//    inst.addChannel(3, "ethernet", 27, 100000, 20, 2, 5, 2, 0);
-//    inst.addChannel(5, "fiber", 367, 273000, 14, 1, 1, 1, 0);
+    inst.addChannel(1, "Bluetooth-4.0", 9, 24, 1, 1, 0.75, 12, 10, true, true);
+    inst.addChannel(2, "Wi-Fi-AC", 34, 7000, 3, 2, 1.10, 8, 7, true, false);
+    inst.addChannel(3, "Wi-Fi-AD", 79, 7400, 7, 4, 1.15, 3, 4, true, false);
+    inst.addChannel(4, "fiber-Type-1", 256, 232000, 24, 3, 0.75, 2, 4, false, true);
+    inst.addChannel(5, "fiber-Type-2", 367, 268000, 8, 2, 1.00, 3, 3, false, true);
     // Add the nodes.
-    inst.addNode(1, "pic", 5, 21, 5, 1, 0);
-    inst.addNode(2, "board", 22, 29, 8, 2, 1);
-    inst.addNode(3, "net_board", 98, 70, 12, 5, 1);
+    inst.addNode(1, "db_board_1", 5, 32, 5, 1, 0.15, false);
+    inst.addNode(2, "db_board_2", 22, 64, 8, 2, 0.30, true);
+    inst.addNode(3, "db_board_3", 98, 128, 12, 5, 0.41, true);
+    inst.addNode(4, "db_board_4", 128, 256, 15, 6, 0.33, false);
+    inst.addNode(4, "db_board_4", 514, 512, 25, 8, 0.25, false);
     // Add the zones.
     inst.addZone(0, 0, 0, 0);
     inst.addZone(1, 0, 1, 0);

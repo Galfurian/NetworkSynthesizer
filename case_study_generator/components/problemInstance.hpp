@@ -39,7 +39,7 @@ public:
     std::string name;
 
     std::map<int, std::shared_ptr<Zone>> zones;
-    std::map<int, std::shared_ptr<Channel>> channels;
+  std::map<int, std::shared_ptr<Channel>> channels;
     std::map<int, std::shared_ptr<Node>> nodes;
     std::vector<std::shared_ptr<Contiguity>> contiguities;
     std::vector<std::shared_ptr<Task>> tasks;
@@ -65,6 +65,7 @@ public:
                                         int _size,
                                         int _energyConsumption,
                                         int _energyPerDataFlow,
+                                        double _energyCost,
                                         int _transmissionDelay,
                                         int _errorRate,
                                         bool _wireless,
@@ -76,6 +77,7 @@ public:
                                   int _size,
                                   int _powerConsumption,
                                   int _taskPowerConsumption,
+                                  double _energyCost,
                                   bool _mobile);
 
     std::shared_ptr<Contiguity> addContiguity(int _zone1,

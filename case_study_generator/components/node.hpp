@@ -38,18 +38,21 @@ public:
     int powerConsumption;
     /// is the power consumed by a task placed inside the node.
     int taskPowerConsumption;
+    /// is the cost of energy for this device.
+    double energyCost;
     /// boolean attribute. Is the device mobile?
     bool mobile;
 
     Node();
 
     Node(int _id,
-         std::string _label,
-         int _cost,
-         int _size,
-         int _powerConsumption,
-         int _taskPowerConsumption,
-         bool _mobile);
+        std::string _label,
+        int _cost,
+        int _size,
+        int _powerConsumption,
+        int _taskPowerConsumption,
+        double _energyCost,
+        bool _mobile);
 
     ~Node();
 

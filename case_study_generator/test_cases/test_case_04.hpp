@@ -23,4 +23,4 @@
 
 #include "problemInstance.hpp"
 
-ProblemInstance init_test_case_04();
+void generate_stress_test();

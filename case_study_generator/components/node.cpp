@@ -24,7 +24,6 @@
 #include "node.hpp"
 #include "utils.hpp"
 
-
 Node::Node() :
     id(),
     label(),
@@ -32,9 +31,8 @@ Node::Node() :
     size(),
     powerConsumption(),
     taskPowerConsumption(),
-    mobile()
-{
-    // Nothing to do.
+    mobile() {
+  // Nothing to do.
 }
 
 Node::Node(int _id,
@@ -43,6 +41,7 @@ Node::Node(int _id,
            int _size,
            int _powerConsumption,
            int _taskPowerConsumption,
+           double _energyCost,
            bool _mobile) :
     id(_id),
     label(std::move(_label)),
@@ -50,44 +49,44 @@ Node::Node(int _id,
     size(_size),
     powerConsumption(_powerConsumption),
     taskPowerConsumption(_taskPowerConsumption),
-    mobile(_mobile)
-{
-    // Nothing to do.
+    energyCost(_energyCost),
+    mobile(_mobile) {
+  // Nothing to do.
 }
 
-Node::~Node()
-{
-    // Nothing to do.
+Node::~Node() {
+  // Nothing to do.
 }
 
-std::string Node::getHeader()
-{
-    std::stringstream ss;
-    ss << "# " << std::left << std::setw(15) << "LABEL";
-    ss << "| " << std::left << std::setw(4) << "ID";
-    ss << "| " << std::right << std::setw(6) << "COST";
-    ss << " |" << std::right << std::setw(12) << "SIZE";
-    ss << " |" << std::right << std::setw(8) << "ENERGY";
-    ss << " |" << std::right << std::setw(14) << "TASK ENERGY";
-    ss << " |" << std::right << std::setw(12) << "MOBILE";
-    return ss.str();
+std::string Node::getHeader() {
+  std::stringstream ss;
+  ss << "# " << std::left << std::setw(15) << "LABEL";
+  ss << "| " << std::left << std::setw(4) << "ID";
+  ss << "| " << std::right << std::setw(6) << "COST";
+  ss << " |" << std::right << std::setw(12) << "SIZE";
+  ss << " |" << std::right << std::setw(8) << "ENERGY";
+  ss << " |" << std::right << std::setw(14) << "TASK ENERGY";
+  ss << " |" << std::right << std::setw(14) << "ENERGY COST";
+  ss << " |" << std::right << std::setw(12) << "MOBILE";
+  return ss.str();
 }
 
-std::string Node::toString(bool for_milp) const
-{
-    std::stringstream ss;
-    ss << "  " << std::left << std::setw(15) << label;
-    ss << ((for_milp) ? "  " : "| ")
-       <<   std::left << std::setw(4) << ToString(id);
-    ss << ((for_milp) ? "  " : "| ")
-       <<   std::right << std::setw(6) << ToString(cost);
-    ss << ((for_milp) ? "  " : " |")
-       <<   std::right << std::setw(12) << ToString(size);
-    ss << ((for_milp) ? "  " : " |")
-       <<   std::right << std::setw(8) << ToString(powerConsumption);
-    ss << ((for_milp) ? "  " : " |")
-       <<   std::right << std::setw(14) << ToString(taskPowerConsumption);
-    ss << ((for_milp) ? "  " : " |")
-       <<   std::right << std::setw(12) << ToString(mobile);
-    return ss.str();
+std::string Node::toString(bool for_milp) const {
+  std::stringstream ss;
+  ss << "  " << std::left << std::setw(15) << label;
+  ss << ((for_milp) ? "  " : "| ")
+     << std::left << std::setw(4) << ToString(id);
+  ss << ((for_milp) ? "  " : "| ")
+     << std::right << std::setw(6) << ToString(cost);
+  ss << ((for_milp) ? "  " : " |")
+     << std::right << std::setw(12) << ToString(size);
+  ss << ((for_milp) ? "  " : " |")
+     << std::right << std::setw(8) << ToString(powerConsumption);
+  ss << ((for_milp) ? "  " : " |")
+     << std::right << std::setw(14) << ToString(taskPowerConsumption);
+  ss << ((for_milp) ? "  " : " |")
+     << std::right << std::setw(14) << ToString(energyCost);
+  ss << ((for_milp) ? "  " : " |")
+     << std::right << std::setw(12) << ToString(mobile);
+  return ss.str();
 }

@@ -19,273 +19,166 @@
 /// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 /// DEALINGS IN THE SOFTWARE.
 
+#include <cassert>
+#include <iomanip>
 #include "test_case_02.hpp"
 
 static double Normalize(double value, double LbFrom, double UbFrom,
-                        double LbTo, double UbTo)
-{
-    return (((UbTo - LbTo) * (value - LbFrom)) / ((UbFrom - LbFrom))) + LbTo;
+                        double LbTo, double UbTo) {
+  return (((UbTo - LbTo) * (value - LbFrom)) / ((UbFrom - LbFrom))) + LbTo;
 }
 
-static double GetDistance(std::shared_ptr<Zone> z1, std::shared_ptr<Zone> z2)
-{
-    return std::sqrt(pow(z1->x - z2->x, 2) +
-                     pow(z1->y - z2->y, 2) +
-                     pow(z1->z - z2->z, 2));
+static double GetDistance(std::shared_ptr<Zone> z1, std::shared_ptr<Zone> z2) {
+  return std::sqrt(pow(z1->x - z2->x, 2) +
+      pow(z1->y - z2->y, 2) +
+      pow(z1->z - z2->z, 2));
 }
 
-ProblemInstance init_test_case_04()
-{
-    ProblemInstance inst("test_case_04");
+static void add_channels(ProblemInstance &inst) {
+  inst.addChannel(1, "Bluetooth-4.0", 9, 24, 1, 1, 0.75, 12, 10, true, true);
+  inst.addChannel(2, "Wi-Fi-AC", 34, 7000, 3, 2, 1.10, 8, 7, true, false);
+  inst.addChannel(3, "Wi-Fi-AD", 79, 7400, 7, 4, 1.15, 3, 4, true, false);
+  inst.addChannel(4, "fiber-Type-1", 256, 232000, 24, 3, 0.75, 2, 4, false, true);
+  inst.addChannel(5, "fiber-Type-2", 367, 268000, 8, 2, 1.00, 3, 3, false, true);
+}
 
-    // ------------------------------------------------------------------------
-    auto numArea = 40;
-    auto minNodesPerZone = 2;
-    auto maxNodesPerZone = 8;
+static void add_nodes(ProblemInstance &inst) {
+  inst.addNode(1, "db_board_1", 5, 32, 5, 1, 0.15, false);
+  inst.addNode(2, "db_board_2", 22, 64, 8, 2, 0.30, true);
+  inst.addNode(3, "db_board_3", 98, 128, 12, 5, 0.41, true);
+  inst.addNode(4, "db_board_4", 128, 256, 15, 6, 0.33, false);
+  inst.addNode(5, "db_board_4", 514, 512, 25, 8, 0.25, false);
+}
 
-    // ------------------------------------------------------------------------
-    // Add the channels.
-    inst.addChannel(1, "Bluetooth-4.0",  9,     24, 1,  1, 12, 10, true, true);
-    inst.addChannel(2, "Wi-Fi-AC",      34,   7000, 3,  2, 8, 7, true, false);
-    inst.addChannel(3, "Wi-Fi-AD",      79,   7400, 7,  4, 3, 4, true, false);
-    inst.addChannel(4, "fiber-Type-1", 256, 232000, 24, 3, 2, 4, false, true);
-    inst.addChannel(5, "fiber-Type-2", 367, 268000, 8,  2, 3, 3, false, true);
-    int local_min_index = 1;
-    int local_max_index = 3;
-    int extra_area_min_index = 4;
-    int extra_area_max_index = 5;
-
-    // ------------------------------------------------------------------------
-    // Add the nodes.
-    inst.addNode(1, "db_lc",       5,  21, 5, 1, false);
-    inst.addNode(2, "db_iot_lc",  22,  29, 8, 2, true);
-    inst.addNode(3, "db_iot",     98,  70, 12, 5, true);
-    inst.addNode(4, "db_iot_he", 128, 256, 15, 6, false);
-    int personal_min_index = 1;
-    int personal_max_index = 2;
-    int router_min_index = 3;
-    int router_max_index = 4;
-
-    // ------------------------------------------------------------------------
-    double minDistance = +INT64_MAX;
-    double maxDistance = 0.0;
-    double normMinDistance = +INT64_MAX;
-    double normMaxDistance = 0.0;
-
-    // ------------------------------------------------------------------------
-    // Add the zones.
-    {
-        int x = 0;
-        int y = 0;
-        int cont = 0;
-        while (cont < numArea)
-        {
-            inst.addZone(cont, x, y, 0);
-            if (x == 2)
-            {
-                x = 0;
-                ++y;
-            }
-            else
-            {
-                ++x;
-            }
-            ++cont;
-        }
+static void add_zones(ProblemInstance &inst, unsigned int num) {
+  int x = 0;
+  int y = 0;
+  int cont = 0;
+  while (cont < num) {
+    inst.addZone(cont, x, y, 0);
+    if (x == 2) {
+      x = 0;
+      ++y;
+    } else {
+      ++x;
     }
+    ++cont;
+  }
+}
 
-    // ------------------------------------------------------------------------
-    for (auto z1 = inst.zones.begin(); z1 != inst.zones.end(); ++z1)
-    {
-        for (auto z2 = z1; z2 != inst.zones.end(); ++z2)
-        {
-            if (z1 == z2)
-            {
-                continue;
-            }
-            auto distance = GetDistance(z1->second, z2->second);
-            if (distance > maxDistance)
-            {
-                maxDistance = distance;
-            }
-            if (distance < minDistance)
-            {
-                minDistance = distance;
-            }
+static void add_contiguities(ProblemInstance &inst) {
+  for (auto z1 = inst.zones.begin(); z1 != inst.zones.end(); ++z1) {
+    for (auto z2 = z1; z2 != inst.zones.end(); ++z2) {
+      for (auto channelIt : inst.channels) {
+        auto channel = channelIt.second;
+        if (z1->first == z2->first) {
+          if (channel->wireless) {
+            inst.addContiguity(z1->first,
+                               z2->first,
+                               channel->id,
+                               TRandReal(0.75, 1.00),
+                               0.0);
+          } else {
+            inst.addContiguity(z1->first,
+                               z2->first,
+                               channel->id,
+                               0.0,
+                               1e12);
+          }
+        } else {
+          if (channel->wireless) {
+            inst.addContiguity(z1->first,
+                               z2->first,
+                               channel->id,
+                               0.0,
+                               1e12);
+          } else {
+            inst.addContiguity(z1->first,
+                               z2->first,
+                               channel->id,
+                               1.00,
+                               TRandReal(0.05, 0.25));
+          }
         }
+      }
     }
+  }
+}
 
-    // ------------------------------------------------------------------------
-    for (auto z1 = inst.zones.begin(); z1 != inst.zones.end(); ++z1)
-    {
-        for (auto z2 = z1; z2 != inst.zones.end(); ++z2)
-        {
-            if (z1 == z2) continue;
-            auto normDistance = Normalize(GetDistance(z1->second, z2->second),
-                                          minDistance, maxDistance, 0.0, 1.0);
-            if (normDistance > normMaxDistance)
-            {
-                normMaxDistance = normDistance;
-            }
-            if (normDistance < normMinDistance)
-            {
-                normMinDistance = normDistance;
-            }
-        }
+static void add_zone_instance(ProblemInstance &inst,
+                              std::vector<std::shared_ptr<Task>> &routers,
+                              const std::shared_ptr<Zone> &zone,
+                              const unsigned int &tasks_per_zone) {
+  assert((tasks_per_zone >= 2) && "Too few tasks.");
+  for (auto it = 0; it < TRandInteger<int>(2, tasks_per_zone); ++it) {
+    auto routerName = "RtZn" + ToString(zone->label);
+    if (it == 0) {
+      routers.emplace_back(
+          inst.addTask(routerName,
+                       TRandInteger<int>(120, 240),
+                       zone->label,
+                       false));
+    } else {
+      auto taskName = "Ts" + ToString(it) + "Zn" + ToString(zone->label);
+      inst.addTask(taskName,
+                   TRandInteger<int>(20, 60),
+                   zone->label,
+                   true);
+      auto dataFlowName = "DfZn" + ToString(zone->label) + "Tsk" + ToString(it);
+      auto index = TRandInteger<size_t>(1, 3);
+      inst.addDataFlow(
+          dataFlowName,
+          taskName,
+          routerName,
+          TRandInteger<int>(10, 40),
+          TRandInteger<int>(6, 18),
+          TRandInteger<int>(6, 18));
     }
+  }
+}
 
-    // ------------------------------------------------------------------------
-    // Add the continuities.
-    for (auto z1 = inst.zones.begin(); z1 != inst.zones.end(); ++z1)
-    {
-        for (auto z2 = z1; z2 != inst.zones.end(); ++z2)
-        {
-            for (auto channelIt : inst.channels)
-            {
-                auto channel = channelIt.second;
-                if (z1->first == z2->first)
-                {
-                    if (!channel->wireless)
-                    {
-                        inst.addContiguity(z1->first,
-                                           z2->first,
-                                           channel->id,
-                                           0.0,
-                                           1e12);
-                    }
-                    continue;
-                }
-                else
-                {
-                    if (channel->wireless)
-                    {
-                        inst.addContiguity(z1->first,
-                                           z2->first,
-                                           channel->id,
-                                           0.0,
-                                           0.0);
-                        continue;
-                    }
-                }
-
-                double conductance, deploymentCost;
-                auto distance = GetDistance(z1->second, z2->second);
-                auto normDist = Normalize(distance,
-                                          minDistance,
-                                          maxDistance,
-                                          0.0,
-                                          1.0);
-                auto chImpact = Normalize(channel->size,
-                                          inst.channelMinSize,
-                                          inst.channelMaxSize,
-                                          0.0,
-                                          normMaxDistance);
-                if (channel->wireless)
-                {
-                    conductance = normDist + chImpact;
-                    deploymentCost = 0.0;
-                }
-                else
-                {
-                    conductance = 1.0;
-                    deploymentCost = distance;
-                }
-                if (conductance > 1.0)
-                {
-                    conductance = 1.0;
-                }
-                inst.addContiguity(z1->first,
-                                   z2->first,
-                                   channel->id,
-                                   conductance,
-                                   deploymentCost);
-            }
-        }
+static void connect_routers(ProblemInstance &inst,
+                            std::vector<std::shared_ptr<Task>> &routers) {
+  std::shared_ptr<Task> previousRouter = nullptr;
+  for (const auto &router : routers) {
+    if (previousRouter != nullptr) {
+      auto dataFlowName = "Df" + previousRouter->label + "To" + router->label;
+      auto index = TRandInteger<size_t>(4, 5);
+      int size = inst.channels[index]->size;
+      int delay = inst.channels[index]->transmissionDelay;
+      int error = inst.channels[index]->errorRate;
+      inst.addDataFlow(
+          dataFlowName,
+          previousRouter->label,
+          router->label,
+          TRandInteger<int>(120, 360),
+          TRandInteger<int>(delay, static_cast<int>(delay * 1.5)),
+          TRandInteger<int>(error, static_cast<int>(error * 1.5)));
     }
+    previousRouter = router;
+  }
+}
 
-    // ------------------------------------------------------------------------
+void generate_stress_test() {
+  for (unsigned int id = 0; id < 50; ++id) {
+    ProblemInstance inst(std::string("stress_test_") + ((id < 10) ? "0" : "") + ToString(id));
+
+    auto num_zones = 30 + id;
+    auto num_tasks = 3 + static_cast<unsigned int>(std::log(id + 1));
+
+    std::cout << "Generating instnace with ";
+    std::cout << std::right << std::setw(4) << num_zones << " zones and ";
+    std::cout << std::right << std::setw(4) << num_tasks << " tasks.\n";
+
+    add_channels(inst);
+    add_nodes(inst);
+    add_zones(inst, num_zones);
+    add_contiguities(inst);
     std::vector<std::shared_ptr<Task>> routers;
-    for (auto z = inst.zones.begin(); z != inst.zones.end(); ++z)
-    {
-        for (auto it = 0; it < TRandInteger<int>(minNodesPerZone,
-                                                 maxNodesPerZone); ++it)
-        {
-            auto routerName = "RtZn" + ToString(z->first);
-            if (it == 0)
-            {
-                int node_index = TRandInteger<int>(router_min_index,
-                                                   router_max_index);
-                int node_size = inst.nodes[node_index]->size;
-
-                routers.emplace_back(
-                    inst.addTask(routerName,
-                                 TRandInteger<int>(
-                                     (node_size / 2),
-                                     node_size - (node_size / 4)),
-                                 z->first,
-                                 false));
-            }
-            else
-            {
-                auto taskName = "Ts" + ToString(it) +
-                                "Zn" + ToString(z->first);
-                int node_index = TRandInteger<int>(personal_min_index,
-                                                   personal_max_index);
-                int node_size = inst.nodes[node_index]->size;
-
-                inst.addTask(taskName,
-                             TRandInteger<int>(
-                                 (node_size / 2),
-                                 node_size - (node_size / 4)),
-                             z->first,
-                             true);
-                auto dataFlowName = "DfZn" + ToString(z->first) +
-                                    "Tk" + ToString(it);
-
-                int index = TRandInteger<int>(local_min_index, local_max_index);
-
-                int size = inst.channels[index]->size;
-                int delay = inst.channels[index]->transmissionDelay;
-                int error = inst.channels[index]->errorRate;
-
-                inst.addDataFlow(
-                    dataFlowName,
-                    taskName,
-                    routerName,
-                    TRandInteger<int>(size / 2, size - (size / 8)),
-                    TRandInteger<int>(delay, static_cast<int>(delay * 1.25)),
-                    TRandInteger<int>(error, static_cast<int>(error * 1.25)));
-            }
-        }
+    for (auto it = inst.zones.begin(); it != inst.zones.end(); ++it) {
+      add_zone_instance(inst, routers, it->second, num_tasks);
     }
-
-    // ------------------------------------------------------------------------
-    {
-        std::shared_ptr<Task> previousRouter = nullptr;
-        for (auto router : routers)
-        {
-            if (previousRouter != nullptr)
-            {
-                auto dataFlowName = "Df" + previousRouter->label +
-                                    "To" + router->label;
-
-                int index = TRandInteger<int>(extra_area_min_index,
-                                              extra_area_max_index);
-
-                int size = inst.channels[index]->size;
-                int delay = inst.channels[index]->transmissionDelay;
-                int error = inst.channels[index]->errorRate;
-
-                inst.addDataFlow(
-                    dataFlowName,
-                    previousRouter->label,
-                    router->label,
-                    TRandInteger<int>(size / 32, size / 16),
-                    TRandInteger<int>(delay, static_cast<int>(delay * 1.5)),
-                    TRandInteger<int>(error, static_cast<int>(error * 1.5)));
-            }
-            previousRouter = router;
-        }
-    }
-    return inst;
+    connect_routers(inst, routers);
+    inst.printToFile();
+  }
 }

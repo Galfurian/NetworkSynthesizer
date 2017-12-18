@@ -23,36 +23,37 @@
 
 #include <string>
 
-class Channel
-{
-public:
-    int id;
-    std::string label;
-    int cost;
-    int size;
-    int energyConsumption;
-    int energyPerDataFlow;
-    int transmissionDelay;
-    int errorRate;
-    bool wireless;
-    bool point_to_point;
+class Channel {
+ public:
+  int id;
+  std::string label;
+  int cost;
+  int size;
+  int energyConsumption;
+  int energyPerDataFlow;
+  double energyCost;
+  int transmissionDelay;
+  int errorRate;
+  bool wireless;
+  bool point_to_point;
 
-    Channel();
+  Channel();
 
-    Channel(int _id,
-            std::string _label,
-            int _cost,
-            int _size,
-            int _energyConsumption,
-            int _energyPerDataFlow,
-            int _transmissionDelay,
-            int _errorRate,
-            bool _wireless,
-            bool _point_to_point);
+  Channel(int _id,
+          std::string _label,
+          int _cost,
+          int _size,
+          int _energyConsumption,
+          int _energyPerDataFlow,
+          double _energyCost,
+          int _transmissionDelay,
+          int _errorRate,
+          bool _wireless,
+          bool _point_to_point);
 
-    ~Channel();
+  ~Channel();
 
-    static std::string getHeader();
+  static std::string getHeader();
 
-    std::string toString(bool for_milp = false) const;
+  std::string toString(bool for_milp = false) const;
 };

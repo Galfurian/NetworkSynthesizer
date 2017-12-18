@@ -33,8 +33,7 @@ Channel::Channel() :
     transmissionDelay(),
     errorRate(),
     wireless(),
-    point_to_point()
-{
+    point_to_point() {
 }
 
 Channel::Channel(int _id,
@@ -43,6 +42,7 @@ Channel::Channel(int _id,
                  int _size,
                  int _energyConsumption,
                  int _energyPerDataFlow,
+                 double _energyCost,
                  int _transmissionDelay,
                  int _errorRate,
                  bool _wireless,
@@ -53,54 +53,54 @@ Channel::Channel(int _id,
     size(_size),
     energyConsumption(_energyConsumption),
     energyPerDataFlow(_energyPerDataFlow),
+    energyCost(_energyCost),
     transmissionDelay(_transmissionDelay),
     errorRate(_errorRate),
     wireless(_wireless),
-    point_to_point(_point_to_point)
-{
+    point_to_point(_point_to_point) {
 }
 
-Channel::~Channel()
-{
+Channel::~Channel() {
 }
 
-std::string Channel::getHeader()
-{
-    std::stringstream ss;
-    ss << "# " << std::left << std::setw(15) << "LABEL";
-    ss << "| " << std::left << std::setw(4) << "ID";
-    ss << "| " << std::right << std::setw(6) << "COST";
-    ss << " |" << std::right << std::setw(12) << "SIZE";
-    ss << " |" << std::right << std::setw(8) << "ENERGY";
-    ss << " |" << std::right << std::setw(16) << "DATAFLOW ENERGY";
-    ss << " |" << std::right << std::setw(12) << "DELAY";
-    ss << " |" << std::right << std::setw(12) << "ERROR";
-    ss << " |" << std::right << std::setw(12) << "WIRELESS";
-    ss << " |" << std::right << std::setw(18) << "POIN TO POINT";
-    return ss.str();
+std::string Channel::getHeader() {
+  std::stringstream ss;
+  ss << "# " << std::left << std::setw(15) << "LABEL";
+  ss << "| " << std::left << std::setw(4) << "ID";
+  ss << "| " << std::right << std::setw(6) << "COST";
+  ss << " |" << std::right << std::setw(12) << "SIZE";
+  ss << " |" << std::right << std::setw(8) << "ENERGY";
+  ss << " |" << std::right << std::setw(16) << "DATAFLOW ENERGY";
+  ss << " |" << std::right << std::setw(16) << "ENERGY COST";
+  ss << " |" << std::right << std::setw(12) << "DELAY";
+  ss << " |" << std::right << std::setw(12) << "ERROR";
+  ss << " |" << std::right << std::setw(12) << "WIRELESS";
+  ss << " |" << std::right << std::setw(18) << "POIN TO POINT";
+  return ss.str();
 }
 
-std::string Channel::toString(bool for_milp) const
-{
-    std::stringstream ss;
-    ss << "  " << std::left << std::setw(15) << label;
-    ss << ((for_milp) ? "  " : "| ")
-       << std::left << std::setw(4) << ToString(id);
-    ss << ((for_milp) ? "  " : "| ")
-       << std::right << std::setw(6) << ToString(cost);
-    ss << ((for_milp) ? "  " : " |")
-       << std::right << std::setw(12) << ToString(size);
-    ss << ((for_milp) ? "  " : " |")
-       << std::right << std::setw(8) << ToString(energyConsumption);
-    ss << ((for_milp) ? "  " : " |")
-       << std::right << std::setw(16) << ToString(energyPerDataFlow);
-    ss << ((for_milp) ? "  " : " |")
-       << std::right << std::setw(12) << ToString(transmissionDelay);
-    ss << ((for_milp) ? "  " : " |")
-       << std::right << std::setw(12) << ToString(errorRate);
-    ss << ((for_milp) ? "  " : " |")
-       << std::right << std::setw(12) << ToString(wireless);
-    ss << ((for_milp) ? "  " : " |")
-       << std::right << std::setw(18) << ToString(point_to_point);
-    return ss.str();
+std::string Channel::toString(bool for_milp) const {
+  std::stringstream ss;
+  ss << "  " << std::left << std::setw(15) << label;
+  ss << ((for_milp) ? "  " : "| ")
+     << std::left << std::setw(4) << ToString(id);
+  ss << ((for_milp) ? "  " : "| ")
+     << std::right << std::setw(6) << ToString(cost);
+  ss << ((for_milp) ? "  " : " |")
+     << std::right << std::setw(12) << ToString(size);
+  ss << ((for_milp) ? "  " : " |")
+     << std::right << std::setw(8) << ToString(energyConsumption);
+  ss << ((for_milp) ? "  " : " |")
+     << std::right << std::setw(16) << ToString(energyPerDataFlow);
+  ss << ((for_milp) ? "  " : " |")
+     << std::right << std::setw(16) << ToString(energyCost);
+  ss << ((for_milp) ? "  " : " |")
+     << std::right << std::setw(12) << ToString(transmissionDelay);
+  ss << ((for_milp) ? "  " : " |")
+     << std::right << std::setw(12) << ToString(errorRate);
+  ss << ((for_milp) ? "  " : " |")
+     << std::right << std::setw(12) << ToString(wireless);
+  ss << ((for_milp) ? "  " : " |")
+     << std::right << std::setw(18) << ToString(point_to_point);
+  return ss.str();
 }

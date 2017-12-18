@@ -21,8 +21,6 @@
 #include "utils.hpp"
 
 #include <dirent.h>
-#include <zconf.h>
-#include <zlib.h>
 #include <ctime>
 #include <fstream>
 #include <iterator>
