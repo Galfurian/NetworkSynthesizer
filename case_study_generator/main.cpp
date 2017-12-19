@@ -1,7 +1,7 @@
 #include <test_case_03.hpp>
 #include <test_case_01.hpp>
 #include <test_case_02.hpp>
-#include <test_case_04.hpp>
+#include <stress_test_generator.hpp>
 
 int main() {
   //ProblemInstance tc1 = init_test_case_01();

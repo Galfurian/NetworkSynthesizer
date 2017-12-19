@@ -35,19 +35,31 @@ static double GetDistance(std::shared_ptr<Zone> z1, std::shared_ptr<Zone> z2) {
 }
 
 static void add_channels(ProblemInstance &inst) {
-  inst.addChannel(1, "Bluetooth-4.0", 9, 24, 1, 1, 0.75, 12, 10, true, true);
-  inst.addChannel(2, "Wi-Fi-AC", 34, 7000, 3, 2, 1.10, 8, 7, true, false);
-  inst.addChannel(3, "Wi-Fi-AD", 79, 7400, 7, 4, 1.15, 3, 4, true, false);
-  inst.addChannel(4, "fiber-Type-1", 256, 232000, 24, 3, 0.75, 2, 4, false, true);
-  inst.addChannel(5, "fiber-Type-2", 367, 268000, 8, 2, 1.00, 3, 3, false, true);
+  inst.addChannel(1, "Bluetooth-4.0", 9, 24, 1, 1, 0.16, 12, 10, true, true);
+  inst.addChannel(2, "Wi-Fi-AC", 34, 7000, 3, 2, 0.30, 8, 7, true, false);
+  inst.addChannel(3, "Wi-Fi-AD", 79, 7400, 7, 4, 0.28, 3, 4, true, false);
+  inst.addChannel(4, "fiber-Type-1", 256, 200000, 18, 2, 0.21, 2, 1, false, true);
+  inst.addChannel(5, "fiber-Type-2", 367, 268000, 14, 1, 0.12, 1, 3, false, true);
+
+//# LABEL           | ID |  COST |       SIZE | ENERGY | DF_ENERGY | ENERGY COST |  DELAY |  ERROR | WIRELESS | POINT TO POINT |
+//  Bluetooth-4.0      1       9           24        1           1        0.16         12       10          1               1
+//  Wi-Fi-AC           2      34         7000        3           2        0.30          8        7          1               0
+//  Wi-Fi-AD           3      79         7400        7           4        0.28          3        4          1               0
+//  Fiber-Type-1       4     320       200000       18           2        0.21          2        1          0               1
+//  Fiber-Type-2       5     367       273000       14           1        0.12          1        3          0               1
 }
 
 static void add_nodes(ProblemInstance &inst) {
-  inst.addNode(1, "db_board_1", 5, 32, 5, 1, 0.15, false);
-  inst.addNode(2, "db_board_2", 22, 64, 8, 2, 0.30, true);
-  inst.addNode(3, "db_board_3", 98, 128, 12, 5, 0.41, true);
-  inst.addNode(4, "db_board_4", 128, 256, 15, 6, 0.33, false);
-  inst.addNode(5, "db_board_4", 514, 512, 25, 8, 0.25, false);
+  inst.addNode(1, "db_board_1", 5, 64, 2, 1, 0.05, false);
+  inst.addNode(2, "db_board_2", 22, 98, 4, 2, 0.15, true);
+  inst.addNode(3, "db_board_3", 98, 128, 8, 4, 0.40, true);
+  inst.addNode(4, "db_board_4", 128, 256, 14, 7, 0.32, true);
+  inst.addNode(5, "db_board_5", 514, 512, 20, 10, 0.60, false);
+  //db_board_1         1      10           64        2              1          0.05       0
+  //db_board_2         2      24           98        4              2          0.15       1
+  //db_board_3         3      64          128        8              4          0.40       1
+  //db_board_4         4     128          256       14              7          0.32       1
+  //db_board_5         5     378          512       20             10          0.60       0
 }
 
 static void add_zones(ProblemInstance &inst, unsigned int num) {
@@ -164,7 +176,7 @@ void generate_stress_test() {
     ProblemInstance inst(std::string("stress_test_") + ((id < 10) ? "0" : "") + ToString(id));
 
     auto num_zones = 30 + id;
-    auto num_tasks = 3 + static_cast<unsigned int>(std::log(id + 1));
+    auto num_tasks = 4;
 
     std::cout << "Generating instnace with ";
     std::cout << std::right << std::setw(4) << num_zones << " zones and ";
