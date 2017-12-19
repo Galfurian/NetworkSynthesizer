@@ -94,25 +94,38 @@ class NetworkInstance:
     def get_time_total(self):
         return self.get_time_parse() + self.get_time_setup() + self.get_time_constraints() + self.get_time_optimization()
 
-    def print_outcome(self, test_case, outcome_result):
+    def print_outcome(self, test_case,
+                      outcome_result,
+                      total_constraints,
+                      valid_task_node_associations,
+                      valid_df_channels_associations,
+                      total_instantiated_nodes,
+                      total_instantiated_channels):
         self.outcome = open("result.txt", 'a+')
         tot_co = self.total_cost_nodes + self.total_cost_wirls + self.total_cost_cable
         tot_en = self.total_energy_nodes + self.total_energy_wirls + self.total_energy_cable
         tot_de = self.total_delay_wireless + self.total_delay_cable
         tot_er = self.total_error_wireless + self.total_error_cable
 
-        self.outcome.write(
-            "[%-42s] OBJ-%d %-7s | %5.2f s| %5.2f s| %5.2f s| %5.2f s| %5.2f s| %6.2f Mb| %10.2f | %10.2f | %10.2f | %10.2f |\n" %
-            (test_case,
-             self.OPTIMIZATION,
-             outcome_result,
-             self.get_time_parse(),
-             self.get_time_setup(),
-             self.get_time_constraints(),
-             self.get_time_optimization(),
-             self.get_time_total(),
-             self.used_memory,
-             tot_co, tot_en, tot_de, tot_er))
+        self.outcome.write("| %-42s " % test_case)
+        self.outcome.write("| %d" % self.OPTIMIZATION)
+        self.outcome.write("| %-7s" % outcome_result)
+        self.outcome.write("| %8.2f" % self.get_time_parse())
+        self.outcome.write("| %8.2f" % self.get_time_setup())
+        self.outcome.write("| %8.2f" % self.get_time_constraints())
+        self.outcome.write("| %8.2f" % self.get_time_optimization())
+        self.outcome.write("| %8.2f" % self.get_time_total())
+        self.outcome.write("| %8.2f" % self.used_memory)
+        self.outcome.write("| %10d" % total_constraints)
+        self.outcome.write("| %10d" % valid_task_node_associations)
+        self.outcome.write("| %10d" % valid_df_channels_associations)
+        self.outcome.write("| %10d" % total_instantiated_nodes)
+        self.outcome.write("| %10d" % total_instantiated_channels)
+        self.outcome.write("| %10.2f" % tot_co)
+        self.outcome.write("| %10.2f" % tot_en)
+        self.outcome.write("| %10.2f" % tot_de)
+        self.outcome.write("| %10.2f" % tot_er)
+        self.outcome.write("|\n")
         self.outcome.flush()
         self.outcome.close()
 

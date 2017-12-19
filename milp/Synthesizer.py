@@ -19,6 +19,12 @@ from networklib.NetworkInstance import *
 
 VERBOSE = False
 
+total_constraints = 0
+valid_task_node_associations = 0
+valid_df_channels_associations = 0
+total_instantiated_nodes = 0
+total_instantiated_channels = 0
+
 # ---------------------------------------------------------------------------------------------------------------------
 # Create the network instance.
 instance = NetworkInstance(VERBOSE)
@@ -26,7 +32,13 @@ instance = NetworkInstance(VERBOSE)
 
 # ---------------------------------------------------------------------------------------------------------------------
 def QuitSynthesizer(outcome_txt):
-    instance.print_outcome(argv[1] if argc > 1 else "None", outcome_txt)
+    instance.print_outcome(argv[1] if argc > 1 else "None",
+                           outcome_txt,
+                           total_constraints,
+                           valid_task_node_associations,
+                           valid_df_channels_associations,
+                           total_instantiated_nodes,
+                           total_instantiated_channels)
     exit(0)
 
 
@@ -150,8 +162,6 @@ Separator()
 
 # ---------------------------------------------------------------------------------------------------------------------
 Separator()
-valid_task_node_associations = 0
-valid_df_channels_associations = 0
 for t in instance.tasks:
     valid_task_node_associations += len(t.getAllowedNode())
 for df in instance.dataflows:
@@ -634,7 +644,6 @@ for c in instance.channels:
 
 m.update()
 
-total_constraints = 0
 total_constraints += total_c1
 total_constraints += total_c2
 total_constraints += total_c3
@@ -900,6 +909,7 @@ if m.status == GRB.status.OPTIMAL:
         for n in instance.nodes:
             if instance.sol_N[n, z]:
                 NodeQuantity[n.id] = NodeQuantity[n.id] + instance.sol_N[n, z]
+                total_instantiated_nodes += instance.sol_N[n, z]
                 # outfile.write("*\tZone %4s, use %4g nodes of type %s\n" % (z, instance.sol_N[n, z], n))
 
     outfile.write("* List of activated nodes per type:\n")
@@ -910,6 +920,7 @@ if m.status == GRB.status.OPTIMAL:
     outfile.write("* List of activated channels:\n")
     for c in instance.channels:
         if instance.sol_C[c]:
+            total_instantiated_channels += instance.sol_C[c]
             outfile.write("*\tUse %4g channels of type %s\n" % (instance.sol_C[c], c))
             print("*\tUse %4g channels of type %s" % (instance.sol_C[c], c))
 
