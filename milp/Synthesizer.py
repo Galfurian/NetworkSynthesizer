@@ -17,9 +17,11 @@ from networklib.TechLibPrinter import *
 from networklib.UmlForScilabPrinter import *
 from networklib.NetworkInstance import *
 
+VERBOSE = False
+
 # ---------------------------------------------------------------------------------------------------------------------
 # Create the network instance.
-instance = NetworkInstance()
+instance = NetworkInstance(VERBOSE)
 
 
 # ---------------------------------------------------------------------------------------------------------------------
@@ -148,23 +150,33 @@ Separator()
 
 # ---------------------------------------------------------------------------------------------------------------------
 Separator()
-print("* The tasks can be placed into:")
+valid_task_node_associations = 0
+valid_df_channels_associations = 0
 for t in instance.tasks:
-    print("*     Task '%15s' Nodes : %s" % (t, t.getAllowedNode()))
-print("*")
-print("* The data-flows can be placed into:")
+    valid_task_node_associations += len(t.getAllowedNode())
 for df in instance.dataflows:
-    print("*     DataFlow '%15s' Channels : %s" % (df, df.getAllowedChannel()))
+    valid_df_channels_associations += len(t.getAllowedNode())
 
-print("*")
-print("* The nodes can host:")
-for n in instance.nodes:
-    print("*     Node '%15s' Tasks : %s" % (n, n.getAllowedTask()))
+if VERBOSE:
+    print("* The tasks can be placed into:")
+    for t in instance.tasks:
+        print("*     Task '%15s' Nodes : %s" % (t, t.getAllowedNode()))
+    print("*")
+    print("* The data-flows can be placed into:")
+    for df in instance.dataflows:
+        print("*     DataFlow '%15s' Channels : %s" % (df, df.getAllowedChannel()))
+    print("*")
+    print("* The nodes can host:")
+    for n in instance.nodes:
+        print("*     Node '%15s' Tasks : %s" % (n, n.getAllowedTask()))
+    print("*")
+    print("* The channels can host:")
+    for c in instance.channels:
+        print("*     Channel '%15s' Data-Flows : %s" % (c, c.getAllowedDataFlow()))
 
-print("*")
-print("* The channels can host:")
-for c in instance.channels:
-    print("*     Channel '%15s' Data-Flows : %s" % (c, c.getAllowedDataFlow()))
+print("* In totale there are:")
+print("*     Task * Nodes    : %s" % valid_task_node_associations)
+print("*     DF   * Channels : %s" % valid_df_channels_associations)
 Separator()
 
 # Files parsing ending time.
@@ -211,9 +223,10 @@ for n, z in itertools.product(instance.nodes, instance.zones):
 # Log the information concerning the variable.
 print("*")
 print("* UB_on_N [%s]" % len(UB_on_N))
-print("* \tVariable UB_on_N is the upper-bound on the number of nodes of a certain")
-print("* \ttype inside a given zone. This value can be pre-computed.")
-print("*")
+if VERBOSE:
+    print("* \tVariable UB_on_N is the upper-bound on the number of nodes of a certain")
+    print("* \ttype inside a given zone. This value can be pre-computed.")
+    print("*")
 
 # ---------------------------------------------------------------------------------------------------------------------
 for c in instance.channels:
@@ -222,9 +235,10 @@ for c in instance.channels:
 # Log the information concerning the variable.
 print("*")
 print("* UB_on_C [%s]" % len(UB_on_C))
-print("* \tVariable UB_on_C is the upper-bound on the number of channels of a certain")
-print("* \ttype. This upper-bound can be pre-computed")
-print("*")
+if VERBOSE:
+    print("* \tVariable UB_on_C is the upper-bound on the number of channels of a certain")
+    print("* \ttype. This upper-bound can be pre-computed")
+    print("*")
 
 # ---------------------------------------------------------------------------------------------------------------------
 for n, z in itertools.product(instance.nodes, instance.zones):
@@ -232,9 +246,10 @@ for n, z in itertools.product(instance.nodes, instance.zones):
 # Log the information concerning the variable.
 print("*")
 print("* N [%s]" % len(N))
-print("* \tVariable N identifies the number of deployed nodes of a certain type inside")
-print("* \ta given zone. The upper-bound on this variable is equal to UB_on_N.")
-print("*")
+if VERBOSE:
+    print("* \tVariable N identifies the number of deployed nodes of a certain type inside")
+    print("* \ta given zone. The upper-bound on this variable is equal to UB_on_N.")
+    print("*")
 
 # ---------------------------------------------------------------------------------------------------------------------
 for c in instance.channels:
@@ -242,9 +257,10 @@ for c in instance.channels:
 # Log the information concerning the variable.
 print("*")
 print("* C [%s]" % len(C))
-print("* \tVariable C identifies the number of deployed channels of a certain type.")
-print("* \tThe upper-bound on this variable is equal to UB_on_C.")
-print("*")
+if VERBOSE:
+    print("* \tVariable C identifies the number of deployed channels of a certain type.")
+    print("* \tThe upper-bound on this variable is equal to UB_on_C.")
+    print("*")
 
 # ---------------------------------------------------------------------------------------------------------------------
 for n, z in itertools.product(instance.nodes, instance.zones):
@@ -253,10 +269,11 @@ for n, z in itertools.product(instance.nodes, instance.zones):
 # Log the information concerning the variable.
 print("*")
 print("* x [%s]" % len(x))
-print("* \tVariable x identifies the number of nodes of a given type deployed inside")
-print("* \ta given zone. If the variable x[n1,n1q,z1] is true, it means that")
-print("* \tthere are n1q nodes of type n1 inside zone z1.")
-print("*")
+if VERBOSE:
+    print("* \tVariable x identifies the number of nodes of a given type deployed inside")
+    print("* \ta given zone. If the variable x[n1,n1q,z1] is true, it means that")
+    print("* \tthere are n1q nodes of type n1 inside zone z1.")
+    print("*")
 
 # ---------------------------------------------------------------------------------------------------------------------
 for c in instance.channels:
@@ -265,10 +282,11 @@ for c in instance.channels:
 # Log the information concerning the variable.
 print("*")
 print("* y [%s]" % len(y))
-print("* \tVariable y identifies the number of deployed channels for a given type of")
-print("* \tchannel. In particular, if the variable y[c1,c1q] is true, it means that")
-print("* \tthere are c1q channels of type c1 deployed inside the network.")
-print("*")
+if VERBOSE:
+    print("* \tVariable y identifies the number of deployed channels for a given type of")
+    print("* \tchannel. In particular, if the variable y[c1,c1q] is true, it means that")
+    print("* \tthere are c1q channels of type c1 deployed inside the network.")
+    print("*")
 
 # ---------------------------------------------------------------------------------------------------------------------
 for df, t in itertools.product(instance.dataflows, instance.tasks):
@@ -276,9 +294,10 @@ for df, t in itertools.product(instance.dataflows, instance.tasks):
 # Log the information concerning the variable.
 print("*")
 print("* gamma [%s]" % len(gamma))
-print("* \tVariable gamma identifies if the tasks of the dataflow and the given task are")
-print("* \tnot placed inside the same node.")
-print("*")
+if VERBOSE:
+    print("* \tVariable gamma identifies if the tasks of the dataflow and the given task are")
+    print("* \tnot placed inside the same node.")
+    print("*")
 
 # ---------------------------------------------------------------------------------------------------------------------
 for t1, t2 in itertools.combinations(instance.tasks, 2):
@@ -287,9 +306,10 @@ for t1, t2 in itertools.combinations(instance.tasks, 2):
 # Log the information concerning the variable.
 print("*")
 print("* rho [%s]" % len(rho))
-print("* \tVariable rho identifies if two tasks are deployed inside two different")
-print("* \tnodes.")
-print("*")
+if VERBOSE:
+    print("* \tVariable rho identifies if two tasks are deployed inside two different")
+    print("* \tnodes.")
+    print("*")
 
 # ---------------------------------------------------------------------------------------------------------------------
 for t in instance.tasks:
@@ -299,9 +319,10 @@ for t in instance.tasks:
 # Log the information concerning the variable.
 print("*")
 print("* w [%s]" % len(w))
-print("* \tVariable w identifies if the given task has been deployed inside the ")
-print("* \tgiven instance of the given type of node.")
-print("*")
+if VERBOSE:
+    print("* \tVariable w identifies if the given task has been deployed inside the ")
+    print("* \tgiven instance of the given type of node.")
+    print("*")
 
 # ---------------------------------------------------------------------------------------------------------------------
 for df in instance.dataflows:
@@ -311,9 +332,10 @@ for df in instance.dataflows:
 # Log the information concerning the variable.
 print("*")
 print("* h [%s]" % len(h))
-print("* \tVariable h identifies if the given data-flow has been deployed inside the ")
-print("* \tgiven instance of the given type of channel.")
-print("*")
+if VERBOSE:
+    print("* \tVariable h identifies if the given data-flow has been deployed inside the ")
+    print("* \tgiven instance of the given type of channel.")
+    print("*")
 
 # ---------------------------------------------------------------------------------------------------------------------
 for c in instance.channels:
@@ -324,9 +346,10 @@ for c in instance.channels:
 # Log the information concerning the variable.
 print("*")
 print("* q [%s]" % len(q))
-print("* \tVariable q is pre-computed and identifies if the given type of channel")
-print("* \tcan be placed between the given pair of zones.")
-print("*")
+if VERBOSE:
+    print("* \tVariable q is pre-computed and identifies if the given type of channel")
+    print("* \tcan be placed between the given pair of zones.")
+    print("*")
 
 # ---------------------------------------------------------------------------------------------------------------------
 for c in instance.channels:
@@ -339,9 +362,10 @@ for c in instance.channels:
 # Log the information concerning the variable.
 print("*")
 print("* j [%s]" % len(j))
-print("* \tVariable j identifies if the given instance of the given channel has ben ")
-print("* \tactually placed between the given pair of zones.")
-print("*")
+if VERBOSE:
+    print("* \tVariable j identifies if the given instance of the given channel has ben ")
+    print("* \tactually placed between the given pair of zones.")
+    print("*")
 
 # ---------------------------------------------------------------------------------------------------------------------
 # Datastructures ending time.
@@ -360,33 +384,38 @@ print("* Defining constraints...")
 
 # ---------------------------------------------------------------------------------------------------------------------
 print("* Constraint C1")
+total_c1 = 0
 for n, z in itertools.product(instance.nodes, instance.zones):
+    total_c1 += 1
     m.addConstr(lhs=N[n, z],
                 sense=GRB.EQUAL,
                 rhs=quicksum(x[n, p, z] for p in instance.indexSetOfClonesOfNodesInArea[n, z]),
                 name="define_N_%s_%s" % (n, z))
-
 # ---------------------------------------------------------------------------------------------------------------------
 print("* Constraint C2")
+total_c2 = 0
 for n, z in itertools.product(instance.nodes, instance.zones):
     for p in instance.indexSetOfClonesOfNodesInArea[n, z]:
+        total_c2 += 1
         m.addConstr(lhs=N[n, z],
                     sense=GRB.GREATER_EQUAL,
                     rhs=p * x[n, p, z],
                     name="mono_clones_of_N_%s_%s_%s" % (n, z, p))
-
 # ---------------------------------------------------------------------------------------------------------------------
 print("* Constraint C3")
+total_c3 = 0
 for c in instance.channels:
+    total_c3 += 1
     m.addConstr(lhs=C[c],
                 sense=GRB.EQUAL,
                 rhs=quicksum(y[c, p] for p in instance.indexSetOfClonesOfChannel[c]),
                 name="define_C_%s" % c)
-
 # ---------------------------------------------------------------------------------------------------------------------
 print("* Constraint C4")
+total_c4 = 0
 for c in instance.channels:
     for p in instance.indexSetOfClonesOfChannel[c]:
+        total_c4 += 1
         m.addConstr(lhs=C[c],
                     sense=GRB.GREATER_EQUAL,
                     rhs=p * y[c, p],
@@ -394,9 +423,11 @@ for c in instance.channels:
 
 # ---------------------------------------------------------------------------------------------------------------------
 print("* Constraint C5")
+total_c5 = 0
 for t in instance.tasks:
     for n in t.getAllowedNode():
         for p in instance.indexSetOfClonesOfNodesInArea[n, t.zone]:
+            total_c5 += 1
             m.addConstr(lhs=w[t, n, p],
                         sense=GRB.LESS_EQUAL,
                         rhs=x[n, p, t.zone],
@@ -404,9 +435,11 @@ for t in instance.tasks:
 
 # ---------------------------------------------------------------------------------------------------------------------
 print("* Constraint C6")
+total_c6 = 0
 for df in instance.dataflows:
     for c in df.getAllowedChannel():
         for p in instance.indexSetOfClonesOfChannel[c]:
+            total_c6 += 1
             m.addConstr(lhs=h[df, c, p],
                         sense=GRB.LESS_EQUAL,
                         rhs=y[c, p],
@@ -414,8 +447,10 @@ for df in instance.dataflows:
 
 # ---------------------------------------------------------------------------------------------------------------------
 print("* Constraint C7")
+total_c7 = 0
 for n, z in itertools.product(instance.nodes, instance.zones):
     for p in instance.indexSetOfClonesOfNodesInArea[n, z]:
+        total_c7 += 1
         m.addConstr(lhs=x[n, p, z],
                     sense=GRB.LESS_EQUAL,
                     rhs=quicksum(w[t, n, p]
@@ -425,8 +460,10 @@ for n, z in itertools.product(instance.nodes, instance.zones):
 
 # ---------------------------------------------------------------------------------------------------------------------
 print("* Constraint C8")
+total_c8 = 0
 for c in instance.channels:
     for p in instance.indexSetOfClonesOfChannel[c]:
+        total_c8 += 1
         m.addConstr(lhs=y[c, p],
                     sense=GRB.LESS_EQUAL,
                     rhs=quicksum(h[df, c, p]
@@ -435,8 +472,10 @@ for c in instance.channels:
 
 # ---------------------------------------------------------------------------------------------------------------------
 print("* Constraint C9")
+total_c9 = 0
 for n, z in itertools.product(instance.nodes, instance.zones):
     for p in instance.indexSetOfClonesOfNodesInArea[n, z]:
+        total_c9 += 1
         m.addConstr(lhs=quicksum((t.size * w[t, n, p])
                                  for t in n.getAllowedTask()
                                  if t.zone == z),
@@ -446,8 +485,10 @@ for n, z in itertools.product(instance.nodes, instance.zones):
 
 # ---------------------------------------------------------------------------------------------------------------------
 print("* Constraint C10")
+total_c10 = 0
 for c in instance.channels:
     for p in instance.indexSetOfClonesOfChannel[c]:
+        total_c10 += 1
         m.addConstr(lhs=quicksum(((df.size * h[df, c, p]) /
                                   instance.contiguities.get((df.source.zone, df.target.zone, c)).conductance)
                                  for df in c.getAllowedDataFlow()),
@@ -457,7 +498,9 @@ for c in instance.channels:
 
 # ---------------------------------------------------------------------------------------------------------------------
 print("* Constraint C11")
+total_c11 = 0
 for t in instance.tasks:
+    total_c11 += 1
     m.addConstr(lhs=quicksum(w[t, n, p]
                              for n in t.getAllowedNode()
                              for p in instance.indexSetOfClonesOfNodesInArea[n, t.zone]),
@@ -467,8 +510,10 @@ for t in instance.tasks:
 
 # ---------------------------------------------------------------------------------------------------------------------
 print("* Constraint C12")
+total_c12 = 0
 for df in instance.dataflows:
     if df.source.zone == df.target.zone:
+        total_c12 += 1
         m.addConstr(lhs=quicksum(h[df, c, p]
                                  for c in df.getAllowedChannel()
                                  for p in instance.indexSetOfClonesOfChannel[c]),
@@ -477,8 +522,10 @@ for df in instance.dataflows:
                     name="unique_mapping_of_dataflow_%s_same_zones" % df)
 
 print("* Constraint C13")
+total_c13 = 0
 for df in instance.dataflows:
     if df.source.zone != df.target.zone:
+        total_c13 += 1
         m.addConstr(lhs=quicksum(h[df, c, p]
                                  for c in df.getAllowedChannel()
                                  for p in instance.indexSetOfClonesOfChannel[c]),
@@ -488,6 +535,7 @@ for df in instance.dataflows:
 
 # ---------------------------------------------------------------------------------------------------------------------
 print("* Constraint C14")
+total_c14 = 0
 for t1, t2 in itertools.combinations(instance.tasks, 2):
     if t1.zone == t2.zone:
         for n1 in t1.getAllowedNode():
@@ -495,6 +543,7 @@ for t1, t2 in itertools.combinations(instance.tasks, 2):
                 for n2 in t2.getAllowedNode():
                     for n2p in instance.indexSetOfClonesOfNodesInArea[n2, t2.zone]:
                         if (n1 != n2) or (n1p != n2p):
+                            total_c14 += 1
                             m.addConstr(lhs=rho[t1, t2],
                                         sense=GRB.GREATER_EQUAL,
                                         rhs=w[t1, n1, n1p] + w[t2, n2, n2p] - 1,
@@ -502,18 +551,22 @@ for t1, t2 in itertools.combinations(instance.tasks, 2):
                                              % (t1, n1, n1p, t2, n2, n2p))
 
 print("* Constraint C15")
+total_c15 = 0
 for t1, t2 in itertools.combinations(instance.tasks, 2):
     if t1.zone != t2.zone:
+        total_c15 += 1
         m.addConstr(lhs=rho[t1, t2], sense=GRB.EQUAL, rhs=1,
                     name="mapping_in_different_nodes_of_%s_and_%s" % (t1, t2))
 
 # ---------------------------------------------------------------------------------------------------------------------
 print("* Constraint C16")
+total_c16 = 0
 for c in instance.channels:
     if c.point_to_point:
         for p in instance.indexSetOfClonesOfChannel[c]:
             for df1, df2 in itertools.combinations(c.getAllowedDataFlow(), 2):
                 if (df1.source != df2.source) and (df1.target != df2.source):
+                    total_c16 += 1
                     m.addConstr(lhs=gamma[df1, df2.source],
                                 sense=GRB.LESS_EQUAL,
                                 rhs=2 - h[df1, c, p] - h[df2, c, p],
@@ -521,6 +574,7 @@ for c in instance.channels:
                                     c, p, df1, df2))
 
                 if (df1.source != df2.target) and (df1.target != df2.target):
+                    total_c16 += 1
                     m.addConstr(lhs=gamma[df1, df2.target],
                                 sense=GRB.LESS_EQUAL,
                                 rhs=2 - h[df1, c, p] - h[df2, c, p],
@@ -529,14 +583,18 @@ for c in instance.channels:
 
 # ---------------------------------------------------------------------------------------------------------------------
 print("* Constraint C17")
+total_c17 = 0
 for df, t in itertools.product(instance.dataflows, instance.tasks):
     if df.source == t or df.target == t:
+        total_c17 += 1
         m.addConstr(lhs=gamma[df, t], sense=GRB.EQUAL, rhs=0,
                     name="set_gamma_for_%s_%s_%s_a" % (t, df.source, df.target))
     elif (t.zone != df.source.zone) and (t.zone != df.target.zone) and (df.source.zone != df.target.zone):
+        total_c17 += 1
         m.addConstr(lhs=gamma[df, t], sense=GRB.EQUAL, rhs=1,
                     name="set_gamma_for_%s_%s_%s_a" % (t, df.source, df.target))
     else:
+        total_c17 += 1
         m.addConstr(lhs=gamma[df, t],
                     sense=GRB.GREATER_EQUAL,
                     rhs=rho[t, df.source] + rho[t, df.target] + rho[df.source, df.target] - 2,
@@ -544,10 +602,12 @@ for df, t in itertools.product(instance.dataflows, instance.tasks):
 
 # ---------------------------------------------------------------------------------------------------------------------
 print("* Constraint C18")
+total_c18 = 0
 for c in instance.channels:
     if c.wireless:
         for p in instance.indexSetOfClonesOfChannel[c]:
             for df1, df2 in itertools.combinations(c.getAllowedDataFlow(), 2):
+                total_c18 += 1
                 m.addConstr(lhs=h[df1, c, p] + h[df2, c, p],
                             sense=GRB.LESS_EQUAL,
                             rhs=(1 +
@@ -559,11 +619,13 @@ for c in instance.channels:
 
 # ---------------------------------------------------------------------------------------------------------------------
 print("* Constraint C19")
+total_c19 = 0
 for c in instance.channels:
     if not c.wireless:
         for p in instance.indexSetOfClonesOfChannel[c]:
             for d in c.getAllowedDataFlow():
                 if d.source.zone != d.target.zone:
+                    total_c19 += 1
                     m.addConstr(lhs=j[c, p],
                                 sense=GRB.GREATER_EQUAL,
                                 rhs=h[d, c, p] * instance.contiguities.get(
@@ -571,6 +633,47 @@ for c in instance.channels:
                                 name="cable_cost_%s_%s_%s" % (c.label, p, d.label))
 
 m.update()
+
+total_constraints = 0
+total_constraints += total_c1
+total_constraints += total_c2
+total_constraints += total_c3
+total_constraints += total_c4
+total_constraints += total_c5
+total_constraints += total_c6
+total_constraints += total_c7
+total_constraints += total_c8
+total_constraints += total_c9
+total_constraints += total_c10
+total_constraints += total_c11
+total_constraints += total_c12
+total_constraints += total_c13
+total_constraints += total_c14
+total_constraints += total_c15
+total_constraints += total_c16
+total_constraints += total_c17
+total_constraints += total_c18
+total_constraints += total_c19
+print("* Constraint C1  = %s" % total_c1)
+print("* Constraint C2  = %s" % total_c2)
+print("* Constraint C3  = %s" % total_c3)
+print("* Constraint C4  = %s" % total_c4)
+print("* Constraint C5  = %s" % total_c5)
+print("* Constraint C6  = %s" % total_c6)
+print("* Constraint C7  = %s" % total_c7)
+print("* Constraint C8  = %s" % total_c8)
+print("* Constraint C9  = %s" % total_c9)
+print("* Constraint C10 = %s" % total_c10)
+print("* Constraint C11 = %s" % total_c11)
+print("* Constraint C12 = %s" % total_c12)
+print("* Constraint C13 = %s" % total_c13)
+print("* Constraint C14 = %s" % total_c14)
+print("* Constraint C15 = %s" % total_c15)
+print("* Constraint C16 = %s" % total_c16)
+print("* Constraint C17 = %s" % total_c17)
+print("* Constraint C18 = %s" % total_c18)
+print("* Constraint C19 = %s" % total_c19)
+print("* Constraint TOT = %s" % total_constraints)
 
 # Constraints definition end.
 instance.constraints_end = time.time()
@@ -662,10 +765,10 @@ elif instance.OPTIMIZATION == 5:
     m.setObjective(
         quicksum(
             (
-                (c.delay * h[df, c, p]) / (
-                    instance.contiguities.get((df.source.zone, df.target.zone, c)).conductance) +
-                (c.error * h[df, c, p]) / (
-                    instance.contiguities.get((df.source.zone, df.target.zone, c)).conductance)
+                    (c.delay * h[df, c, p]) / (
+                instance.contiguities.get((df.source.zone, df.target.zone, c)).conductance) +
+                    (c.error * h[df, c, p]) / (
+                        instance.contiguities.get((df.source.zone, df.target.zone, c)).conductance)
             ) for df in instance.dataflows for c in df.getAllowedChannel() for p in
             instance.indexSetOfClonesOfChannel[c]
         ),
@@ -797,7 +900,7 @@ if m.status == GRB.status.OPTIMAL:
         for n in instance.nodes:
             if instance.sol_N[n, z]:
                 NodeQuantity[n.id] = NodeQuantity[n.id] + instance.sol_N[n, z]
-                #outfile.write("*\tZone %4s, use %4g nodes of type %s\n" % (z, instance.sol_N[n, z], n))
+                # outfile.write("*\tZone %4s, use %4g nodes of type %s\n" % (z, instance.sol_N[n, z], n))
 
     outfile.write("* List of activated nodes per type:\n")
     for n in instance.nodes:
@@ -930,7 +1033,8 @@ if instance.GENERATE_SCNSL == 1:
                                   instance.tasks, instance.dataflows,
                                   instance.sol_N,
                                   instance.sol_C,
-                                  instance.sol_w, instance.sol_h, instance.indexSetOfClonesOfChannel, instance.indexSetOfClonesOfNodesInArea)
+                                  instance.sol_w, instance.sol_h, instance.indexSetOfClonesOfChannel,
+                                  instance.indexSetOfClonesOfNodesInArea)
     scnslPrinter.printScnslNetwork("main.cc")
 
 # ---------------------------------------------------------------------------------------------------------------------

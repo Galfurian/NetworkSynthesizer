@@ -19,7 +19,9 @@ def RoundInt(x):
 
 
 class NetworkInstance:
-    def __init__(self):
+    def __init__(self, VERBOSE):
+        self.VERBOSE = VERBOSE
+
         self.channels = []
         self.nodes = []
         self.zones = []
@@ -133,7 +135,8 @@ class NetworkInstance:
         self.dataflows.append(data_flow)
 
     def load_node_catalog(self, node_catalog_filename):
-        print("* %s" % Node.get_header_caps())
+        if self.VERBOSE:
+            print("* %s" % Node.get_header_caps())
         with open(node_catalog_filename, "r") as node_file:
             for line in node_file:
                 node_line = line.strip()
@@ -161,14 +164,13 @@ class NetworkInstance:
                 # Append the node to the list of nodes.
                 self.add_node(new_node)
                 # Print the node.
-                print("* %s" % new_node.to_string())
-                # Delete the auxiliary variables.
-                del node_line, new_node
-                del label, id, cost, size, energy, task_energy, mobile
+                if self.VERBOSE:
+                    print("* %s" % new_node.to_string())
         return True
 
     def load_channel_catalog(self, channel_catalog_filename):
-        print("* %s" % Channel.get_header_caps())
+        if self.VERBOSE:
+            print("* %s" % Channel.get_header_caps())
         with open(channel_catalog_filename, "r") as channel_file:
             for line in channel_file:
                 channel_line = line.strip()
@@ -199,10 +201,8 @@ class NetworkInstance:
                 # Append the channel to the list of channels.
                 self.add_channel(new_channel)
                 # Print the channel.
-                print("* %s" % new_channel.to_string())
-                # Delete the auxiliary variables.
-                del channel_line, new_channel
-                del label, id, cost, size, energy, df_energy, delay, error, wireless, point_to_point
+                if self.VERBOSE:
+                    print("* %s" % new_channel.to_string())
         return True
 
     def load_input_instance(self, input_instance_filename):
@@ -227,10 +227,12 @@ class NetworkInstance:
                 # Parse the line.
                 if input_line == "<ZONE>":
                     is_parsing_zone = True
-                    print("* LOADING ZONES")
+                    if self.VERBOSE:
+                        print("* LOADING ZONES")
                 elif input_line == "</ZONE>":
                     is_parsing_zone = False
-                    print("* LOADING ZONES - Done")
+                    if self.VERBOSE:
+                        print("* LOADING ZONES - Done")
                 elif is_parsing_zone:
                     # Retrieve the values from the file.
                     try:
@@ -243,18 +245,18 @@ class NetworkInstance:
                     # Append the zone to the list of zones.
                     self.add_zone(new_zone)
                     # Print the zone.
-                    print("* %s" % new_zone.to_string())
-                    # Delete the auxiliary variables.
-                    del label, x, y, z
-                    del new_zone
+                    if self.VERBOSE:
+                        print("* %s" % new_zone.to_string())
 
                 # -----------------------------------------------------------------------------------------------------
                 elif input_line == "<CONTIGUITY>":
                     is_parsing_contiguity = True
-                    print("* LOADING CONTIGUITIES")
+                    if self.VERBOSE:
+                        print("* LOADING CONTIGUITIES")
                 elif input_line == "</CONTIGUITY>":
                     is_parsing_contiguity = False
-                    print("* LOADING CONTIGUITIES - Done")
+                    if self.VERBOSE:
+                        print("* LOADING CONTIGUITIES - Done")
                 elif is_parsing_contiguity:
                     # Retrieve the values from the file.
                     try:
@@ -288,19 +290,18 @@ class NetworkInstance:
                     # Set the same values for the vice-versa of the zones.
                     self.contiguities[zone2, zone1, channel] = new_contiguity
                     # Print the contiguity.
-                    #print("* %s" % new_contiguity.to_string())
-                    # Delete the auxiliary variables.
-                    del id_zone1, id_zone2, id_channel, conductance, deployment_cost
-                    del zone1, zone2, channel
-                    del new_contiguity
+                    if self.VERBOSE:
+                        print("* %s" % new_contiguity.to_string())
 
                 # -----------------------------------------------------------------------------------------------------
                 elif input_line == "<TASK>":
                     is_parsing_task = True
-                    print("* LOADING TASKS")
+                    if self.VERBOSE:
+                        print("* LOADING TASKS")
                 elif input_line == "</TASK>":
                     is_parsing_task = False
-                    print("* LOADING TASKS - Done")
+                    if self.VERBOSE:
+                        print("* LOADING TASKS - Done")
                 elif is_parsing_task:
                     # Retrieve the values from the file.
                     try:
@@ -320,19 +321,18 @@ class NetworkInstance:
                     # Increment the task index
                     index_task += 1
                     # Print the task.
-                    print("* %s" % new_task.to_string())
-                    # Clear the variables.
-                    del label, size, id_zone, mobile
-                    del zone
-                    del new_task
+                    if self.VERBOSE:
+                        print("* %s" % new_task.to_string())
 
                 # -----------------------------------------------------------------------------------------------------
                 elif input_line == "<DATAFLOW>":
                     is_parsing_dataflow = True
-                    print("* LOADING DATA-FLOWS")
+                    if self.VERBOSE:
+                        print("* LOADING DATA-FLOWS")
                 elif input_line == "</DATAFLOW>":
                     is_parsing_dataflow = False
-                    print("* LOADING DATA-FLOWS - Done")
+                    if self.VERBOSE:
+                        print("* LOADING DATA-FLOWS - Done")
                 elif is_parsing_dataflow:
                     # Retrieve the values from the file.
                     try:
@@ -366,13 +366,10 @@ class NetworkInstance:
                     # Append the data-flow to the list of data-flows.
                     self.add_data_flow(NewDataFlow)
                     # Print the data-flow.
-                    print("* %s" % NewDataFlow.to_string())
+                    if self.VERBOSE:
+                        print("* %s" % NewDataFlow.to_string())
                     # Increment the index of data-flows.
                     index_dataflow += 1
-                    # Clear the variables.
-                    del label, id_source, id_target, band, delay, error
-                    del source, TargetTask
-                    del NewDataFlow
 
                 # Clear the variables.
                 del input_line
@@ -395,7 +392,7 @@ class NetworkInstance:
                     if self.contiguities.get((zone1, zone2, channel)) is None:
                         if zone1 == zone2:
                             self.contiguities[zone1, zone2, channel] = Contiguity(zone1, zone2, channel, 1.0, 0)
-                            #print("* %s" % self.contiguities[zone1, zone2, channel].to_string())
+                            # print("* %s" % self.contiguities[zone1, zone2, channel].to_string())
                         else:
                             self.contiguities[zone1, zone2, channel] = Contiguity(zone1, zone2, channel, 0.0,
                                                                                   sys.maxint)
