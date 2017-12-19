@@ -1,7 +1,7 @@
 # LABEL          | ID  |   COST |        SIZE |  ENERGY |   TASK ENERGY |   ENERGY COST |      MOBILE
-  db_board_1       1          5            64         2               1            0.05             0
-  db_board_2       2         22            98         4               2            0.15             1
-  db_board_3       3         98           128         8               4             0.4             1
+  db_board_1       1         10            64         2               1            0.05             0
+  db_board_2       2         24            98         4               2            0.15             1
+  db_board_3       3         64           128         8               4             0.4             1
   db_board_4       4        128           256        14               7            0.32             1
   db_board_5       5        514           512        20              10             0.6             0
 
