@@ -34,6 +34,7 @@ set(PROJECT_SRC
         test_cases/test_case_02.cpp
         test_cases/test_case_03.cpp
         test_cases/stress_test_generator.cpp
+        test_cases/stress_test_generator_2.cpp
         test_cases/corner_case_1.cpp
         )
 
