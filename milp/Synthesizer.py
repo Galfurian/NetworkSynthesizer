@@ -94,7 +94,7 @@ def RoundInt(x):
 
 # ---------------------------------------------------------------------------------------------------------------------
 # Files parsing starting time.
-instance.parsing_begin = time.time()
+instance.parsing_begin = time.clock()
 
 # ---------------------------------------------------------------------------------------------------------------------
 argc = len(argv)
@@ -190,12 +190,12 @@ print("*     DF   * Channels : %s" % valid_df_channels_associations)
 Separator()
 
 # Files parsing ending time.
-instance.parsing_end = time.time()
+instance.parsing_end = time.clock()
 
 # ---------------------------------------------------------------------------------------------------------------------
 # ---------------------------------------------------------------------------------------------------------------------
 # Make the timer start.
-instance.setup_begin = time.time()
+instance.setup_begin = time.clock()
 
 # ---------------------------------------------------------------------------------------------------------------------
 Separator()
@@ -379,7 +379,7 @@ if VERBOSE:
 
 # ---------------------------------------------------------------------------------------------------------------------
 # Datastructures ending time.
-instance.setup_end = time.time()
+instance.setup_end = time.clock()
 
 # Model update (force the take in of all the variables):
 m.update()
@@ -387,7 +387,7 @@ m.update()
 # ---------------------------------------------------------------------------------------------------------------------
 # ---------------------------------------------------------------------------------------------------------------------
 # Constraints definition start.
-instance.constraints_begin = time.time()
+instance.constraints_begin = time.clock()
 
 print("*******************************************************************************")
 print("* Defining constraints...")
@@ -685,7 +685,7 @@ print("* Constraint C19 = %s" % total_c19)
 print("* Constraint TOT = %s" % total_constraints)
 
 # Constraints definition end.
-instance.constraints_end = time.time()
+instance.constraints_end = time.clock()
 
 print("*******************************************************************************")
 print("* Defining the optimization objective:")
@@ -870,11 +870,11 @@ print("* Starting optimization...")
 # m.setParam("NumericFocus", 2)
 
 # Optimization start.
-instance.optimization_begin = time.time()
+instance.optimization_begin = time.clock()
 # Compute optimal solution
 m.optimize()
 # Optimization end.
-instance.optimization_end = time.time()
+instance.optimization_end = time.clock()
 
 # Evaluate the used memory.
 instance.used_memory = GetMemoryUsage()

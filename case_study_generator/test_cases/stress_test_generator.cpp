@@ -174,15 +174,15 @@ static void connect_routers(ProblemInstance &inst,
 }
 
 void generate_stress_test() {
-  for (unsigned int id = 0; id < 50; ++id) {
+  for (unsigned int id = 1; id <= 40; ++id) {
     ProblemInstance inst(std::string("stress_test_") + ((id < 10) ? "0" : "") + ToString(id));
 
-    auto num_zones = 30 + id;
-    auto num_tasks = 3;
-
+    auto num_zones = 5 * id;
+    auto num_tasks = 5;
+    std::cout << "["<<std::right << std::setw(4) << id <<"]";
     std::cout << "Generating instnace with ";
     std::cout << std::right << std::setw(4) << num_zones << " zones and ";
-    std::cout << std::right << std::setw(4) << num_tasks << " tasks.\n";
+    std::cout << std::right << std::setw(4) << num_tasks << " tasks, total " << (num_zones*num_tasks)<< ".\n";
 
     add_channels(inst);
     add_nodes(inst);

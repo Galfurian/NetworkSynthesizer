@@ -1,0 +1,1268 @@
+*******************************************************************************
+Optimal objective: 119956
+*******************************************************************************
+* SOLUTION
+*******************************************************************************
+* List of activated nodes:
+* List of activated nodes per type:
+*	Use    0 nodes of type db_board_1
+*	Use    0 nodes of type db_board_2
+*	Use   44 nodes of type db_board_3
+*	Use    0 nodes of type db_board_4
+*	Use   44 nodes of type db_board_5
+* List of activated channels:
+*	Use   44 channels of type Wi-Fi-AC
+*	Use   43 channels of type fiber-Type-1
+* Tasks allocation:
+*	Task     RtZn0                    inside n Zone0.db_board_5.1
+*	Task     Ts1Zn0                   inside n Zone0.db_board_3.1
+*	Task     Ts2Zn0                   inside n Zone0.db_board_3.1
+*	Task     RtZn1                    inside n Zone1.db_board_5.1
+*	Task     Ts1Zn1                   inside n Zone1.db_board_3.1
+*	Task     Ts2Zn1                   inside n Zone1.db_board_3.1
+*	Task     RtZn2                    inside n Zone2.db_board_5.1
+*	Task     Ts1Zn2                   inside n Zone2.db_board_3.1
+*	Task     Ts2Zn2                   inside n Zone2.db_board_3.1
+*	Task     RtZn3                    inside n Zone3.db_board_5.1
+*	Task     Ts1Zn3                   inside n Zone3.db_board_3.1
+*	Task     Ts2Zn3                   inside n Zone3.db_board_3.1
+*	Task     RtZn4                    inside n Zone4.db_board_5.1
+*	Task     Ts1Zn4                   inside n Zone4.db_board_3.1
+*	Task     Ts2Zn4                   inside n Zone4.db_board_3.1
+*	Task     RtZn5                    inside n Zone5.db_board_5.1
+*	Task     Ts1Zn5                   inside n Zone5.db_board_3.1
+*	Task     Ts2Zn5                   inside n Zone5.db_board_3.1
+*	Task     RtZn6                    inside n Zone6.db_board_5.1
+*	Task     Ts1Zn6                   inside n Zone6.db_board_3.1
+*	Task     Ts2Zn6                   inside n Zone6.db_board_3.1
+*	Task     RtZn7                    inside n Zone7.db_board_5.1
+*	Task     Ts1Zn7                   inside n Zone7.db_board_3.1
+*	Task     Ts2Zn7                   inside n Zone7.db_board_3.1
+*	Task     RtZn8                    inside n Zone8.db_board_5.1
+*	Task     Ts1Zn8                   inside n Zone8.db_board_3.1
+*	Task     Ts2Zn8                   inside n Zone8.db_board_3.1
+*	Task     RtZn9                    inside n Zone9.db_board_5.1
+*	Task     Ts1Zn9                   inside n Zone9.db_board_3.1
+*	Task     Ts2Zn9                   inside n Zone9.db_board_3.1
+*	Task     RtZn10                   inside n Zone10.db_board_5.1
+*	Task     Ts1Zn10                  inside n Zone10.db_board_3.1
+*	Task     Ts2Zn10                  inside n Zone10.db_board_3.1
+*	Task     RtZn11                   inside n Zone11.db_board_5.1
+*	Task     Ts1Zn11                  inside n Zone11.db_board_3.1
+*	Task     Ts2Zn11                  inside n Zone11.db_board_3.1
+*	Task     RtZn12                   inside n Zone12.db_board_5.1
+*	Task     Ts1Zn12                  inside n Zone12.db_board_3.1
+*	Task     Ts2Zn12                  inside n Zone12.db_board_3.1
+*	Task     RtZn13                   inside n Zone13.db_board_5.1
+*	Task     Ts1Zn13                  inside n Zone13.db_board_3.1
+*	Task     Ts2Zn13                  inside n Zone13.db_board_3.1
+*	Task     RtZn14                   inside n Zone14.db_board_5.1
+*	Task     Ts1Zn14                  inside n Zone14.db_board_3.1
+*	Task     Ts2Zn14                  inside n Zone14.db_board_3.1
+*	Task     RtZn15                   inside n Zone15.db_board_5.1
+*	Task     Ts1Zn15                  inside n Zone15.db_board_3.1
+*	Task     Ts2Zn15                  inside n Zone15.db_board_3.1
+*	Task     RtZn16                   inside n Zone16.db_board_5.1
+*	Task     Ts1Zn16                  inside n Zone16.db_board_3.1
+*	Task     Ts2Zn16                  inside n Zone16.db_board_3.1
+*	Task     RtZn17                   inside n Zone17.db_board_5.1
+*	Task     Ts1Zn17                  inside n Zone17.db_board_3.1
+*	Task     Ts2Zn17                  inside n Zone17.db_board_3.1
+*	Task     RtZn18                   inside n Zone18.db_board_5.1
+*	Task     Ts1Zn18                  inside n Zone18.db_board_3.1
+*	Task     Ts2Zn18                  inside n Zone18.db_board_3.1
+*	Task     RtZn19                   inside n Zone19.db_board_5.1
+*	Task     Ts1Zn19                  inside n Zone19.db_board_3.1
+*	Task     Ts2Zn19                  inside n Zone19.db_board_3.1
+*	Task     RtZn20                   inside n Zone20.db_board_5.1
+*	Task     Ts1Zn20                  inside n Zone20.db_board_3.1
+*	Task     Ts2Zn20                  inside n Zone20.db_board_3.1
+*	Task     RtZn21                   inside n Zone21.db_board_5.1
+*	Task     Ts1Zn21                  inside n Zone21.db_board_3.1
+*	Task     Ts2Zn21                  inside n Zone21.db_board_3.1
+*	Task     RtZn22                   inside n Zone22.db_board_5.1
+*	Task     Ts1Zn22                  inside n Zone22.db_board_3.1
+*	Task     Ts2Zn22                  inside n Zone22.db_board_3.1
+*	Task     RtZn23                   inside n Zone23.db_board_5.1
+*	Task     Ts1Zn23                  inside n Zone23.db_board_3.1
+*	Task     Ts2Zn23                  inside n Zone23.db_board_3.1
+*	Task     RtZn24                   inside n Zone24.db_board_5.1
+*	Task     Ts1Zn24                  inside n Zone24.db_board_3.1
+*	Task     Ts2Zn24                  inside n Zone24.db_board_3.1
+*	Task     RtZn25                   inside n Zone25.db_board_5.1
+*	Task     Ts1Zn25                  inside n Zone25.db_board_3.1
+*	Task     Ts2Zn25                  inside n Zone25.db_board_3.1
+*	Task     RtZn26                   inside n Zone26.db_board_5.1
+*	Task     Ts1Zn26                  inside n Zone26.db_board_3.1
+*	Task     Ts2Zn26                  inside n Zone26.db_board_3.1
+*	Task     RtZn27                   inside n Zone27.db_board_5.1
+*	Task     Ts1Zn27                  inside n Zone27.db_board_3.1
+*	Task     Ts2Zn27                  inside n Zone27.db_board_3.1
+*	Task     RtZn28                   inside n Zone28.db_board_5.1
+*	Task     Ts1Zn28                  inside n Zone28.db_board_3.1
+*	Task     Ts2Zn28                  inside n Zone28.db_board_3.1
+*	Task     RtZn29                   inside n Zone29.db_board_5.1
+*	Task     Ts1Zn29                  inside n Zone29.db_board_3.1
+*	Task     Ts2Zn29                  inside n Zone29.db_board_3.1
+*	Task     RtZn30                   inside n Zone30.db_board_5.1
+*	Task     Ts1Zn30                  inside n Zone30.db_board_3.1
+*	Task     Ts2Zn30                  inside n Zone30.db_board_3.1
+*	Task     RtZn31                   inside n Zone31.db_board_5.1
+*	Task     Ts1Zn31                  inside n Zone31.db_board_3.1
+*	Task     Ts2Zn31                  inside n Zone31.db_board_3.1
+*	Task     RtZn32                   inside n Zone32.db_board_5.1
+*	Task     Ts1Zn32                  inside n Zone32.db_board_3.1
+*	Task     Ts2Zn32                  inside n Zone32.db_board_3.1
+*	Task     RtZn33                   inside n Zone33.db_board_5.1
+*	Task     Ts1Zn33                  inside n Zone33.db_board_3.1
+*	Task     Ts2Zn33                  inside n Zone33.db_board_3.1
+*	Task     RtZn34                   inside n Zone34.db_board_5.1
+*	Task     Ts1Zn34                  inside n Zone34.db_board_3.1
+*	Task     Ts2Zn34                  inside n Zone34.db_board_3.1
+*	Task     RtZn35                   inside n Zone35.db_board_5.1
+*	Task     Ts1Zn35                  inside n Zone35.db_board_3.1
+*	Task     Ts2Zn35                  inside n Zone35.db_board_3.1
+*	Task     RtZn36                   inside n Zone36.db_board_5.1
+*	Task     Ts1Zn36                  inside n Zone36.db_board_3.1
+*	Task     Ts2Zn36                  inside n Zone36.db_board_3.1
+*	Task     RtZn37                   inside n Zone37.db_board_5.1
+*	Task     Ts1Zn37                  inside n Zone37.db_board_3.1
+*	Task     Ts2Zn37                  inside n Zone37.db_board_3.1
+*	Task     RtZn38                   inside n Zone38.db_board_5.1
+*	Task     Ts1Zn38                  inside n Zone38.db_board_3.1
+*	Task     Ts2Zn38                  inside n Zone38.db_board_3.1
+*	Task     RtZn39                   inside n Zone39.db_board_5.1
+*	Task     Ts1Zn39                  inside n Zone39.db_board_3.1
+*	Task     Ts2Zn39                  inside n Zone39.db_board_3.1
+*	Task     RtZn40                   inside n Zone40.db_board_5.1
+*	Task     Ts1Zn40                  inside n Zone40.db_board_3.1
+*	Task     Ts2Zn40                  inside n Zone40.db_board_3.1
+*	Task     RtZn41                   inside n Zone41.db_board_5.1
+*	Task     Ts1Zn41                  inside n Zone41.db_board_3.1
+*	Task     Ts2Zn41                  inside n Zone41.db_board_3.1
+*	Task     RtZn42                   inside n Zone42.db_board_5.1
+*	Task     Ts1Zn42                  inside n Zone42.db_board_3.1
+*	Task     Ts2Zn42                  inside n Zone42.db_board_3.1
+*	Task     RtZn43                   inside n Zone43.db_board_5.1
+*	Task     Ts1Zn43                  inside n Zone43.db_board_3.1
+*	Task     Ts2Zn43                  inside n Zone43.db_board_3.1
+* Data-Flows allocation:
+*	Dataflow DfZn0Tsk1                inside c Wi-Fi-AC.44
+*	Dataflow DfZn0Tsk2                inside c Wi-Fi-AC.44
+*	Dataflow DfZn1Tsk1                inside c Wi-Fi-AC.43
+*	Dataflow DfZn1Tsk2                inside c Wi-Fi-AC.43
+*	Dataflow DfZn2Tsk1                inside c Wi-Fi-AC.42
+*	Dataflow DfZn2Tsk2                inside c Wi-Fi-AC.42
+*	Dataflow DfZn3Tsk1                inside c Wi-Fi-AC.41
+*	Dataflow DfZn3Tsk2                inside c Wi-Fi-AC.41
+*	Dataflow DfZn4Tsk1                inside c Wi-Fi-AC.40
+*	Dataflow DfZn4Tsk2                inside c Wi-Fi-AC.40
+*	Dataflow DfZn5Tsk1                inside c Wi-Fi-AC.39
+*	Dataflow DfZn5Tsk2                inside c Wi-Fi-AC.39
+*	Dataflow DfZn6Tsk1                inside c Wi-Fi-AC.38
+*	Dataflow DfZn6Tsk2                inside c Wi-Fi-AC.38
+*	Dataflow DfZn7Tsk1                inside c Wi-Fi-AC.37
+*	Dataflow DfZn7Tsk2                inside c Wi-Fi-AC.37
+*	Dataflow DfZn8Tsk1                inside c Wi-Fi-AC.36
+*	Dataflow DfZn8Tsk2                inside c Wi-Fi-AC.36
+*	Dataflow DfZn9Tsk1                inside c Wi-Fi-AC.35
+*	Dataflow DfZn9Tsk2                inside c Wi-Fi-AC.35
+*	Dataflow DfZn10Tsk1               inside c Wi-Fi-AC.34
+*	Dataflow DfZn10Tsk2               inside c Wi-Fi-AC.34
+*	Dataflow DfZn11Tsk1               inside c Wi-Fi-AC.33
+*	Dataflow DfZn11Tsk2               inside c Wi-Fi-AC.33
+*	Dataflow DfZn12Tsk1               inside c Wi-Fi-AC.32
+*	Dataflow DfZn12Tsk2               inside c Wi-Fi-AC.32
+*	Dataflow DfZn13Tsk1               inside c Wi-Fi-AC.31
+*	Dataflow DfZn13Tsk2               inside c Wi-Fi-AC.31
+*	Dataflow DfZn14Tsk1               inside c Wi-Fi-AC.30
+*	Dataflow DfZn14Tsk2               inside c Wi-Fi-AC.30
+*	Dataflow DfZn15Tsk1               inside c Wi-Fi-AC.29
+*	Dataflow DfZn15Tsk2               inside c Wi-Fi-AC.29
+*	Dataflow DfZn16Tsk1               inside c Wi-Fi-AC.28
+*	Dataflow DfZn16Tsk2               inside c Wi-Fi-AC.28
+*	Dataflow DfZn17Tsk1               inside c Wi-Fi-AC.27
+*	Dataflow DfZn17Tsk2               inside c Wi-Fi-AC.27
+*	Dataflow DfZn18Tsk1               inside c Wi-Fi-AC.26
+*	Dataflow DfZn18Tsk2               inside c Wi-Fi-AC.26
+*	Dataflow DfZn19Tsk1               inside c Wi-Fi-AC.25
+*	Dataflow DfZn19Tsk2               inside c Wi-Fi-AC.25
+*	Dataflow DfZn20Tsk1               inside c Wi-Fi-AC.24
+*	Dataflow DfZn20Tsk2               inside c Wi-Fi-AC.24
+*	Dataflow DfZn21Tsk1               inside c Wi-Fi-AC.23
+*	Dataflow DfZn21Tsk2               inside c Wi-Fi-AC.23
+*	Dataflow DfZn22Tsk1               inside c Wi-Fi-AC.22
+*	Dataflow DfZn22Tsk2               inside c Wi-Fi-AC.22
+*	Dataflow DfZn23Tsk1               inside c Wi-Fi-AC.21
+*	Dataflow DfZn23Tsk2               inside c Wi-Fi-AC.21
+*	Dataflow DfZn24Tsk1               inside c Wi-Fi-AC.20
+*	Dataflow DfZn24Tsk2               inside c Wi-Fi-AC.20
+*	Dataflow DfZn25Tsk1               inside c Wi-Fi-AC.19
+*	Dataflow DfZn25Tsk2               inside c Wi-Fi-AC.19
+*	Dataflow DfZn26Tsk1               inside c Wi-Fi-AC.18
+*	Dataflow DfZn26Tsk2               inside c Wi-Fi-AC.18
+*	Dataflow DfZn27Tsk1               inside c Wi-Fi-AC.17
+*	Dataflow DfZn27Tsk2               inside c Wi-Fi-AC.17
+*	Dataflow DfZn28Tsk1               inside c Wi-Fi-AC.16
+*	Dataflow DfZn28Tsk2               inside c Wi-Fi-AC.16
+*	Dataflow DfZn29Tsk1               inside c Wi-Fi-AC.15
+*	Dataflow DfZn29Tsk2               inside c Wi-Fi-AC.15
+*	Dataflow DfZn30Tsk1               inside c Wi-Fi-AC.14
+*	Dataflow DfZn30Tsk2               inside c Wi-Fi-AC.14
+*	Dataflow DfZn31Tsk1               inside c Wi-Fi-AC.13
+*	Dataflow DfZn31Tsk2               inside c Wi-Fi-AC.13
+*	Dataflow DfZn32Tsk1               inside c Wi-Fi-AC.12
+*	Dataflow DfZn32Tsk2               inside c Wi-Fi-AC.12
+*	Dataflow DfZn33Tsk1               inside c Wi-Fi-AC.11
+*	Dataflow DfZn33Tsk2               inside c Wi-Fi-AC.11
+*	Dataflow DfZn34Tsk1               inside c Wi-Fi-AC.10
+*	Dataflow DfZn34Tsk2               inside c Wi-Fi-AC.10
+*	Dataflow DfZn35Tsk1               inside c Wi-Fi-AC.9
+*	Dataflow DfZn35Tsk2               inside c Wi-Fi-AC.9
+*	Dataflow DfZn36Tsk1               inside c Wi-Fi-AC.8
+*	Dataflow DfZn36Tsk2               inside c Wi-Fi-AC.8
+*	Dataflow DfZn37Tsk1               inside c Wi-Fi-AC.7
+*	Dataflow DfZn37Tsk2               inside c Wi-Fi-AC.7
+*	Dataflow DfZn38Tsk1               inside c Wi-Fi-AC.6
+*	Dataflow DfZn38Tsk2               inside c Wi-Fi-AC.6
+*	Dataflow DfZn39Tsk1               inside c Wi-Fi-AC.5
+*	Dataflow DfZn39Tsk2               inside c Wi-Fi-AC.5
+*	Dataflow DfZn40Tsk1               inside c Wi-Fi-AC.4
+*	Dataflow DfZn40Tsk2               inside c Wi-Fi-AC.4
+*	Dataflow DfZn41Tsk1               inside c Wi-Fi-AC.3
+*	Dataflow DfZn41Tsk2               inside c Wi-Fi-AC.3
+*	Dataflow DfZn42Tsk1               inside c Wi-Fi-AC.2
+*	Dataflow DfZn42Tsk2               inside c Wi-Fi-AC.2
+*	Dataflow DfZn43Tsk1               inside c Wi-Fi-AC.1
+*	Dataflow DfZn43Tsk2               inside c Wi-Fi-AC.1
+*	Dataflow DfRtZn0ToRtZn1           inside c fiber-Type-1.43
+*	Dataflow DfRtZn1ToRtZn2           inside c fiber-Type-1.42
+*	Dataflow DfRtZn2ToRtZn3           inside c fiber-Type-1.41
+*	Dataflow DfRtZn3ToRtZn4           inside c fiber-Type-1.40
+*	Dataflow DfRtZn4ToRtZn5           inside c fiber-Type-1.39
+*	Dataflow DfRtZn5ToRtZn6           inside c fiber-Type-1.38
+*	Dataflow DfRtZn6ToRtZn7           inside c fiber-Type-1.37
+*	Dataflow DfRtZn7ToRtZn8           inside c fiber-Type-1.36
+*	Dataflow DfRtZn8ToRtZn9           inside c fiber-Type-1.35
+*	Dataflow DfRtZn9ToRtZn10          inside c fiber-Type-1.34
+*	Dataflow DfRtZn10ToRtZn11         inside c fiber-Type-1.33
+*	Dataflow DfRtZn11ToRtZn12         inside c fiber-Type-1.32
+*	Dataflow DfRtZn12ToRtZn13         inside c fiber-Type-1.31
+*	Dataflow DfRtZn13ToRtZn14         inside c fiber-Type-1.30
+*	Dataflow DfRtZn14ToRtZn15         inside c fiber-Type-1.29
+*	Dataflow DfRtZn15ToRtZn16         inside c fiber-Type-1.28
+*	Dataflow DfRtZn16ToRtZn17         inside c fiber-Type-1.27
+*	Dataflow DfRtZn17ToRtZn18         inside c fiber-Type-1.26
+*	Dataflow DfRtZn18ToRtZn19         inside c fiber-Type-1.25
+*	Dataflow DfRtZn19ToRtZn20         inside c fiber-Type-1.24
+*	Dataflow DfRtZn20ToRtZn21         inside c fiber-Type-1.23
+*	Dataflow DfRtZn21ToRtZn22         inside c fiber-Type-1.22
+*	Dataflow DfRtZn22ToRtZn23         inside c fiber-Type-1.21
+*	Dataflow DfRtZn23ToRtZn24         inside c fiber-Type-1.20
+*	Dataflow DfRtZn24ToRtZn25         inside c fiber-Type-1.19
+*	Dataflow DfRtZn25ToRtZn26         inside c fiber-Type-1.18
+*	Dataflow DfRtZn26ToRtZn27         inside c fiber-Type-1.17
+*	Dataflow DfRtZn27ToRtZn28         inside c fiber-Type-1.16
+*	Dataflow DfRtZn28ToRtZn29         inside c fiber-Type-1.15
+*	Dataflow DfRtZn29ToRtZn30         inside c fiber-Type-1.14
+*	Dataflow DfRtZn30ToRtZn31         inside c fiber-Type-1.13
+*	Dataflow DfRtZn31ToRtZn32         inside c fiber-Type-1.12
+*	Dataflow DfRtZn32ToRtZn33         inside c fiber-Type-1.11
+*	Dataflow DfRtZn33ToRtZn34         inside c fiber-Type-1.10
+*	Dataflow DfRtZn34ToRtZn35         inside c fiber-Type-1.9
+*	Dataflow DfRtZn35ToRtZn36         inside c fiber-Type-1.8
+*	Dataflow DfRtZn36ToRtZn37         inside c fiber-Type-1.7
+*	Dataflow DfRtZn37ToRtZn38         inside c fiber-Type-1.6
+*	Dataflow DfRtZn38ToRtZn39         inside c fiber-Type-1.5
+*	Dataflow DfRtZn39ToRtZn40         inside c fiber-Type-1.4
+*	Dataflow DfRtZn40ToRtZn41         inside c fiber-Type-1.3
+*	Dataflow DfRtZn41ToRtZn42         inside c fiber-Type-1.2
+*	Dataflow DfRtZn42ToRtZn43         inside c fiber-Type-1.1
+*******************************************************************************
+* STATISTICS
+*******************************************************************************
+* Economic Cost      : 119956.091765
+* 	Nodes            : 104192.0
+* 	Wireless         : 2281.01176471
+* 	Channels         : 13483.08
+* Energy Consumption : 150798.705882
+* 	Nodes            : 136400
+* 	Wireless         : 2616.70588235
+* 	Cable            : 11782.0
+* Total Delay        : 914.235294118
+* 	Wireless         : 828.235294118
+* 	Cable            : 86.0
+* Total Error        : 767.705882353
+* 	Wireless         : 724.705882353
+* 	Cable            : 43.0
+*******************************************************************************
+* RUNNING NETWORK CHECKER
+*******************************************************************************
+* NetworkChecker instantiated...
+*     - Checking if all the tasks have been deployed once...
+*     - Checking if all the dataflows have been deployed...
+*     - Checking if the tasks deployment is compliant with the nodes sizes...
+*     - Checking if cabled channels contain only dataflows which have tasks in the same pair of nodes...
+*     - Checking if a wired channel contains a dataflow with mobile tasks...
+*     - Checking if wireless channels has been placed between zones with zero contiguity...
+*     - Checking if a non-mobile node is hosting a mobile task...
+*******************************************************************************
+* FINAL STATISTICS
+*******************************************************************************
+*	File parsing           : 0.087562 s
+*	Structure creation     : 0.40475 s
+*	Constraints definition : 30.979169 s
+*	Optimization           : 192.36041 s
+*	Total : 223.831891 s
+*******************************************************************************
+*******************************************************************************
+Optimal objective: 145123
+*******************************************************************************
+* SOLUTION
+*******************************************************************************
+* List of activated nodes:
+* List of activated nodes per type:
+*	Use    0 nodes of type db_board_1
+*	Use    0 nodes of type db_board_2
+*	Use   44 nodes of type db_board_3
+*	Use    0 nodes of type db_board_4
+*	Use   44 nodes of type db_board_5
+* List of activated channels:
+*	Use   44 channels of type Wi-Fi-AC
+*	Use   43 channels of type fiber-Type-2
+* Tasks allocation:
+*	Task     RtZn0                    inside n Zone0.db_board_5.1
+*	Task     Ts1Zn0                   inside n Zone0.db_board_3.1
+*	Task     Ts2Zn0                   inside n Zone0.db_board_3.1
+*	Task     RtZn1                    inside n Zone1.db_board_5.1
+*	Task     Ts1Zn1                   inside n Zone1.db_board_3.1
+*	Task     Ts2Zn1                   inside n Zone1.db_board_3.1
+*	Task     RtZn2                    inside n Zone2.db_board_5.1
+*	Task     Ts1Zn2                   inside n Zone2.db_board_3.1
+*	Task     Ts2Zn2                   inside n Zone2.db_board_3.1
+*	Task     RtZn3                    inside n Zone3.db_board_5.1
+*	Task     Ts1Zn3                   inside n Zone3.db_board_3.1
+*	Task     Ts2Zn3                   inside n Zone3.db_board_3.1
+*	Task     RtZn4                    inside n Zone4.db_board_5.1
+*	Task     Ts1Zn4                   inside n Zone4.db_board_3.1
+*	Task     Ts2Zn4                   inside n Zone4.db_board_3.1
+*	Task     RtZn5                    inside n Zone5.db_board_5.1
+*	Task     Ts1Zn5                   inside n Zone5.db_board_3.1
+*	Task     Ts2Zn5                   inside n Zone5.db_board_3.1
+*	Task     RtZn6                    inside n Zone6.db_board_5.1
+*	Task     Ts1Zn6                   inside n Zone6.db_board_3.1
+*	Task     Ts2Zn6                   inside n Zone6.db_board_3.1
+*	Task     RtZn7                    inside n Zone7.db_board_5.1
+*	Task     Ts1Zn7                   inside n Zone7.db_board_3.1
+*	Task     Ts2Zn7                   inside n Zone7.db_board_3.1
+*	Task     RtZn8                    inside n Zone8.db_board_5.1
+*	Task     Ts1Zn8                   inside n Zone8.db_board_3.1
+*	Task     Ts2Zn8                   inside n Zone8.db_board_3.1
+*	Task     RtZn9                    inside n Zone9.db_board_5.1
+*	Task     Ts1Zn9                   inside n Zone9.db_board_3.1
+*	Task     Ts2Zn9                   inside n Zone9.db_board_3.1
+*	Task     RtZn10                   inside n Zone10.db_board_5.1
+*	Task     Ts1Zn10                  inside n Zone10.db_board_3.1
+*	Task     Ts2Zn10                  inside n Zone10.db_board_3.1
+*	Task     RtZn11                   inside n Zone11.db_board_5.1
+*	Task     Ts1Zn11                  inside n Zone11.db_board_3.1
+*	Task     Ts2Zn11                  inside n Zone11.db_board_3.1
+*	Task     RtZn12                   inside n Zone12.db_board_5.1
+*	Task     Ts1Zn12                  inside n Zone12.db_board_3.1
+*	Task     Ts2Zn12                  inside n Zone12.db_board_3.1
+*	Task     RtZn13                   inside n Zone13.db_board_5.1
+*	Task     Ts1Zn13                  inside n Zone13.db_board_3.1
+*	Task     Ts2Zn13                  inside n Zone13.db_board_3.1
+*	Task     RtZn14                   inside n Zone14.db_board_5.1
+*	Task     Ts1Zn14                  inside n Zone14.db_board_3.1
+*	Task     Ts2Zn14                  inside n Zone14.db_board_3.1
+*	Task     RtZn15                   inside n Zone15.db_board_5.1
+*	Task     Ts1Zn15                  inside n Zone15.db_board_3.1
+*	Task     Ts2Zn15                  inside n Zone15.db_board_3.1
+*	Task     RtZn16                   inside n Zone16.db_board_5.1
+*	Task     Ts1Zn16                  inside n Zone16.db_board_3.1
+*	Task     Ts2Zn16                  inside n Zone16.db_board_3.1
+*	Task     RtZn17                   inside n Zone17.db_board_5.1
+*	Task     Ts1Zn17                  inside n Zone17.db_board_3.1
+*	Task     Ts2Zn17                  inside n Zone17.db_board_3.1
+*	Task     RtZn18                   inside n Zone18.db_board_5.1
+*	Task     Ts1Zn18                  inside n Zone18.db_board_3.1
+*	Task     Ts2Zn18                  inside n Zone18.db_board_3.1
+*	Task     RtZn19                   inside n Zone19.db_board_5.1
+*	Task     Ts1Zn19                  inside n Zone19.db_board_3.1
+*	Task     Ts2Zn19                  inside n Zone19.db_board_3.1
+*	Task     RtZn20                   inside n Zone20.db_board_5.1
+*	Task     Ts1Zn20                  inside n Zone20.db_board_3.1
+*	Task     Ts2Zn20                  inside n Zone20.db_board_3.1
+*	Task     RtZn21                   inside n Zone21.db_board_5.1
+*	Task     Ts1Zn21                  inside n Zone21.db_board_3.1
+*	Task     Ts2Zn21                  inside n Zone21.db_board_3.1
+*	Task     RtZn22                   inside n Zone22.db_board_5.1
+*	Task     Ts1Zn22                  inside n Zone22.db_board_3.1
+*	Task     Ts2Zn22                  inside n Zone22.db_board_3.1
+*	Task     RtZn23                   inside n Zone23.db_board_5.1
+*	Task     Ts1Zn23                  inside n Zone23.db_board_3.1
+*	Task     Ts2Zn23                  inside n Zone23.db_board_3.1
+*	Task     RtZn24                   inside n Zone24.db_board_5.1
+*	Task     Ts1Zn24                  inside n Zone24.db_board_3.1
+*	Task     Ts2Zn24                  inside n Zone24.db_board_3.1
+*	Task     RtZn25                   inside n Zone25.db_board_5.1
+*	Task     Ts1Zn25                  inside n Zone25.db_board_3.1
+*	Task     Ts2Zn25                  inside n Zone25.db_board_3.1
+*	Task     RtZn26                   inside n Zone26.db_board_5.1
+*	Task     Ts1Zn26                  inside n Zone26.db_board_3.1
+*	Task     Ts2Zn26                  inside n Zone26.db_board_3.1
+*	Task     RtZn27                   inside n Zone27.db_board_5.1
+*	Task     Ts1Zn27                  inside n Zone27.db_board_3.1
+*	Task     Ts2Zn27                  inside n Zone27.db_board_3.1
+*	Task     RtZn28                   inside n Zone28.db_board_5.1
+*	Task     Ts1Zn28                  inside n Zone28.db_board_3.1
+*	Task     Ts2Zn28                  inside n Zone28.db_board_3.1
+*	Task     RtZn29                   inside n Zone29.db_board_5.1
+*	Task     Ts1Zn29                  inside n Zone29.db_board_3.1
+*	Task     Ts2Zn29                  inside n Zone29.db_board_3.1
+*	Task     RtZn30                   inside n Zone30.db_board_5.1
+*	Task     Ts1Zn30                  inside n Zone30.db_board_3.1
+*	Task     Ts2Zn30                  inside n Zone30.db_board_3.1
+*	Task     RtZn31                   inside n Zone31.db_board_5.1
+*	Task     Ts1Zn31                  inside n Zone31.db_board_3.1
+*	Task     Ts2Zn31                  inside n Zone31.db_board_3.1
+*	Task     RtZn32                   inside n Zone32.db_board_5.1
+*	Task     Ts1Zn32                  inside n Zone32.db_board_3.1
+*	Task     Ts2Zn32                  inside n Zone32.db_board_3.1
+*	Task     RtZn33                   inside n Zone33.db_board_5.1
+*	Task     Ts1Zn33                  inside n Zone33.db_board_3.1
+*	Task     Ts2Zn33                  inside n Zone33.db_board_3.1
+*	Task     RtZn34                   inside n Zone34.db_board_5.1
+*	Task     Ts1Zn34                  inside n Zone34.db_board_3.1
+*	Task     Ts2Zn34                  inside n Zone34.db_board_3.1
+*	Task     RtZn35                   inside n Zone35.db_board_5.1
+*	Task     Ts1Zn35                  inside n Zone35.db_board_3.1
+*	Task     Ts2Zn35                  inside n Zone35.db_board_3.1
+*	Task     RtZn36                   inside n Zone36.db_board_5.1
+*	Task     Ts1Zn36                  inside n Zone36.db_board_3.1
+*	Task     Ts2Zn36                  inside n Zone36.db_board_3.1
+*	Task     RtZn37                   inside n Zone37.db_board_5.1
+*	Task     Ts1Zn37                  inside n Zone37.db_board_3.1
+*	Task     Ts2Zn37                  inside n Zone37.db_board_3.1
+*	Task     RtZn38                   inside n Zone38.db_board_5.1
+*	Task     Ts1Zn38                  inside n Zone38.db_board_3.1
+*	Task     Ts2Zn38                  inside n Zone38.db_board_3.1
+*	Task     RtZn39                   inside n Zone39.db_board_5.1
+*	Task     Ts1Zn39                  inside n Zone39.db_board_3.1
+*	Task     Ts2Zn39                  inside n Zone39.db_board_3.1
+*	Task     RtZn40                   inside n Zone40.db_board_5.1
+*	Task     Ts1Zn40                  inside n Zone40.db_board_3.1
+*	Task     Ts2Zn40                  inside n Zone40.db_board_3.1
+*	Task     RtZn41                   inside n Zone41.db_board_5.1
+*	Task     Ts1Zn41                  inside n Zone41.db_board_3.1
+*	Task     Ts2Zn41                  inside n Zone41.db_board_3.1
+*	Task     RtZn42                   inside n Zone42.db_board_5.1
+*	Task     Ts1Zn42                  inside n Zone42.db_board_3.1
+*	Task     Ts2Zn42                  inside n Zone42.db_board_3.1
+*	Task     RtZn43                   inside n Zone43.db_board_5.1
+*	Task     Ts1Zn43                  inside n Zone43.db_board_3.1
+*	Task     Ts2Zn43                  inside n Zone43.db_board_3.1
+* Data-Flows allocation:
+*	Dataflow DfZn0Tsk1                inside c Wi-Fi-AC.44
+*	Dataflow DfZn0Tsk2                inside c Wi-Fi-AC.44
+*	Dataflow DfZn1Tsk1                inside c Wi-Fi-AC.43
+*	Dataflow DfZn1Tsk2                inside c Wi-Fi-AC.43
+*	Dataflow DfZn2Tsk1                inside c Wi-Fi-AC.42
+*	Dataflow DfZn2Tsk2                inside c Wi-Fi-AC.42
+*	Dataflow DfZn3Tsk1                inside c Wi-Fi-AC.41
+*	Dataflow DfZn3Tsk2                inside c Wi-Fi-AC.41
+*	Dataflow DfZn4Tsk1                inside c Wi-Fi-AC.40
+*	Dataflow DfZn4Tsk2                inside c Wi-Fi-AC.40
+*	Dataflow DfZn5Tsk1                inside c Wi-Fi-AC.39
+*	Dataflow DfZn5Tsk2                inside c Wi-Fi-AC.39
+*	Dataflow DfZn6Tsk1                inside c Wi-Fi-AC.38
+*	Dataflow DfZn6Tsk2                inside c Wi-Fi-AC.38
+*	Dataflow DfZn7Tsk1                inside c Wi-Fi-AC.37
+*	Dataflow DfZn7Tsk2                inside c Wi-Fi-AC.37
+*	Dataflow DfZn8Tsk1                inside c Wi-Fi-AC.36
+*	Dataflow DfZn8Tsk2                inside c Wi-Fi-AC.36
+*	Dataflow DfZn9Tsk1                inside c Wi-Fi-AC.35
+*	Dataflow DfZn9Tsk2                inside c Wi-Fi-AC.35
+*	Dataflow DfZn10Tsk1               inside c Wi-Fi-AC.34
+*	Dataflow DfZn10Tsk2               inside c Wi-Fi-AC.34
+*	Dataflow DfZn11Tsk1               inside c Wi-Fi-AC.33
+*	Dataflow DfZn11Tsk2               inside c Wi-Fi-AC.33
+*	Dataflow DfZn12Tsk1               inside c Wi-Fi-AC.32
+*	Dataflow DfZn12Tsk2               inside c Wi-Fi-AC.32
+*	Dataflow DfZn13Tsk1               inside c Wi-Fi-AC.31
+*	Dataflow DfZn13Tsk2               inside c Wi-Fi-AC.31
+*	Dataflow DfZn14Tsk1               inside c Wi-Fi-AC.30
+*	Dataflow DfZn14Tsk2               inside c Wi-Fi-AC.30
+*	Dataflow DfZn15Tsk1               inside c Wi-Fi-AC.29
+*	Dataflow DfZn15Tsk2               inside c Wi-Fi-AC.29
+*	Dataflow DfZn16Tsk1               inside c Wi-Fi-AC.28
+*	Dataflow DfZn16Tsk2               inside c Wi-Fi-AC.28
+*	Dataflow DfZn17Tsk1               inside c Wi-Fi-AC.27
+*	Dataflow DfZn17Tsk2               inside c Wi-Fi-AC.27
+*	Dataflow DfZn18Tsk1               inside c Wi-Fi-AC.26
+*	Dataflow DfZn18Tsk2               inside c Wi-Fi-AC.26
+*	Dataflow DfZn19Tsk1               inside c Wi-Fi-AC.25
+*	Dataflow DfZn19Tsk2               inside c Wi-Fi-AC.25
+*	Dataflow DfZn20Tsk1               inside c Wi-Fi-AC.24
+*	Dataflow DfZn20Tsk2               inside c Wi-Fi-AC.24
+*	Dataflow DfZn21Tsk1               inside c Wi-Fi-AC.23
+*	Dataflow DfZn21Tsk2               inside c Wi-Fi-AC.23
+*	Dataflow DfZn22Tsk1               inside c Wi-Fi-AC.22
+*	Dataflow DfZn22Tsk2               inside c Wi-Fi-AC.22
+*	Dataflow DfZn23Tsk1               inside c Wi-Fi-AC.21
+*	Dataflow DfZn23Tsk2               inside c Wi-Fi-AC.21
+*	Dataflow DfZn24Tsk1               inside c Wi-Fi-AC.20
+*	Dataflow DfZn24Tsk2               inside c Wi-Fi-AC.20
+*	Dataflow DfZn25Tsk1               inside c Wi-Fi-AC.19
+*	Dataflow DfZn25Tsk2               inside c Wi-Fi-AC.19
+*	Dataflow DfZn26Tsk1               inside c Wi-Fi-AC.18
+*	Dataflow DfZn26Tsk2               inside c Wi-Fi-AC.18
+*	Dataflow DfZn27Tsk1               inside c Wi-Fi-AC.17
+*	Dataflow DfZn27Tsk2               inside c Wi-Fi-AC.17
+*	Dataflow DfZn28Tsk1               inside c Wi-Fi-AC.16
+*	Dataflow DfZn28Tsk2               inside c Wi-Fi-AC.16
+*	Dataflow DfZn29Tsk1               inside c Wi-Fi-AC.15
+*	Dataflow DfZn29Tsk2               inside c Wi-Fi-AC.15
+*	Dataflow DfZn30Tsk1               inside c Wi-Fi-AC.14
+*	Dataflow DfZn30Tsk2               inside c Wi-Fi-AC.14
+*	Dataflow DfZn31Tsk1               inside c Wi-Fi-AC.13
+*	Dataflow DfZn31Tsk2               inside c Wi-Fi-AC.13
+*	Dataflow DfZn32Tsk1               inside c Wi-Fi-AC.12
+*	Dataflow DfZn32Tsk2               inside c Wi-Fi-AC.12
+*	Dataflow DfZn33Tsk1               inside c Wi-Fi-AC.11
+*	Dataflow DfZn33Tsk2               inside c Wi-Fi-AC.11
+*	Dataflow DfZn34Tsk1               inside c Wi-Fi-AC.10
+*	Dataflow DfZn34Tsk2               inside c Wi-Fi-AC.10
+*	Dataflow DfZn35Tsk1               inside c Wi-Fi-AC.9
+*	Dataflow DfZn35Tsk2               inside c Wi-Fi-AC.9
+*	Dataflow DfZn36Tsk1               inside c Wi-Fi-AC.8
+*	Dataflow DfZn36Tsk2               inside c Wi-Fi-AC.8
+*	Dataflow DfZn37Tsk1               inside c Wi-Fi-AC.7
+*	Dataflow DfZn37Tsk2               inside c Wi-Fi-AC.7
+*	Dataflow DfZn38Tsk1               inside c Wi-Fi-AC.6
+*	Dataflow DfZn38Tsk2               inside c Wi-Fi-AC.6
+*	Dataflow DfZn39Tsk1               inside c Wi-Fi-AC.5
+*	Dataflow DfZn39Tsk2               inside c Wi-Fi-AC.5
+*	Dataflow DfZn40Tsk1               inside c Wi-Fi-AC.4
+*	Dataflow DfZn40Tsk2               inside c Wi-Fi-AC.4
+*	Dataflow DfZn41Tsk1               inside c Wi-Fi-AC.3
+*	Dataflow DfZn41Tsk2               inside c Wi-Fi-AC.3
+*	Dataflow DfZn42Tsk1               inside c Wi-Fi-AC.2
+*	Dataflow DfZn42Tsk2               inside c Wi-Fi-AC.2
+*	Dataflow DfZn43Tsk1               inside c Wi-Fi-AC.1
+*	Dataflow DfZn43Tsk2               inside c Wi-Fi-AC.1
+*	Dataflow DfRtZn0ToRtZn1           inside c fiber-Type-2.43
+*	Dataflow DfRtZn1ToRtZn2           inside c fiber-Type-2.42
+*	Dataflow DfRtZn2ToRtZn3           inside c fiber-Type-2.41
+*	Dataflow DfRtZn3ToRtZn4           inside c fiber-Type-2.40
+*	Dataflow DfRtZn4ToRtZn5           inside c fiber-Type-2.39
+*	Dataflow DfRtZn5ToRtZn6           inside c fiber-Type-2.38
+*	Dataflow DfRtZn6ToRtZn7           inside c fiber-Type-2.37
+*	Dataflow DfRtZn7ToRtZn8           inside c fiber-Type-2.36
+*	Dataflow DfRtZn8ToRtZn9           inside c fiber-Type-2.35
+*	Dataflow DfRtZn9ToRtZn10          inside c fiber-Type-2.34
+*	Dataflow DfRtZn10ToRtZn11         inside c fiber-Type-2.33
+*	Dataflow DfRtZn11ToRtZn12         inside c fiber-Type-2.32
+*	Dataflow DfRtZn12ToRtZn13         inside c fiber-Type-2.31
+*	Dataflow DfRtZn13ToRtZn14         inside c fiber-Type-2.30
+*	Dataflow DfRtZn14ToRtZn15         inside c fiber-Type-2.29
+*	Dataflow DfRtZn15ToRtZn16         inside c fiber-Type-2.28
+*	Dataflow DfRtZn16ToRtZn17         inside c fiber-Type-2.27
+*	Dataflow DfRtZn17ToRtZn18         inside c fiber-Type-2.26
+*	Dataflow DfRtZn18ToRtZn19         inside c fiber-Type-2.25
+*	Dataflow DfRtZn19ToRtZn20         inside c fiber-Type-2.24
+*	Dataflow DfRtZn20ToRtZn21         inside c fiber-Type-2.23
+*	Dataflow DfRtZn21ToRtZn22         inside c fiber-Type-2.22
+*	Dataflow DfRtZn22ToRtZn23         inside c fiber-Type-2.21
+*	Dataflow DfRtZn23ToRtZn24         inside c fiber-Type-2.20
+*	Dataflow DfRtZn24ToRtZn25         inside c fiber-Type-2.19
+*	Dataflow DfRtZn25ToRtZn26         inside c fiber-Type-2.18
+*	Dataflow DfRtZn26ToRtZn27         inside c fiber-Type-2.17
+*	Dataflow DfRtZn27ToRtZn28         inside c fiber-Type-2.16
+*	Dataflow DfRtZn28ToRtZn29         inside c fiber-Type-2.15
+*	Dataflow DfRtZn29ToRtZn30         inside c fiber-Type-2.14
+*	Dataflow DfRtZn30ToRtZn31         inside c fiber-Type-2.13
+*	Dataflow DfRtZn31ToRtZn32         inside c fiber-Type-2.12
+*	Dataflow DfRtZn32ToRtZn33         inside c fiber-Type-2.11
+*	Dataflow DfRtZn33ToRtZn34         inside c fiber-Type-2.10
+*	Dataflow DfRtZn34ToRtZn35         inside c fiber-Type-2.9
+*	Dataflow DfRtZn35ToRtZn36         inside c fiber-Type-2.8
+*	Dataflow DfRtZn36ToRtZn37         inside c fiber-Type-2.7
+*	Dataflow DfRtZn37ToRtZn38         inside c fiber-Type-2.6
+*	Dataflow DfRtZn38ToRtZn39         inside c fiber-Type-2.5
+*	Dataflow DfRtZn39ToRtZn40         inside c fiber-Type-2.4
+*	Dataflow DfRtZn40ToRtZn41         inside c fiber-Type-2.3
+*	Dataflow DfRtZn41ToRtZn42         inside c fiber-Type-2.2
+*	Dataflow DfRtZn42ToRtZn43         inside c fiber-Type-2.1
+*******************************************************************************
+* STATISTICS
+*******************************************************************************
+* Economic Cost      : 123029.731765
+* 	Nodes            : 104192.0
+* 	Wireless         : 2281.01176471
+* 	Channels         : 16556.72
+* Energy Consumption : 145122.705882
+* 	Nodes            : 136400
+* 	Wireless         : 2616.70588235
+* 	Cable            : 6106.0
+* Total Delay        : 871.235294118
+* 	Wireless         : 828.235294118
+* 	Cable            : 43.0
+* Total Error        : 853.705882353
+* 	Wireless         : 724.705882353
+* 	Cable            : 129.0
+*******************************************************************************
+* RUNNING NETWORK CHECKER
+*******************************************************************************
+* NetworkChecker instantiated...
+*     - Checking if all the tasks have been deployed once...
+*     - Checking if all the dataflows have been deployed...
+*     - Checking if the tasks deployment is compliant with the nodes sizes...
+*     - Checking if cabled channels contain only dataflows which have tasks in the same pair of nodes...
+*     - Checking if a wired channel contains a dataflow with mobile tasks...
+*     - Checking if wireless channels has been placed between zones with zero contiguity...
+*     - Checking if a non-mobile node is hosting a mobile task...
+*******************************************************************************
+* FINAL STATISTICS
+*******************************************************************************
+*	File parsing           : 0.08729 s
+*	Structure creation     : 0.394966 s
+*	Constraints definition : 31.040226 s
+*	Optimization           : 17.459441 s
+*	Total : 48.981923 s
+*******************************************************************************
+*******************************************************************************
+Optimal objective: 336.333
+*******************************************************************************
+* SOLUTION
+*******************************************************************************
+* List of activated nodes:
+* List of activated nodes per type:
+*	Use    0 nodes of type db_board_1
+*	Use    0 nodes of type db_board_2
+*	Use   44 nodes of type db_board_3
+*	Use   44 nodes of type db_board_4
+*	Use   44 nodes of type db_board_5
+* List of activated channels:
+*	Use   71 channels of type Wi-Fi-AD
+*	Use   43 channels of type fiber-Type-2
+* Tasks allocation:
+*	Task     RtZn0                    inside n Zone0.db_board_5.1
+*	Task     Ts1Zn0                   inside n Zone0.db_board_4.1
+*	Task     Ts2Zn0                   inside n Zone0.db_board_3.1
+*	Task     RtZn1                    inside n Zone1.db_board_5.1
+*	Task     Ts1Zn1                   inside n Zone1.db_board_4.1
+*	Task     Ts2Zn1                   inside n Zone1.db_board_3.1
+*	Task     RtZn2                    inside n Zone2.db_board_5.1
+*	Task     Ts1Zn2                   inside n Zone2.db_board_4.1
+*	Task     Ts2Zn2                   inside n Zone2.db_board_3.1
+*	Task     RtZn3                    inside n Zone3.db_board_5.1
+*	Task     Ts1Zn3                   inside n Zone3.db_board_4.1
+*	Task     Ts2Zn3                   inside n Zone3.db_board_3.1
+*	Task     RtZn4                    inside n Zone4.db_board_5.1
+*	Task     Ts1Zn4                   inside n Zone4.db_board_4.1
+*	Task     Ts2Zn4                   inside n Zone4.db_board_3.1
+*	Task     RtZn5                    inside n Zone5.db_board_5.1
+*	Task     Ts1Zn5                   inside n Zone5.db_board_4.1
+*	Task     Ts2Zn5                   inside n Zone5.db_board_3.1
+*	Task     RtZn6                    inside n Zone6.db_board_5.1
+*	Task     Ts1Zn6                   inside n Zone6.db_board_4.1
+*	Task     Ts2Zn6                   inside n Zone6.db_board_3.1
+*	Task     RtZn7                    inside n Zone7.db_board_5.1
+*	Task     Ts1Zn7                   inside n Zone7.db_board_4.1
+*	Task     Ts2Zn7                   inside n Zone7.db_board_3.1
+*	Task     RtZn8                    inside n Zone8.db_board_5.1
+*	Task     Ts1Zn8                   inside n Zone8.db_board_4.1
+*	Task     Ts2Zn8                   inside n Zone8.db_board_3.1
+*	Task     RtZn9                    inside n Zone9.db_board_5.1
+*	Task     Ts1Zn9                   inside n Zone9.db_board_4.1
+*	Task     Ts2Zn9                   inside n Zone9.db_board_3.1
+*	Task     RtZn10                   inside n Zone10.db_board_5.1
+*	Task     Ts1Zn10                  inside n Zone10.db_board_4.1
+*	Task     Ts2Zn10                  inside n Zone10.db_board_3.1
+*	Task     RtZn11                   inside n Zone11.db_board_5.1
+*	Task     Ts1Zn11                  inside n Zone11.db_board_4.1
+*	Task     Ts2Zn11                  inside n Zone11.db_board_3.1
+*	Task     RtZn12                   inside n Zone12.db_board_5.1
+*	Task     Ts1Zn12                  inside n Zone12.db_board_4.1
+*	Task     Ts2Zn12                  inside n Zone12.db_board_3.1
+*	Task     RtZn13                   inside n Zone13.db_board_5.1
+*	Task     Ts1Zn13                  inside n Zone13.db_board_4.1
+*	Task     Ts2Zn13                  inside n Zone13.db_board_3.1
+*	Task     RtZn14                   inside n Zone14.db_board_5.1
+*	Task     Ts1Zn14                  inside n Zone14.db_board_4.1
+*	Task     Ts2Zn14                  inside n Zone14.db_board_3.1
+*	Task     RtZn15                   inside n Zone15.db_board_5.1
+*	Task     Ts1Zn15                  inside n Zone15.db_board_4.1
+*	Task     Ts2Zn15                  inside n Zone15.db_board_3.1
+*	Task     RtZn16                   inside n Zone16.db_board_5.1
+*	Task     Ts1Zn16                  inside n Zone16.db_board_4.1
+*	Task     Ts2Zn16                  inside n Zone16.db_board_3.1
+*	Task     RtZn17                   inside n Zone17.db_board_5.1
+*	Task     Ts1Zn17                  inside n Zone17.db_board_4.1
+*	Task     Ts2Zn17                  inside n Zone17.db_board_3.1
+*	Task     RtZn18                   inside n Zone18.db_board_5.1
+*	Task     Ts1Zn18                  inside n Zone18.db_board_4.1
+*	Task     Ts2Zn18                  inside n Zone18.db_board_3.1
+*	Task     RtZn19                   inside n Zone19.db_board_5.1
+*	Task     Ts1Zn19                  inside n Zone19.db_board_4.1
+*	Task     Ts2Zn19                  inside n Zone19.db_board_3.1
+*	Task     RtZn20                   inside n Zone20.db_board_5.1
+*	Task     Ts1Zn20                  inside n Zone20.db_board_4.1
+*	Task     Ts2Zn20                  inside n Zone20.db_board_3.1
+*	Task     RtZn21                   inside n Zone21.db_board_5.1
+*	Task     Ts1Zn21                  inside n Zone21.db_board_4.1
+*	Task     Ts2Zn21                  inside n Zone21.db_board_3.1
+*	Task     RtZn22                   inside n Zone22.db_board_5.1
+*	Task     Ts1Zn22                  inside n Zone22.db_board_4.1
+*	Task     Ts2Zn22                  inside n Zone22.db_board_3.1
+*	Task     RtZn23                   inside n Zone23.db_board_5.1
+*	Task     Ts1Zn23                  inside n Zone23.db_board_4.1
+*	Task     Ts2Zn23                  inside n Zone23.db_board_3.1
+*	Task     RtZn24                   inside n Zone24.db_board_5.1
+*	Task     Ts1Zn24                  inside n Zone24.db_board_4.1
+*	Task     Ts2Zn24                  inside n Zone24.db_board_3.1
+*	Task     RtZn25                   inside n Zone25.db_board_5.1
+*	Task     Ts1Zn25                  inside n Zone25.db_board_4.1
+*	Task     Ts2Zn25                  inside n Zone25.db_board_3.1
+*	Task     RtZn26                   inside n Zone26.db_board_5.1
+*	Task     Ts1Zn26                  inside n Zone26.db_board_4.1
+*	Task     Ts2Zn26                  inside n Zone26.db_board_3.1
+*	Task     RtZn27                   inside n Zone27.db_board_5.1
+*	Task     Ts1Zn27                  inside n Zone27.db_board_4.1
+*	Task     Ts2Zn27                  inside n Zone27.db_board_3.1
+*	Task     RtZn28                   inside n Zone28.db_board_5.1
+*	Task     Ts1Zn28                  inside n Zone28.db_board_4.1
+*	Task     Ts2Zn28                  inside n Zone28.db_board_3.1
+*	Task     RtZn29                   inside n Zone29.db_board_5.1
+*	Task     Ts1Zn29                  inside n Zone29.db_board_4.1
+*	Task     Ts2Zn29                  inside n Zone29.db_board_3.1
+*	Task     RtZn30                   inside n Zone30.db_board_5.1
+*	Task     Ts1Zn30                  inside n Zone30.db_board_4.1
+*	Task     Ts2Zn30                  inside n Zone30.db_board_3.1
+*	Task     RtZn31                   inside n Zone31.db_board_5.1
+*	Task     Ts1Zn31                  inside n Zone31.db_board_4.1
+*	Task     Ts2Zn31                  inside n Zone31.db_board_3.1
+*	Task     RtZn32                   inside n Zone32.db_board_5.1
+*	Task     Ts1Zn32                  inside n Zone32.db_board_4.1
+*	Task     Ts2Zn32                  inside n Zone32.db_board_3.1
+*	Task     RtZn33                   inside n Zone33.db_board_5.1
+*	Task     Ts1Zn33                  inside n Zone33.db_board_4.1
+*	Task     Ts2Zn33                  inside n Zone33.db_board_3.1
+*	Task     RtZn34                   inside n Zone34.db_board_5.1
+*	Task     Ts1Zn34                  inside n Zone34.db_board_4.1
+*	Task     Ts2Zn34                  inside n Zone34.db_board_3.1
+*	Task     RtZn35                   inside n Zone35.db_board_5.1
+*	Task     Ts1Zn35                  inside n Zone35.db_board_4.1
+*	Task     Ts2Zn35                  inside n Zone35.db_board_3.1
+*	Task     RtZn36                   inside n Zone36.db_board_5.1
+*	Task     Ts1Zn36                  inside n Zone36.db_board_4.1
+*	Task     Ts2Zn36                  inside n Zone36.db_board_3.1
+*	Task     RtZn37                   inside n Zone37.db_board_5.1
+*	Task     Ts1Zn37                  inside n Zone37.db_board_4.1
+*	Task     Ts2Zn37                  inside n Zone37.db_board_3.1
+*	Task     RtZn38                   inside n Zone38.db_board_5.1
+*	Task     Ts1Zn38                  inside n Zone38.db_board_4.1
+*	Task     Ts2Zn38                  inside n Zone38.db_board_3.1
+*	Task     RtZn39                   inside n Zone39.db_board_5.1
+*	Task     Ts1Zn39                  inside n Zone39.db_board_4.1
+*	Task     Ts2Zn39                  inside n Zone39.db_board_3.1
+*	Task     RtZn40                   inside n Zone40.db_board_5.1
+*	Task     Ts1Zn40                  inside n Zone40.db_board_4.1
+*	Task     Ts2Zn40                  inside n Zone40.db_board_3.1
+*	Task     RtZn41                   inside n Zone41.db_board_5.1
+*	Task     Ts1Zn41                  inside n Zone41.db_board_4.1
+*	Task     Ts2Zn41                  inside n Zone41.db_board_3.1
+*	Task     RtZn42                   inside n Zone42.db_board_5.1
+*	Task     Ts1Zn42                  inside n Zone42.db_board_4.1
+*	Task     Ts2Zn42                  inside n Zone42.db_board_3.1
+*	Task     RtZn43                   inside n Zone43.db_board_5.1
+*	Task     Ts1Zn43                  inside n Zone43.db_board_4.1
+*	Task     Ts2Zn43                  inside n Zone43.db_board_3.1
+* Data-Flows allocation:
+*	Dataflow DfZn0Tsk1                inside c Wi-Fi-AD.7
+*	Dataflow DfZn0Tsk2                inside c Wi-Fi-AD.7
+*	Dataflow DfZn1Tsk1                inside c Wi-Fi-AD.3
+*	Dataflow DfZn1Tsk2                inside c Wi-Fi-AD.55
+*	Dataflow DfZn2Tsk1                inside c Wi-Fi-AD.1
+*	Dataflow DfZn2Tsk2                inside c Wi-Fi-AD.1
+*	Dataflow DfZn3Tsk1                inside c Wi-Fi-AD.2
+*	Dataflow DfZn3Tsk2                inside c Wi-Fi-AD.14
+*	Dataflow DfZn4Tsk1                inside c Wi-Fi-AD.65
+*	Dataflow DfZn4Tsk2                inside c Wi-Fi-AD.40
+*	Dataflow DfZn5Tsk1                inside c Wi-Fi-AD.61
+*	Dataflow DfZn5Tsk2                inside c Wi-Fi-AD.6
+*	Dataflow DfZn6Tsk1                inside c Wi-Fi-AD.44
+*	Dataflow DfZn6Tsk2                inside c Wi-Fi-AD.44
+*	Dataflow DfZn7Tsk1                inside c Wi-Fi-AD.16
+*	Dataflow DfZn7Tsk2                inside c Wi-Fi-AD.70
+*	Dataflow DfZn8Tsk1                inside c Wi-Fi-AD.30
+*	Dataflow DfZn8Tsk2                inside c Wi-Fi-AD.42
+*	Dataflow DfZn9Tsk1                inside c Wi-Fi-AD.63
+*	Dataflow DfZn9Tsk2                inside c Wi-Fi-AD.58
+*	Dataflow DfZn10Tsk1               inside c Wi-Fi-AD.22
+*	Dataflow DfZn10Tsk2               inside c Wi-Fi-AD.69
+*	Dataflow DfZn11Tsk1               inside c Wi-Fi-AD.15
+*	Dataflow DfZn11Tsk2               inside c Wi-Fi-AD.15
+*	Dataflow DfZn12Tsk1               inside c Wi-Fi-AD.10
+*	Dataflow DfZn12Tsk2               inside c Wi-Fi-AD.54
+*	Dataflow DfZn13Tsk1               inside c Wi-Fi-AD.19
+*	Dataflow DfZn13Tsk2               inside c Wi-Fi-AD.19
+*	Dataflow DfZn14Tsk1               inside c Wi-Fi-AD.34
+*	Dataflow DfZn14Tsk2               inside c Wi-Fi-AD.34
+*	Dataflow DfZn15Tsk1               inside c Wi-Fi-AD.9
+*	Dataflow DfZn15Tsk2               inside c Wi-Fi-AD.9
+*	Dataflow DfZn16Tsk1               inside c Wi-Fi-AD.18
+*	Dataflow DfZn16Tsk2               inside c Wi-Fi-AD.26
+*	Dataflow DfZn17Tsk1               inside c Wi-Fi-AD.35
+*	Dataflow DfZn17Tsk2               inside c Wi-Fi-AD.24
+*	Dataflow DfZn18Tsk1               inside c Wi-Fi-AD.60
+*	Dataflow DfZn18Tsk2               inside c Wi-Fi-AD.47
+*	Dataflow DfZn19Tsk1               inside c Wi-Fi-AD.41
+*	Dataflow DfZn19Tsk2               inside c Wi-Fi-AD.41
+*	Dataflow DfZn20Tsk1               inside c Wi-Fi-AD.27
+*	Dataflow DfZn20Tsk2               inside c Wi-Fi-AD.67
+*	Dataflow DfZn21Tsk1               inside c Wi-Fi-AD.4
+*	Dataflow DfZn21Tsk2               inside c Wi-Fi-AD.43
+*	Dataflow DfZn22Tsk1               inside c Wi-Fi-AD.38
+*	Dataflow DfZn22Tsk2               inside c Wi-Fi-AD.66
+*	Dataflow DfZn23Tsk1               inside c Wi-Fi-AD.12
+*	Dataflow DfZn23Tsk2               inside c Wi-Fi-AD.29
+*	Dataflow DfZn24Tsk1               inside c Wi-Fi-AD.57
+*	Dataflow DfZn24Tsk2               inside c Wi-Fi-AD.57
+*	Dataflow DfZn25Tsk1               inside c Wi-Fi-AD.49
+*	Dataflow DfZn25Tsk2               inside c Wi-Fi-AD.49
+*	Dataflow DfZn26Tsk1               inside c Wi-Fi-AD.31
+*	Dataflow DfZn26Tsk2               inside c Wi-Fi-AD.59
+*	Dataflow DfZn27Tsk1               inside c Wi-Fi-AD.32
+*	Dataflow DfZn27Tsk2               inside c Wi-Fi-AD.32
+*	Dataflow DfZn28Tsk1               inside c Wi-Fi-AD.50
+*	Dataflow DfZn28Tsk2               inside c Wi-Fi-AD.45
+*	Dataflow DfZn29Tsk1               inside c Wi-Fi-AD.28
+*	Dataflow DfZn29Tsk2               inside c Wi-Fi-AD.28
+*	Dataflow DfZn30Tsk1               inside c Wi-Fi-AD.64
+*	Dataflow DfZn30Tsk2               inside c Wi-Fi-AD.62
+*	Dataflow DfZn31Tsk1               inside c Wi-Fi-AD.56
+*	Dataflow DfZn31Tsk2               inside c Wi-Fi-AD.53
+*	Dataflow DfZn32Tsk1               inside c Wi-Fi-AD.52
+*	Dataflow DfZn32Tsk2               inside c Wi-Fi-AD.13
+*	Dataflow DfZn33Tsk1               inside c Wi-Fi-AD.48
+*	Dataflow DfZn33Tsk2               inside c Wi-Fi-AD.48
+*	Dataflow DfZn34Tsk1               inside c Wi-Fi-AD.21
+*	Dataflow DfZn34Tsk2               inside c Wi-Fi-AD.25
+*	Dataflow DfZn35Tsk1               inside c Wi-Fi-AD.5
+*	Dataflow DfZn35Tsk2               inside c Wi-Fi-AD.71
+*	Dataflow DfZn36Tsk1               inside c Wi-Fi-AD.51
+*	Dataflow DfZn36Tsk2               inside c Wi-Fi-AD.20
+*	Dataflow DfZn37Tsk1               inside c Wi-Fi-AD.46
+*	Dataflow DfZn37Tsk2               inside c Wi-Fi-AD.46
+*	Dataflow DfZn38Tsk1               inside c Wi-Fi-AD.68
+*	Dataflow DfZn38Tsk2               inside c Wi-Fi-AD.23
+*	Dataflow DfZn39Tsk1               inside c Wi-Fi-AD.37
+*	Dataflow DfZn39Tsk2               inside c Wi-Fi-AD.37
+*	Dataflow DfZn40Tsk1               inside c Wi-Fi-AD.39
+*	Dataflow DfZn40Tsk2               inside c Wi-Fi-AD.11
+*	Dataflow DfZn41Tsk1               inside c Wi-Fi-AD.8
+*	Dataflow DfZn41Tsk2               inside c Wi-Fi-AD.8
+*	Dataflow DfZn42Tsk1               inside c Wi-Fi-AD.17
+*	Dataflow DfZn42Tsk2               inside c Wi-Fi-AD.17
+*	Dataflow DfZn43Tsk1               inside c Wi-Fi-AD.36
+*	Dataflow DfZn43Tsk2               inside c Wi-Fi-AD.33
+*	Dataflow DfRtZn0ToRtZn1           inside c fiber-Type-2.43
+*	Dataflow DfRtZn1ToRtZn2           inside c fiber-Type-2.42
+*	Dataflow DfRtZn2ToRtZn3           inside c fiber-Type-2.41
+*	Dataflow DfRtZn3ToRtZn4           inside c fiber-Type-2.40
+*	Dataflow DfRtZn4ToRtZn5           inside c fiber-Type-2.39
+*	Dataflow DfRtZn5ToRtZn6           inside c fiber-Type-2.38
+*	Dataflow DfRtZn6ToRtZn7           inside c fiber-Type-2.37
+*	Dataflow DfRtZn7ToRtZn8           inside c fiber-Type-2.36
+*	Dataflow DfRtZn8ToRtZn9           inside c fiber-Type-2.35
+*	Dataflow DfRtZn9ToRtZn10          inside c fiber-Type-2.34
+*	Dataflow DfRtZn10ToRtZn11         inside c fiber-Type-2.33
+*	Dataflow DfRtZn11ToRtZn12         inside c fiber-Type-2.32
+*	Dataflow DfRtZn12ToRtZn13         inside c fiber-Type-2.31
+*	Dataflow DfRtZn13ToRtZn14         inside c fiber-Type-2.30
+*	Dataflow DfRtZn14ToRtZn15         inside c fiber-Type-2.29
+*	Dataflow DfRtZn15ToRtZn16         inside c fiber-Type-2.28
+*	Dataflow DfRtZn16ToRtZn17         inside c fiber-Type-2.27
+*	Dataflow DfRtZn17ToRtZn18         inside c fiber-Type-2.26
+*	Dataflow DfRtZn18ToRtZn19         inside c fiber-Type-2.25
+*	Dataflow DfRtZn19ToRtZn20         inside c fiber-Type-2.24
+*	Dataflow DfRtZn20ToRtZn21         inside c fiber-Type-2.23
+*	Dataflow DfRtZn21ToRtZn22         inside c fiber-Type-2.22
+*	Dataflow DfRtZn22ToRtZn23         inside c fiber-Type-2.21
+*	Dataflow DfRtZn23ToRtZn24         inside c fiber-Type-2.20
+*	Dataflow DfRtZn24ToRtZn25         inside c fiber-Type-2.19
+*	Dataflow DfRtZn25ToRtZn26         inside c fiber-Type-2.18
+*	Dataflow DfRtZn26ToRtZn27         inside c fiber-Type-2.17
+*	Dataflow DfRtZn27ToRtZn28         inside c fiber-Type-2.16
+*	Dataflow DfRtZn28ToRtZn29         inside c fiber-Type-2.15
+*	Dataflow DfRtZn29ToRtZn30         inside c fiber-Type-2.14
+*	Dataflow DfRtZn30ToRtZn31         inside c fiber-Type-2.13
+*	Dataflow DfRtZn31ToRtZn32         inside c fiber-Type-2.12
+*	Dataflow DfRtZn32ToRtZn33         inside c fiber-Type-2.11
+*	Dataflow DfRtZn33ToRtZn34         inside c fiber-Type-2.10
+*	Dataflow DfRtZn34ToRtZn35         inside c fiber-Type-2.9
+*	Dataflow DfRtZn35ToRtZn36         inside c fiber-Type-2.8
+*	Dataflow DfRtZn36ToRtZn37         inside c fiber-Type-2.7
+*	Dataflow DfRtZn37ToRtZn38         inside c fiber-Type-2.6
+*	Dataflow DfRtZn38ToRtZn39         inside c fiber-Type-2.5
+*	Dataflow DfRtZn39ToRtZn40         inside c fiber-Type-2.4
+*	Dataflow DfRtZn40ToRtZn41         inside c fiber-Type-2.3
+*	Dataflow DfRtZn41ToRtZn42         inside c fiber-Type-2.2
+*	Dataflow DfRtZn42ToRtZn43         inside c fiber-Type-2.1
+*******************************************************************************
+* STATISTICS
+*******************************************************************************
+* Economic Cost      : 135442.373333
+* 	Nodes            : 111823.36
+* 	Wireless         : 7062.29333333
+* 	Channels         : 16556.72
+* Energy Consumption : 156760.333333
+* 	Nodes            : 145464
+* 	Wireless         : 5190.33333333
+* 	Cable            : 6106.0
+* Total Delay        : 336.333333333
+* 	Wireless         : 293.333333333
+* 	Cable            : 43.0
+* Total Error        : 520.111111111
+* 	Wireless         : 391.111111111
+* 	Cable            : 129.0
+*******************************************************************************
+* RUNNING NETWORK CHECKER
+*******************************************************************************
+* NetworkChecker instantiated...
+*     - Checking if all the tasks have been deployed once...
+*     - Checking if all the dataflows have been deployed...
+*     - Checking if the tasks deployment is compliant with the nodes sizes...
+*     - Checking if cabled channels contain only dataflows which have tasks in the same pair of nodes...
+*     - Checking if a wired channel contains a dataflow with mobile tasks...
+*     - Checking if wireless channels has been placed between zones with zero contiguity...
+*     - Checking if a non-mobile node is hosting a mobile task...
+*******************************************************************************
+* FINAL STATISTICS
+*******************************************************************************
+*	File parsing           : 0.086363 s
+*	Structure creation     : 0.393356 s
+*	Constraints definition : 30.767549 s
+*	Optimization           : 12.264144 s
+*	Total : 43.511412 s
+*******************************************************************************
+*******************************************************************************
+Optimal objective: 434.111
+*******************************************************************************
+* SOLUTION
+*******************************************************************************
+* List of activated nodes:
+* List of activated nodes per type:
+*	Use    0 nodes of type db_board_1
+*	Use    0 nodes of type db_board_2
+*	Use   44 nodes of type db_board_3
+*	Use   44 nodes of type db_board_4
+*	Use   44 nodes of type db_board_5
+* List of activated channels:
+*	Use   88 channels of type Wi-Fi-AD
+*	Use   43 channels of type fiber-Type-1
+* Tasks allocation:
+*	Task     RtZn0                    inside n Zone0.db_board_5.1
+*	Task     Ts1Zn0                   inside n Zone0.db_board_4.1
+*	Task     Ts2Zn0                   inside n Zone0.db_board_3.1
+*	Task     RtZn1                    inside n Zone1.db_board_5.1
+*	Task     Ts1Zn1                   inside n Zone1.db_board_4.1
+*	Task     Ts2Zn1                   inside n Zone1.db_board_3.1
+*	Task     RtZn2                    inside n Zone2.db_board_5.1
+*	Task     Ts1Zn2                   inside n Zone2.db_board_4.1
+*	Task     Ts2Zn2                   inside n Zone2.db_board_3.1
+*	Task     RtZn3                    inside n Zone3.db_board_5.1
+*	Task     Ts1Zn3                   inside n Zone3.db_board_4.1
+*	Task     Ts2Zn3                   inside n Zone3.db_board_3.1
+*	Task     RtZn4                    inside n Zone4.db_board_5.1
+*	Task     Ts1Zn4                   inside n Zone4.db_board_4.1
+*	Task     Ts2Zn4                   inside n Zone4.db_board_3.1
+*	Task     RtZn5                    inside n Zone5.db_board_5.1
+*	Task     Ts1Zn5                   inside n Zone5.db_board_4.1
+*	Task     Ts2Zn5                   inside n Zone5.db_board_3.1
+*	Task     RtZn6                    inside n Zone6.db_board_5.1
+*	Task     Ts1Zn6                   inside n Zone6.db_board_4.1
+*	Task     Ts2Zn6                   inside n Zone6.db_board_3.1
+*	Task     RtZn7                    inside n Zone7.db_board_5.1
+*	Task     Ts1Zn7                   inside n Zone7.db_board_4.1
+*	Task     Ts2Zn7                   inside n Zone7.db_board_3.1
+*	Task     RtZn8                    inside n Zone8.db_board_5.1
+*	Task     Ts1Zn8                   inside n Zone8.db_board_4.1
+*	Task     Ts2Zn8                   inside n Zone8.db_board_3.1
+*	Task     RtZn9                    inside n Zone9.db_board_5.1
+*	Task     Ts1Zn9                   inside n Zone9.db_board_4.1
+*	Task     Ts2Zn9                   inside n Zone9.db_board_3.1
+*	Task     RtZn10                   inside n Zone10.db_board_5.1
+*	Task     Ts1Zn10                  inside n Zone10.db_board_4.1
+*	Task     Ts2Zn10                  inside n Zone10.db_board_3.1
+*	Task     RtZn11                   inside n Zone11.db_board_5.1
+*	Task     Ts1Zn11                  inside n Zone11.db_board_4.1
+*	Task     Ts2Zn11                  inside n Zone11.db_board_3.1
+*	Task     RtZn12                   inside n Zone12.db_board_5.1
+*	Task     Ts1Zn12                  inside n Zone12.db_board_4.1
+*	Task     Ts2Zn12                  inside n Zone12.db_board_3.1
+*	Task     RtZn13                   inside n Zone13.db_board_5.1
+*	Task     Ts1Zn13                  inside n Zone13.db_board_4.1
+*	Task     Ts2Zn13                  inside n Zone13.db_board_3.1
+*	Task     RtZn14                   inside n Zone14.db_board_5.1
+*	Task     Ts1Zn14                  inside n Zone14.db_board_4.1
+*	Task     Ts2Zn14                  inside n Zone14.db_board_3.1
+*	Task     RtZn15                   inside n Zone15.db_board_5.1
+*	Task     Ts1Zn15                  inside n Zone15.db_board_4.1
+*	Task     Ts2Zn15                  inside n Zone15.db_board_3.1
+*	Task     RtZn16                   inside n Zone16.db_board_5.1
+*	Task     Ts1Zn16                  inside n Zone16.db_board_4.1
+*	Task     Ts2Zn16                  inside n Zone16.db_board_3.1
+*	Task     RtZn17                   inside n Zone17.db_board_5.1
+*	Task     Ts1Zn17                  inside n Zone17.db_board_4.1
+*	Task     Ts2Zn17                  inside n Zone17.db_board_3.1
+*	Task     RtZn18                   inside n Zone18.db_board_5.1
+*	Task     Ts1Zn18                  inside n Zone18.db_board_4.1
+*	Task     Ts2Zn18                  inside n Zone18.db_board_3.1
+*	Task     RtZn19                   inside n Zone19.db_board_5.1
+*	Task     Ts1Zn19                  inside n Zone19.db_board_4.1
+*	Task     Ts2Zn19                  inside n Zone19.db_board_3.1
+*	Task     RtZn20                   inside n Zone20.db_board_5.1
+*	Task     Ts1Zn20                  inside n Zone20.db_board_4.1
+*	Task     Ts2Zn20                  inside n Zone20.db_board_3.1
+*	Task     RtZn21                   inside n Zone21.db_board_5.1
+*	Task     Ts1Zn21                  inside n Zone21.db_board_4.1
+*	Task     Ts2Zn21                  inside n Zone21.db_board_3.1
+*	Task     RtZn22                   inside n Zone22.db_board_5.1
+*	Task     Ts1Zn22                  inside n Zone22.db_board_4.1
+*	Task     Ts2Zn22                  inside n Zone22.db_board_3.1
+*	Task     RtZn23                   inside n Zone23.db_board_5.1
+*	Task     Ts1Zn23                  inside n Zone23.db_board_4.1
+*	Task     Ts2Zn23                  inside n Zone23.db_board_3.1
+*	Task     RtZn24                   inside n Zone24.db_board_5.1
+*	Task     Ts1Zn24                  inside n Zone24.db_board_4.1
+*	Task     Ts2Zn24                  inside n Zone24.db_board_3.1
+*	Task     RtZn25                   inside n Zone25.db_board_5.1
+*	Task     Ts1Zn25                  inside n Zone25.db_board_4.1
+*	Task     Ts2Zn25                  inside n Zone25.db_board_3.1
+*	Task     RtZn26                   inside n Zone26.db_board_5.1
+*	Task     Ts1Zn26                  inside n Zone26.db_board_4.1
+*	Task     Ts2Zn26                  inside n Zone26.db_board_3.1
+*	Task     RtZn27                   inside n Zone27.db_board_5.1
+*	Task     Ts1Zn27                  inside n Zone27.db_board_4.1
+*	Task     Ts2Zn27                  inside n Zone27.db_board_3.1
+*	Task     RtZn28                   inside n Zone28.db_board_5.1
+*	Task     Ts1Zn28                  inside n Zone28.db_board_4.1
+*	Task     Ts2Zn28                  inside n Zone28.db_board_3.1
+*	Task     RtZn29                   inside n Zone29.db_board_5.1
+*	Task     Ts1Zn29                  inside n Zone29.db_board_4.1
+*	Task     Ts2Zn29                  inside n Zone29.db_board_3.1
+*	Task     RtZn30                   inside n Zone30.db_board_5.1
+*	Task     Ts1Zn30                  inside n Zone30.db_board_4.1
+*	Task     Ts2Zn30                  inside n Zone30.db_board_3.1
+*	Task     RtZn31                   inside n Zone31.db_board_5.1
+*	Task     Ts1Zn31                  inside n Zone31.db_board_4.1
+*	Task     Ts2Zn31                  inside n Zone31.db_board_3.1
+*	Task     RtZn32                   inside n Zone32.db_board_5.1
+*	Task     Ts1Zn32                  inside n Zone32.db_board_4.1
+*	Task     Ts2Zn32                  inside n Zone32.db_board_3.1
+*	Task     RtZn33                   inside n Zone33.db_board_5.1
+*	Task     Ts1Zn33                  inside n Zone33.db_board_4.1
+*	Task     Ts2Zn33                  inside n Zone33.db_board_3.1
+*	Task     RtZn34                   inside n Zone34.db_board_5.1
+*	Task     Ts1Zn34                  inside n Zone34.db_board_4.1
+*	Task     Ts2Zn34                  inside n Zone34.db_board_3.1
+*	Task     RtZn35                   inside n Zone35.db_board_5.1
+*	Task     Ts1Zn35                  inside n Zone35.db_board_4.1
+*	Task     Ts2Zn35                  inside n Zone35.db_board_3.1
+*	Task     RtZn36                   inside n Zone36.db_board_5.1
+*	Task     Ts1Zn36                  inside n Zone36.db_board_4.1
+*	Task     Ts2Zn36                  inside n Zone36.db_board_3.1
+*	Task     RtZn37                   inside n Zone37.db_board_5.1
+*	Task     Ts1Zn37                  inside n Zone37.db_board_4.1
+*	Task     Ts2Zn37                  inside n Zone37.db_board_3.1
+*	Task     RtZn38                   inside n Zone38.db_board_5.1
+*	Task     Ts1Zn38                  inside n Zone38.db_board_4.1
+*	Task     Ts2Zn38                  inside n Zone38.db_board_3.1
+*	Task     RtZn39                   inside n Zone39.db_board_5.1
+*	Task     Ts1Zn39                  inside n Zone39.db_board_4.1
+*	Task     Ts2Zn39                  inside n Zone39.db_board_3.1
+*	Task     RtZn40                   inside n Zone40.db_board_5.1
+*	Task     Ts1Zn40                  inside n Zone40.db_board_4.1
+*	Task     Ts2Zn40                  inside n Zone40.db_board_3.1
+*	Task     RtZn41                   inside n Zone41.db_board_5.1
+*	Task     Ts1Zn41                  inside n Zone41.db_board_4.1
+*	Task     Ts2Zn41                  inside n Zone41.db_board_3.1
+*	Task     RtZn42                   inside n Zone42.db_board_5.1
+*	Task     Ts1Zn42                  inside n Zone42.db_board_4.1
+*	Task     Ts2Zn42                  inside n Zone42.db_board_3.1
+*	Task     RtZn43                   inside n Zone43.db_board_5.1
+*	Task     Ts1Zn43                  inside n Zone43.db_board_4.1
+*	Task     Ts2Zn43                  inside n Zone43.db_board_3.1
+* Data-Flows allocation:
+*	Dataflow DfZn0Tsk1                inside c Wi-Fi-AD.38
+*	Dataflow DfZn0Tsk2                inside c Wi-Fi-AD.44
+*	Dataflow DfZn1Tsk1                inside c Wi-Fi-AD.40
+*	Dataflow DfZn1Tsk2                inside c Wi-Fi-AD.22
+*	Dataflow DfZn2Tsk1                inside c Wi-Fi-AD.81
+*	Dataflow DfZn2Tsk2                inside c Wi-Fi-AD.68
+*	Dataflow DfZn3Tsk1                inside c Wi-Fi-AD.36
+*	Dataflow DfZn3Tsk2                inside c Wi-Fi-AD.59
+*	Dataflow DfZn4Tsk1                inside c Wi-Fi-AD.7
+*	Dataflow DfZn4Tsk2                inside c Wi-Fi-AD.2
+*	Dataflow DfZn5Tsk1                inside c Wi-Fi-AD.53
+*	Dataflow DfZn5Tsk2                inside c Wi-Fi-AD.51
+*	Dataflow DfZn6Tsk1                inside c Wi-Fi-AD.13
+*	Dataflow DfZn6Tsk2                inside c Wi-Fi-AD.9
+*	Dataflow DfZn7Tsk1                inside c Wi-Fi-AD.78
+*	Dataflow DfZn7Tsk2                inside c Wi-Fi-AD.76
+*	Dataflow DfZn8Tsk1                inside c Wi-Fi-AD.30
+*	Dataflow DfZn8Tsk2                inside c Wi-Fi-AD.61
+*	Dataflow DfZn9Tsk1                inside c Wi-Fi-AD.46
+*	Dataflow DfZn9Tsk2                inside c Wi-Fi-AD.71
+*	Dataflow DfZn10Tsk1               inside c Wi-Fi-AD.63
+*	Dataflow DfZn10Tsk2               inside c Wi-Fi-AD.32
+*	Dataflow DfZn11Tsk1               inside c Wi-Fi-AD.39
+*	Dataflow DfZn11Tsk2               inside c Wi-Fi-AD.33
+*	Dataflow DfZn12Tsk1               inside c Wi-Fi-AD.47
+*	Dataflow DfZn12Tsk2               inside c Wi-Fi-AD.29
+*	Dataflow DfZn13Tsk1               inside c Wi-Fi-AD.70
+*	Dataflow DfZn13Tsk2               inside c Wi-Fi-AD.24
+*	Dataflow DfZn14Tsk1               inside c Wi-Fi-AD.12
+*	Dataflow DfZn14Tsk2               inside c Wi-Fi-AD.55
+*	Dataflow DfZn15Tsk1               inside c Wi-Fi-AD.84
+*	Dataflow DfZn15Tsk2               inside c Wi-Fi-AD.27
+*	Dataflow DfZn16Tsk1               inside c Wi-Fi-AD.77
+*	Dataflow DfZn16Tsk2               inside c Wi-Fi-AD.43
+*	Dataflow DfZn17Tsk1               inside c Wi-Fi-AD.42
+*	Dataflow DfZn17Tsk2               inside c Wi-Fi-AD.14
+*	Dataflow DfZn18Tsk1               inside c Wi-Fi-AD.19
+*	Dataflow DfZn18Tsk2               inside c Wi-Fi-AD.82
+*	Dataflow DfZn19Tsk1               inside c Wi-Fi-AD.16
+*	Dataflow DfZn19Tsk2               inside c Wi-Fi-AD.60
+*	Dataflow DfZn20Tsk1               inside c Wi-Fi-AD.75
+*	Dataflow DfZn20Tsk2               inside c Wi-Fi-AD.87
+*	Dataflow DfZn21Tsk1               inside c Wi-Fi-AD.8
+*	Dataflow DfZn21Tsk2               inside c Wi-Fi-AD.15
+*	Dataflow DfZn22Tsk1               inside c Wi-Fi-AD.50
+*	Dataflow DfZn22Tsk2               inside c Wi-Fi-AD.69
+*	Dataflow DfZn23Tsk1               inside c Wi-Fi-AD.3
+*	Dataflow DfZn23Tsk2               inside c Wi-Fi-AD.4
+*	Dataflow DfZn24Tsk1               inside c Wi-Fi-AD.10
+*	Dataflow DfZn24Tsk2               inside c Wi-Fi-AD.80
+*	Dataflow DfZn25Tsk1               inside c Wi-Fi-AD.57
+*	Dataflow DfZn25Tsk2               inside c Wi-Fi-AD.23
+*	Dataflow DfZn26Tsk1               inside c Wi-Fi-AD.31
+*	Dataflow DfZn26Tsk2               inside c Wi-Fi-AD.34
+*	Dataflow DfZn27Tsk1               inside c Wi-Fi-AD.21
+*	Dataflow DfZn27Tsk2               inside c Wi-Fi-AD.79
+*	Dataflow DfZn28Tsk1               inside c Wi-Fi-AD.48
+*	Dataflow DfZn28Tsk2               inside c Wi-Fi-AD.72
+*	Dataflow DfZn29Tsk1               inside c Wi-Fi-AD.85
+*	Dataflow DfZn29Tsk2               inside c Wi-Fi-AD.74
+*	Dataflow DfZn30Tsk1               inside c Wi-Fi-AD.73
+*	Dataflow DfZn30Tsk2               inside c Wi-Fi-AD.1
+*	Dataflow DfZn31Tsk1               inside c Wi-Fi-AD.11
+*	Dataflow DfZn31Tsk2               inside c Wi-Fi-AD.28
+*	Dataflow DfZn32Tsk1               inside c Wi-Fi-AD.58
+*	Dataflow DfZn32Tsk2               inside c Wi-Fi-AD.65
+*	Dataflow DfZn33Tsk1               inside c Wi-Fi-AD.6
+*	Dataflow DfZn33Tsk2               inside c Wi-Fi-AD.5
+*	Dataflow DfZn34Tsk1               inside c Wi-Fi-AD.64
+*	Dataflow DfZn34Tsk2               inside c Wi-Fi-AD.25
+*	Dataflow DfZn35Tsk1               inside c Wi-Fi-AD.41
+*	Dataflow DfZn35Tsk2               inside c Wi-Fi-AD.18
+*	Dataflow DfZn36Tsk1               inside c Wi-Fi-AD.37
+*	Dataflow DfZn36Tsk2               inside c Wi-Fi-AD.86
+*	Dataflow DfZn37Tsk1               inside c Wi-Fi-AD.49
+*	Dataflow DfZn37Tsk2               inside c Wi-Fi-AD.62
+*	Dataflow DfZn38Tsk1               inside c Wi-Fi-AD.83
+*	Dataflow DfZn38Tsk2               inside c Wi-Fi-AD.26
+*	Dataflow DfZn39Tsk1               inside c Wi-Fi-AD.66
+*	Dataflow DfZn39Tsk2               inside c Wi-Fi-AD.45
+*	Dataflow DfZn40Tsk1               inside c Wi-Fi-AD.67
+*	Dataflow DfZn40Tsk2               inside c Wi-Fi-AD.54
+*	Dataflow DfZn41Tsk1               inside c Wi-Fi-AD.88
+*	Dataflow DfZn41Tsk2               inside c Wi-Fi-AD.52
+*	Dataflow DfZn42Tsk1               inside c Wi-Fi-AD.17
+*	Dataflow DfZn42Tsk2               inside c Wi-Fi-AD.35
+*	Dataflow DfZn43Tsk1               inside c Wi-Fi-AD.56
+*	Dataflow DfZn43Tsk2               inside c Wi-Fi-AD.20
+*	Dataflow DfRtZn0ToRtZn1           inside c fiber-Type-1.37
+*	Dataflow DfRtZn1ToRtZn2           inside c fiber-Type-1.35
+*	Dataflow DfRtZn2ToRtZn3           inside c fiber-Type-1.41
+*	Dataflow DfRtZn3ToRtZn4           inside c fiber-Type-1.38
+*	Dataflow DfRtZn4ToRtZn5           inside c fiber-Type-1.42
+*	Dataflow DfRtZn5ToRtZn6           inside c fiber-Type-1.39
+*	Dataflow DfRtZn6ToRtZn7           inside c fiber-Type-1.43
+*	Dataflow DfRtZn7ToRtZn8           inside c fiber-Type-1.10
+*	Dataflow DfRtZn8ToRtZn9           inside c fiber-Type-1.24
+*	Dataflow DfRtZn9ToRtZn10          inside c fiber-Type-1.20
+*	Dataflow DfRtZn10ToRtZn11         inside c fiber-Type-1.4
+*	Dataflow DfRtZn11ToRtZn12         inside c fiber-Type-1.32
+*	Dataflow DfRtZn12ToRtZn13         inside c fiber-Type-1.2
+*	Dataflow DfRtZn13ToRtZn14         inside c fiber-Type-1.3
+*	Dataflow DfRtZn14ToRtZn15         inside c fiber-Type-1.8
+*	Dataflow DfRtZn15ToRtZn16         inside c fiber-Type-1.28
+*	Dataflow DfRtZn16ToRtZn17         inside c fiber-Type-1.31
+*	Dataflow DfRtZn17ToRtZn18         inside c fiber-Type-1.18
+*	Dataflow DfRtZn18ToRtZn19         inside c fiber-Type-1.36
+*	Dataflow DfRtZn19ToRtZn20         inside c fiber-Type-1.11
+*	Dataflow DfRtZn20ToRtZn21         inside c fiber-Type-1.21
+*	Dataflow DfRtZn21ToRtZn22         inside c fiber-Type-1.13
+*	Dataflow DfRtZn22ToRtZn23         inside c fiber-Type-1.9
+*	Dataflow DfRtZn23ToRtZn24         inside c fiber-Type-1.1
+*	Dataflow DfRtZn24ToRtZn25         inside c fiber-Type-1.34
+*	Dataflow DfRtZn25ToRtZn26         inside c fiber-Type-1.14
+*	Dataflow DfRtZn26ToRtZn27         inside c fiber-Type-1.12
+*	Dataflow DfRtZn27ToRtZn28         inside c fiber-Type-1.17
+*	Dataflow DfRtZn28ToRtZn29         inside c fiber-Type-1.7
+*	Dataflow DfRtZn29ToRtZn30         inside c fiber-Type-1.6
+*	Dataflow DfRtZn30ToRtZn31         inside c fiber-Type-1.22
+*	Dataflow DfRtZn31ToRtZn32         inside c fiber-Type-1.40
+*	Dataflow DfRtZn32ToRtZn33         inside c fiber-Type-1.27
+*	Dataflow DfRtZn33ToRtZn34         inside c fiber-Type-1.25
+*	Dataflow DfRtZn34ToRtZn35         inside c fiber-Type-1.5
+*	Dataflow DfRtZn35ToRtZn36         inside c fiber-Type-1.33
+*	Dataflow DfRtZn36ToRtZn37         inside c fiber-Type-1.15
+*	Dataflow DfRtZn37ToRtZn38         inside c fiber-Type-1.16
+*	Dataflow DfRtZn38ToRtZn39         inside c fiber-Type-1.26
+*	Dataflow DfRtZn39ToRtZn40         inside c fiber-Type-1.30
+*	Dataflow DfRtZn40ToRtZn41         inside c fiber-Type-1.23
+*	Dataflow DfRtZn41ToRtZn42         inside c fiber-Type-1.29
+*	Dataflow DfRtZn42ToRtZn43         inside c fiber-Type-1.19
+*******************************************************************************
+* STATISTICS
+*******************************************************************************
+* Economic Cost      : 133787.193333
+* 	Nodes            : 111823.36
+* 	Wireless         : 8438.61333333
+* 	Channels         : 13525.22
+* Energy Consumption : 162555.333333
+* 	Nodes            : 145464
+* 	Wireless         : 5309.33333333
+* 	Cable            : 11782.0
+* Total Delay        : 379.333333333
+* 	Wireless         : 293.333333333
+* 	Cable            : 86.0
+* Total Error        : 434.111111111
+* 	Wireless         : 391.111111111
+* 	Cable            : 43.0
+*******************************************************************************
+* RUNNING NETWORK CHECKER
+*******************************************************************************
+* NetworkChecker instantiated...
+*     - Checking if all the tasks have been deployed once...
+*     - Checking if all the dataflows have been deployed...
+*     - Checking if the tasks deployment is compliant with the nodes sizes...
+*     - Checking if cabled channels contain only dataflows which have tasks in the same pair of nodes...
+*     - Checking if a wired channel contains a dataflow with mobile tasks...
+*     - Checking if wireless channels has been placed between zones with zero contiguity...
+*     - Checking if a non-mobile node is hosting a mobile task...
+*******************************************************************************
+* FINAL STATISTICS
+*******************************************************************************
+*	File parsing           : 0.085038 s
+*	Structure creation     : 0.403104 s
+*	Constraints definition : 31.382756 s
+*	Optimization           : 12.6052 s
+*	Total : 44.476098 s
+*******************************************************************************
